@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="renderer" content="webkit" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+        />
+        <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico" />
+        <script>
+            //document.write("<script src='/yat-web/config.js?v=" + Date.now() + "'><\/script>")
+            document.write("<script src='/config.js?v=" + Date.now() + "'><\/script>")
+        </script>
+        <script type="text/javascript" src="/wps_sdk.js"></script>
+        <script src="https://map.qq.com/api/gljs?v=1.exp&key=LYRBZ-HXU6W-EBSRI-OV7CM-AOGZK-24FUW"></script>
+    </head>
+    <body>
+        <div id="app"></div>
+    </body>
+    <script>
+        if (window.platform.pluginFlag) {
+            const curList = [
+                { name: 'WpsAssist', addonType: 'wps', url: window.platform.wpsUrl },
+                { name: 'EtAssist', addonType: 'et', url: window.platform.etUrl },
+                { name: 'WppAssist', addonType: 'wpp', url: window.platform.wppUrl }
+            ]
+            let localList = []
+            let publishIndex = 0
+            let publishUnIndex = 0
+            // 加载项安装函数
+            function installWpsAddin(callBack) {
+                WpsAddonMgr.getAllConfig(function(e) {
+                    if (!e.response || e.response.indexOf('null') >= 0) {
+                        //本地没有加载项，直接安装
+                        if (curList.length > 0) {
+                            installWpsAddinOne(callBack)
+                        }
+                    } else {
+                        //本地有加载项，先卸载原有加载项，然后再安装
+                        localList = JSON.parse(e.response)
+                        unInstallWpsAddinOne(callBack)
+                    }
+                })
+            }
+            // 安装单个加载项
+            function installWpsAddinOne(callBack) {
+                WpsAddonMgr.enable(curList[publishIndex], e => {
+                    if (e.status) {
+                        console.log(e.msg)
+                    } else {
+                        console.log('安装成功')
+                    }
+                    publishIndex++
+                    if (publishIndex < curList.length) {
+                        installWpsAddinOne()
+                    } else {
+                        callBack && callBack()
+                    }
+                })
+            }
+            // 卸载单个加载项
+            function unInstallWpsAddinOne(callBack) {
+                WpsAddonMgr.disable(localList[publishUnIndex], e => {
+                    if (e.status) {
+                        console.log(e.msg)
+                    } else {
+                        console.log('卸载成功')
+                    }
+                    publishUnIndex++
+                    if (publishUnIndex < localList.length) {
+                        unInstallWpsAddinOne(callBack)
+                    } else {
+                        if (curList.length > 0) {
+                            installWpsAddinOne(callBack)
+                        }
+                    }
+                })
+            }
+            window.onload = function() {
+                installWpsAddin()
+            }
+        }
+    </script>
+</html>

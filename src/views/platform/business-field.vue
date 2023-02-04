@@ -1,0 +1,589 @@
+<template>
+	<div>
+		<div class="toolView">
+			<el-button type="text" icon="el-icon-plus" @click="showAddDialog" size="small">新增</el-button>
+		</div>
+		<div class="searchView">
+			<el-form label-width="65px">
+				<el-row>
+					<el-col :span="6">
+						<el-form-item label="名称">
+							<el-input v-model="searchForm.name" clearable placeholder="请输入名称"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="6">
+						<el-form-item label="注释">
+							<el-input v-model="searchForm.remark" clearable placeholder="请输入注释"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="4">
+						<el-button
+							type="primary"
+							icon="el-icon-search"
+							@click.native="handleSearch"
+							style="margin-left: 15px"
+							>查询</el-button
+						>
+					</el-col>
+				</el-row>
+			</el-form>
+		</div>
+		<div class="table">
+			<!--列表-->
+			<el-table :data="tableData" border highlight-current-row stripe>
+				<el-table-column type="index" label="#" width="50" align="center"></el-table-column>
+				<el-table-column
+					prop="name"
+					label="名称"
+					align="center"
+					show-overflow-tooltip
+				></el-table-column>
+				<el-table-column
+					prop="remark"
+					label="注释"
+					align="center"
+					show-overflow-tooltip
+				></el-table-column>
+				<el-table-column
+					prop="type"
+					label="类型"
+					align="center"
+					:formatter="typeFormatter"
+				></el-table-column>
+				<el-table-column label="非空" align="center">
+					<template slot-scope="scope">
+						<el-switch
+							v-model="scope.row.notNull"
+							:active-value="1"
+							:inactive-value="0"
+							@change="notNullchange($event, scope.row)"
+						></el-switch>
+					</template>
+				</el-table-column>
+				<el-table-column prop="length" label="长度" align="center"></el-table-column>
+				<el-table-column prop="decimals" label="小数" align="center"></el-table-column>
+				<el-table-column
+					prop="kind"
+					label="种类"
+					align="center"
+					:formatter="kindFormatter"
+				></el-table-column>
+				<el-table-column label="操作" align="center" width="100">
+					<template slot-scope="scope">
+						<el-button type="text" size="small" @click="showEditDialog(scope.row)"
+							>编辑</el-button
+						>
+						<el-divider direction="vertical"></el-divider>
+						<el-button type="text" size="small" @click="deleteSubmit(scope.row)"
+							>删除</el-button
+						>
+					</template>
+				</el-table-column>
+			</el-table>
+			<!--分页-->
+			<div class="pagination">
+				<el-pagination
+					background
+					@current-change="handleCurrentChange"
+					layout="total, prev, pager, next"
+					:current-page.sync="pageNo"
+					:total="total"
+				>
+				</el-pagination>
+			</div>
+		</div>
+		<!--新增界面-->
+		<el-dialog title="新增" width="750px" :visible.sync="addFormVisible" :close-on-click-modal="false">
+			<el-form :model="addForm" label-width="80px" :rules="rules" ref="addForm">
+				<el-col :span="12">
+					<el-form-item label="字段名" prop="name">
+						<el-input v-model.trim="addForm.name" placeholder="请输入字段名"></el-input>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12">
+					<el-form-item label="类型" prop="type">
+						<el-select v-model="addForm.type" filterable placeholder="请选择类型" @change="typeChange">
+							<el-option
+								label="整数值(-2147483648~2147483647)"
+								value="integer"
+								v-if="datasourceType != 'oracle'"
+							></el-option>
+							<el-option
+								label="大整数值(-9223372036854775808~9223372036854775807)"
+								value="bigint"
+								v-if="datasourceType != 'oracle'"
+							></el-option>
+							<el-option label="小数值" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option
+								label="number(数字值)"
+								value="number"
+								v-if="datasourceType === 'oracle'"
+							></el-option>
+							<el-option label="日期值(YYYY-MM-DD)" value="date"></el-option>
+							<el-option label="日期时间值(YYYY-MM-DD HH:MM:SS)" value="timestamp"></el-option>
+							<el-option label="字符串(0~65535)" value="varchar"></el-option>
+							<el-option label="长文本" value="text"></el-option>
+							<el-option label="json" value="json"></el-option>
+						</el-select>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12" v-if="addForm.type === 'varchar' || addForm.type === 'number'">
+					<el-form-item label="长度" prop="length">
+						<el-input-number
+							v-model="addForm.length"
+							:controls="false"
+							:precision="0"
+							:min="0"
+							:max="3000"
+							placeholder="请输入长度"
+						>
+						</el-input-number>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12" v-if="addForm.type === 'decimal' || addForm.type === 'number'">
+					<el-form-item label="小数" prop="decimals">
+						<el-input-number
+							v-model="addForm.decimals"
+							:controls="false"
+							:precision="0"
+							:min="0"
+							:max="30"
+							placeholder="请输入小数"
+						>
+						</el-input-number>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12">
+					<el-form-item label="注释" prop="remark">
+						<el-input v-model="addForm.remark" placeholder="请输入注释"></el-input>
+					</el-form-item>
+				</el-col>
+				<el-col :span="addForm.type === 'varchar' || addForm.type === 'decimal' ? 24 : 12">
+					<el-form-item label="种类" prop="kind">
+						<el-select v-model="addForm.kind" placeholder="请选择种类">
+							<el-option
+								v-for="item in kindOptions"
+								:key="item.value"
+								:label="item.label"
+								:value="item.value"
+							>
+							</el-option>
+						</el-select>
+					</el-form-item>
+				</el-col>
+				<el-col :span="24">
+					<el-form-item label="是否为空" prop="notNull">
+						<el-switch v-model="addForm.notNull" :active-value="0" :inactive-value="1"> </el-switch>
+					</el-form-item>
+				</el-col>
+				<el-col :span="24" v-if="addForm.type != 'text'">
+					<el-form-item label="默认值" prop="defaultValue">
+						<el-input
+							type="textarea"
+							:rows="6"
+							placeholder="请输入默认值"
+							v-model="addForm.defaultValue"
+							:maxlength="200"
+							:show-word-limit="true"
+						>
+						</el-input>
+					</el-form-item>
+				</el-col>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="addFormVisible = false">取消</el-button>
+				<el-button type="primary" @click="addSubmit">提交</el-button>
+			</div>
+		</el-dialog>
+		<!--编辑界面-->
+		<el-dialog title="编辑" width="750px" :visible.sync="editFormVisible" :close-on-click-modal="false">
+			<el-form :model="editForm" label-width="80px" :rules="rules" ref="editForm">
+				<el-col :span="12">
+					<el-form-item label="字段名" prop="name">
+						<el-input v-model.trim="editForm.name" placeholder="请输入字段名"></el-input>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12">
+					<el-form-item label="类型" prop="type">
+						<el-select
+							v-model="editForm.type"
+							filterable
+							placeholder="请选择类型"
+							@change="typeChange"
+						>
+							<el-option
+								label="整数值(-2147483648~2147483647)"
+								value="integer"
+								v-if="datasourceType != 'oracle'"
+							></el-option>
+							<el-option
+								label="大整数值(-9223372036854775808~9223372036854775807)"
+								value="bigint"
+								v-if="datasourceType != 'oracle'"
+							></el-option>
+							<el-option label="小数值" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option
+								label="number(数字值)"
+								value="number"
+								v-if="datasourceType === 'oracle'"
+							></el-option>
+							<el-option label="date(日期值 YYYY-MM-DD)" value="date"></el-option>
+							<el-option label="日期时间值(YYYY-MM-DD HH:MM:SS)" value="timestamp"></el-option>
+							<el-option label="字符串(0~65535)" value="varchar"></el-option>
+							<el-option label="长文本" value="text"></el-option>
+							<el-option label="json" value="json"></el-option>
+						</el-select>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12" v-if="editForm.type === 'varchar' || editForm.type === 'number'">
+					<el-form-item label="长度" prop="length">
+						<el-input-number
+							v-model="editForm.length"
+							:controls="false"
+							:precision="0"
+							:min="0"
+							:max="3000"
+							placeholder="请输入长度"
+						>
+						</el-input-number>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12" v-if="editForm.type === 'decimal' || editForm.type === 'number'">
+					<el-form-item label="小数" prop="decimals">
+						<el-input-number
+							v-model="editForm.decimals"
+							:controls="false"
+							:precision="0"
+							:min="0"
+							:max="30"
+							placeholder="请输入小数"
+						>
+						</el-input-number>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12">
+					<el-form-item label="注释" prop="remark">
+						<el-input v-model="editForm.remark" placeholder="请输入注释"></el-input>
+					</el-form-item>
+				</el-col>
+				<el-col :span="editForm.type === 'varchar' || editForm.type === 'decimal' ? 24 : 12">
+					<el-form-item label="种类" prop="kind">
+						<el-select v-model="editForm.kind" placeholder="请选择种类">
+							<el-option
+								v-for="item in kindOptions"
+								:key="item.value"
+								:label="item.label"
+								:value="item.value"
+							>
+							</el-option>
+						</el-select>
+					</el-form-item>
+				</el-col>
+				<el-col :span="24">
+					<el-form-item label="是否为空" prop="notNull">
+						<el-switch v-model="editForm.notNull" :active-value="0" :inactive-value="1"> </el-switch>
+					</el-form-item>
+				</el-col>
+				<el-col :span="24" v-if="editForm.type != 'text'">
+					<el-form-item label="默认值" prop="defaultValue">
+						<el-input
+							type="textarea"
+							:rows="6"
+							placeholder="请输入默认值"
+							v-model="editForm.defaultValue"
+							:maxlength="200"
+							:show-word-limit="true"
+						>
+						</el-input>
+					</el-form-item>
+				</el-col>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="editFormVisible = false">取消</el-button>
+				<el-button type="primary" @click="editSubmit">提交</el-button>
+			</div>
+		</el-dialog>
+	</div>
+</template>
+
+<script>
+export default {
+	data() {
+		return {
+			clientHeight: document.documentElement.clientHeight || document.body.clientHeight,
+			searchForm: {
+                name: '',
+				remark: ''
+            },
+			tableData: [],
+			pageNo: 1,
+			total: 0,
+			addFormVisible: false,
+			addForm: {
+				businessTableId: '',
+				name: '',
+				length: 30,
+				decimals: 2,
+				remark: '',
+				kind: 1,
+				type: '',
+				notNull: 0,
+				defaultValue: ''
+			},
+			editFormVisible: false,
+			editForm: {
+				id: '',
+				businessTableId: '',
+				name: '',
+				length: 30,
+				decimals: 2,
+				remark: '',
+				kind: 1,
+				type: '',
+				notNull: 0,
+				defaultValue: ''
+			},
+			rules: {
+				name: [
+					{ required: true, message: '请输入字段名', trigger: 'blur' },
+					{ pattern: /^[a-z_]{1,}$/, message: '只能输入小写英文字母或下划线' }
+				],
+				length: [{ required: true, message: '请输入长度', trigger: 'blur' }],
+				decimals: [{ required: true, message: '请输入小数', trigger: 'blur' }],
+				remark: [{ required: true, message: '请输入注释', trigger: 'blur' }],
+				type: [{ required: true, message: '请选择类型', trigger: 'change' }]
+			},
+			kindOptions: [
+				{
+					label: '基本类型',
+					value: 1
+				},
+				{
+					label: '数据字典',
+					value: 2
+				},
+				{
+					label: '单位',
+					value: 3
+				},
+				{
+					label: '部门',
+					value: 4
+				},
+				{
+					label: '用户',
+					value: 5
+				},
+				{
+					label: '省市区',
+					value: 6
+				}
+			]
+		}
+	},
+	computed: {
+		datasourceType() {
+			return localStorage.getItem('_databaseId')
+		}
+	},
+	mounted() {
+		this.queryByPage()
+	},
+	methods: {
+		queryByPage() {
+			let that = this
+			const params = {
+				pageNo: this.pageNo,
+				businessTableId: this.$route.query.businessTableId,
+				name: this.searchForm.name,
+				remark: this.searchForm.remark
+			}
+			that.$axios.get('businessField/queryByPage', { params }).then(res => {
+				if (res.data.code == 200) {
+					that.tableData = res.data.data.list
+					that.total = res.data.data.total
+				}
+			})
+		},
+		handleSearch() {
+            this.pageNo = 1
+            this.queryByPage()
+        },
+		handleCurrentChange(val) {
+			this.queryByPage()
+		},
+		//显示新增界面
+		showAddDialog() {
+			this.addFormVisible = true
+			if (this.$refs.addForm) {
+				this.$refs.addForm.resetFields()
+			}
+			this.addForm.businessTableId = this.$route.query.businessTableId
+		},
+		//新增
+		addSubmit() {
+			let that = this
+			if (that.addForm.type === 'varchar') {
+				if (that.addForm.length == 0) {
+					that.$message.error('长度不能为0')
+					return
+				}
+			}
+			this.$refs.addForm.validate(valid => {
+				if (valid) {
+					that.$axios.post('businessField/insert', that.addForm).then(res => {
+						if (res.data.code == 200) {
+							that.$message.success('新增成功')
+							that.addFormVisible = false
+							that.queryByPage()
+						} else {
+							that.$message.error(res.data.message)
+						}
+					})
+				}
+			})
+		},
+		//显示编辑界面
+		showEditDialog(row) {
+			let that = this
+			this.editForm = Object.assign({}, row)
+			this.editFormVisible = true
+			if (this.$refs.editForm) {
+				this.$refs.editForm.resetFields()
+			}
+		},
+		//编辑
+		editSubmit() {
+			let that = this
+			if (that.editForm.type === 'varchar') {
+				if (that.editForm.length == 0) {
+					that.$message.error('长度不能为0')
+					return
+				}
+			}
+			this.$refs.editForm.validate(valid => {
+				if (valid) {
+					that.$axios.post('businessField/update', that.editForm).then(res => {
+						if (res.data.code == 200) {
+							that.$message.success('修改成功')
+							that.editFormVisible = false
+							that.queryByPage()
+						} else {
+							that.$message.error(res.data.message)
+						}
+					})
+				}
+			})
+		},
+		deleteSubmit(row) {
+			let that = this
+			this.$confirm('亲，确认要删除吗', '提示', { type: 'warning' }).then(() => {
+				that.$axios.post('businessField/delete/' + row.id, {}).then(res => {
+					if (res.data.code == 200) {
+						that.$message.success('删除成功')
+						that.pageNo = 1
+						that.queryByPage()
+					} else {
+						that.$message.error(res.data.message)
+					}
+				})
+			})
+		},
+		typeFormatter(row) {
+			if (row.type === 'int' || row.type === 'integer') {
+				return '整数值'
+			} else if (row.type === 'bigint') {
+				return '大整数值'
+			} else if (row.type === 'decimal') {
+				return '小数值'
+			} else if (row.type === 'number') {
+				return '数字值'
+			} else if (row.type === 'date') {
+				return '日期值'
+			} else if (row.type === 'timestamp') {
+				return '日期时间值'
+			} else if (row.type === 'varchar') {
+				return '字符串'
+			} else if (row.type === 'text') {
+				return '长文本'
+			} else {
+				return row.type
+			}
+		},
+		kindFormatter(row) {
+			if (row.kind === 1) {
+				return '基本类型'
+			} else if (row.kind === 2) {
+				return '数据字典'
+			} else if (row.kind === 3) {
+				return '单位'
+			} else if (row.kind === 4) {
+				return '部门'
+			} else if (row.kind === 5) {
+				return '用户'
+			} else if (row.kind === 6) {
+				return '省市区'
+			} else {
+				return '其他'
+			}
+		},
+		notNullchange(value, row) {
+			let that = this
+			that.$axios.post('businessField/update', row).then(res => {
+				if (res.data.code == 200) {
+					that.$message.success('修改成功')
+				} else {
+					that.$message.error(res.data.message)
+				}
+			})
+		},
+		typeChange(value) {
+			if (value === 'text') {
+				if (this.addFormVisible) {
+					this.addForm.decimals = 0
+					this.addForm.defaultValue = ''
+				} else {
+					this.addForm.decimals = 0
+					this.editForm.defaultValue = ''
+				}
+			} else if (value === 'number') {
+				if (this.addFormVisible) {
+					this.addForm.decimals = 2
+				} else {
+					this.editForm.decimals = 2
+				}
+			} else {
+				if (this.addFormVisible) {
+					this.addForm.decimals = 0
+				} else {
+					this.editForm.decimals = 0
+				}
+			}
+		}
+	}
+}
+</script>
+<style scoped>
+::v-deep .is-without-controls .el-input .el-input__inner {
+	text-align: left;
+}
+.add-classify {
+	border: 1px dashed #e5e9f2;
+	border-radius: 6px;
+	text-align: center;
+	padding: 8px;
+	margin-bottom: 15px;
+	cursor: pointer;
+}
+::v-deep .el-table__body tr.current-row td:not(.is-center) {
+	border-top-left-radius: 8px !important;
+	border-bottom-left-radius: 8px !important;
+}
+::v-deep .el-aside .el-table__body tr.current-row .is-center {
+	border-top-right-radius: 8px !important;
+	border-bottom-right-radius: 8px !important;
+}
+::v-deep .aside .el-table td {
+	border-bottom: 0px solid #ebeef5;
+}
+</style>
