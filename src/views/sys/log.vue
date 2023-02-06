@@ -40,7 +40,7 @@
 					align="center"
 					:formatter="statusFormatter"
 				></el-table-column>
-				<el-table-column prop="create_time" label="操作时间" align="center" width="175"></el-table-column>
+				<el-table-column prop="createTime" label="操作时间" align="center" width="175"></el-table-column>
 				<el-table-column label="操作" align="center">
 					<template slot-scope="scope">
 						<el-button type="text" icon="el-icon-view" size="small" @click="showDetailDialog(scope.row)"
