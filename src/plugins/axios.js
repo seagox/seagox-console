@@ -6,7 +6,7 @@ import md5 from 'md5'
 
 import router from '@/router'
 
-const key = 'yVwlsbIrY3q22EnoYYM4nR5zqTmqed05'
+const key = '61e2znsKMY75Q9YjaI4719xHJcllvMRy'
 
 axios.defaults.baseURL = process.env.NODE_ENV === 'production' ? `${window.platform.url}` : '/api/'
 

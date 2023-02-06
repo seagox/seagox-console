@@ -14,16 +14,13 @@ export default {
 				'/login',
 				'/home',
 				'/excel',
-				'/editor',
-				'/markdown',
 				'/flowDesigner',
 				'/flowDisplay',
 				'/simplifyDesign',
 				'/seniorDesign',
 				'/printDesign',
 				'/gaugeSetting',
-				'/doorSetting',
-				'/rtc'
+				'/doorSetting'
 			]
 		}
 	},
