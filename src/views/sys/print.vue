@@ -41,7 +41,7 @@
 						<el-option
 							v-for="item in dataSourceOptions"
 							:key="item.id"
-							:label="item.comment"
+							:label="item.remark"
 							:value="String(item.id)"
 						>
 						</el-option>
@@ -64,7 +64,7 @@
 						<el-option
 							v-for="item in dataSourceOptions"
 							:key="item.id"
-							:label="item.comment"
+							:label="item.remark"
 							:value="String(item.id)"
 						>
 						</el-option>
