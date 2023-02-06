@@ -198,10 +198,8 @@ export default {
                 newPassword: [
                     { required: true, message: '请输入新密码', trigger: 'blur' },
                     {
-                        pattern: window.platform.passwordStrength == null || window.platform.passwordStrength === 'strong' ? /(?=.*[a-z])(?=.*\d)(?=.*[^a-z0-9])[\S]{8,}/i :
-                            (window.platform.passwordStrength === 'medium' ? /(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{8,}/i : /[0-9A-Za-z]{6,}/i),
-                        message: window.platform.passwordStrength == null || window.platform.passwordStrength === 'strong' ? '密码必须包含字母、数字和特殊字符，且长度至少8位':
-                            (window.platform.passwordStrength === 'medium' ? '密码必须包含字母和数字，且长度至少8位' : '密码必须包含字母或数字，且长度至少6位'),
+                        pattern: /(?=.*[a-z])(?=.*\d)(?=.*[^a-z0-9])[\S]{8,}/i,
+                        message: '密码必须包含字母、数字和特殊字符，且长度至少8位',
                         trigger: 'blur'
                     },
                     { validator: checkOld, trigger: 'blur' }

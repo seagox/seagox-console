@@ -1,51 +1,5 @@
 <template>
-    <div
-        v-if="loginType"
-        :style="{
-            width: '100%',
-            height: clientHeight + 'px',
-            background: 'url(' + backgroundImage + ') no-repeat',
-            'background-size': '100% 100%'
-        }"
-    >
-        <el-row>
-            <el-col
-                :span="6"
-                :offset="9"
-                :style="{
-                    position: 'relative',
-                    height: clientHeight + 'px'
-                }"
-            >
-                <div class="form">
-                    <div class="title" style="font-size: 28px;">欢 迎 登 录</div>
-                    <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
-                        <el-form-item prop="account">
-                            <el-input
-                                v-model="ruleForm.account"
-                                placeholder="请输入用户名"
-                                prefix-icon="el-icon-user"
-                            ></el-input>
-                        </el-form-item>
-                        <el-form-item prop="password">
-                            <el-input
-                                type="password"
-                                v-model="ruleForm.password"
-                                placeholder="请输入密码"
-                                prefix-icon="el-icon-lock"
-                                @keyup.enter.native="onEnter"
-                                show-password
-                            ></el-input>
-                        </el-form-item>
-                        <div class="login-btn">
-                            <el-button type="primary" @click="submitForm('ruleForm')"> 登 录 </el-button>
-                        </div>
-                    </el-form>
-                </div>
-            </el-col>
-        </el-row>
-    </div>
-    <div v-else>
+    <div>
         <el-row>
             <el-col :span="13">
                 <div
@@ -89,7 +43,6 @@
                         </div>
                     </el-form>
                 </div>
-                <div class="footer">Copyright © 福建财通信息科技有限公司. All Rights Reserved.</div>
             </el-col>
         </el-row>
     </div>
@@ -310,12 +263,5 @@ export default {
 .login-btn button {
     width: 100%;
     height: 44px;
-}
-.footer {
-    width: 100%;
-    color: #526484;
-    position: absolute;
-    bottom: 15px;
-    text-align: center;
 }
 </style>
