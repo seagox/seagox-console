@@ -156,7 +156,6 @@ export default {
 			} else {
 				this.activeFlag = true
 				this.activeRow = row || {}
-				this.activeRow.parentId = row.parent_id
 				this.$nextTick(() => {
 					if (row) {
 						this.$refs.codemirror.editor.setSize('auto', 585)
