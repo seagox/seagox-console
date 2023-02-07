@@ -49,8 +49,6 @@
 </template>
 
 <script>
-import client from 'webpack-theme-color-replacer/client'
-import forElementUI from 'webpack-theme-color-replacer/forElementUI'
 export default {
     data() {
         return {
@@ -68,13 +66,11 @@ export default {
     beforeMount() {
         this.clientHeight = document.documentElement.clientHeight || document.body.clientHeight
         this.backgroundImage = require('@/' + window.platform.backgroundImage)
-        this.loginType = window.platform.loginType
     },
     created() {
         localStorage.clear()
         this.queryRegions()
         localStorage.setItem('title', window.platform.title)
-        this.verifyLogin()
     },
     methods: {
         async queryRegions() {
@@ -88,73 +84,6 @@ export default {
                 this.submitForm('ruleForm')
             }
         },
-        verifyLogin() {
-            let that = this
-            if (JSON.stringify(this.$route.query) != '{}') {
-                this.$axios.post('/cloud/entrance/verifyLogin', this.$route.query).then(res => {
-                    if (res.data.code == 200) {
-                      if (res.data.data.jcyorg){
-                        localStorage.setItem('jcyorg', res.data.data.jcyorg)
-                      }
-                        localStorage.setItem('color', res.data.data.color || '#0574d5')
-                        if (res.data.data.color) {
-                            var options = {
-                                newColors: [...forElementUI.getElementUISeries(res.data.data.color)]
-                            }
-                            client.changer.changeColor(options, Promise).then(() => {})
-                        }
-                        localStorage.setItem('alias', res.data.data.alias)
-                        localStorage.setItem('logo', res.data.data.logo)
-                        localStorage.setItem('mark', res.data.data.mark)
-                        localStorage.setItem('companyId', res.data.data.company[0].id)
-                        localStorage.setItem('companyName', res.data.data.company[0].name)
-                        localStorage.setItem('Authorization', res.data.data.tokenType + res.data.data.accessToken)
-                        if (res.data.data.permissions) {
-                            localStorage.setItem('permissions', res.data.data.permissions.split(','))
-                        } else {
-                            localStorage.setItem('permissions', 'no')
-                        }
-                        if (res.data.data.roleIds) {
-                            localStorage.setItem('roleIds', res.data.data.roleIds.split(','))
-                        } else {
-                            localStorage.setItem('roleIds', 'no')
-                        }
-                        if (res.data.data.roleNames) {
-                            localStorage.setItem('roleNames', res.data.data.roleNames.split(','))
-                        } else {
-                            localStorage.setItem('roleNames', 'no')
-                        }
-                        localStorage.setItem('departmentId', res.data.data.departmentId)
-                        localStorage.setItem('avatar', res.data.data.avatar)
-                        localStorage.setItem('userId', res.data.data.userId)
-                        localStorage.setItem('account', res.data.data.account)
-                        localStorage.setItem('name', res.data.data.name)
-                        localStorage.setItem('company', JSON.stringify(res.data.data.company))
-                        localStorage.setItem('_databaseId', res.data.data.datasourceType)
-                        // 动态路由添加
-                        localStorage.setItem('routes', JSON.stringify(res.data.data.routes))
-                        that.$store.commit('handleAddRouter', true)
-                        let routes = res.data.data.routes
-                        for (let i = 0; i < routes.length; i++) {
-                            that.$router.addRoute('home', {
-                                name: routes[i].path,
-                                path: '/' + routes[i].path,
-                                component: resolve => require([`@/views/${routes[i].path}`], resolve),
-                                meta: {
-                                    title: routes[i].name
-                                }
-                            })
-                        }
-                        that.$router.replace({
-                            path: that.$route.query.redirect || '/readme'
-                        })
-                        that.$store.commit('handleLogin')
-                    } else {
-                        that.$message.error(res.data.message)
-                    }
-                })
-            }
-        },
         submitForm(formName) {
             var that = this
             that.$refs[formName].validate(valid => {
@@ -163,12 +92,6 @@ export default {
                     that.$axios.post('auth/login', params).then(res => {
                         if (res.data.code == 200) {
                             localStorage.setItem('color', res.data.data.color || '#0574d5')
-                            if (res.data.data.color) {
-                                var options = {
-                                    newColors: [...forElementUI.getElementUISeries(res.data.data.color)]
-                                }
-                                client.changer.changeColor(options, Promise).then(() => {})
-                            }
                             localStorage.setItem('alias', res.data.data.alias)
                             localStorage.setItem('logo', res.data.data.logo)
                             localStorage.setItem('mark', res.data.data.mark)
@@ -199,21 +122,6 @@ export default {
                             localStorage.setItem('company', JSON.stringify(res.data.data.company))
 
                             localStorage.setItem('_databaseId', res.data.data.datasourceType)
-
-                            // 动态路由添加
-                            localStorage.setItem('routes', JSON.stringify(res.data.data.routes))
-                            that.$store.commit('handleAddRouter', true)
-                            let routes = res.data.data.routes
-                            for (let i = 0; i < routes.length; i++) {
-                                that.$router.addRoute('home', {
-                                    name: routes[i].path,
-                                    path: '/' + routes[i].path,
-                                    component: resolve => require([`@/views/${routes[i].path}`], resolve),
-                                    meta: {
-                                        title: routes[i].name
-                                    }
-                                })
-                            }
 
                             that.$router.replace({
                                 path: that.$route.query.redirect || '/readme'

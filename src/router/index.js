@@ -98,14 +98,6 @@ const routes = [
                 }
             },
             {
-                name: 'platform',
-                path: '/platform',
-                component: () => import('@/views/layout/platform'),
-                meta: {
-                    title: '平台配置'
-                }
-            },
-            {
                 name: 'company',
                 path: '/company',
                 component: () => import('@/views/platform/company'),
@@ -178,27 +170,11 @@ const routes = [
                 }
             },
             {
-                name: 'procedure',
-                path: '/procedure',
-                component: () => import('@/views/platform/procedure'),
-                meta: {
-                    title: '存储过程'
-                }
-            },
-            {
                 name: 'test',
                 path: '/test',
                 component: () => import('@/views/platform/test'),
                 meta: {
                     title: '测试页面'
-                }
-            },
-            {
-                name: 'sys',
-                path: '/sys',
-                component: () => import('@/views/layout/sys-application'),
-                meta: {
-                    title: '系统配置'
                 }
             },
             {
@@ -353,11 +329,9 @@ const routes = [
 
 const router = new VueRouter({
     mode: 'history',
-    //base: 'yat-web',
+    //base: 'console',
     routes
 })
-
-import store from '@/store/index'
 
 router.beforeEach((to, from, next) => {
     if (window.platform) {
@@ -367,55 +341,9 @@ router.beforeEach((to, from, next) => {
     }
     var authorization = localStorage.getItem('Authorization')
     if (authorization) {
-        if (!store.state.isAddRouter) {
-            store.commit('handleAddRouter', true)
-            // 动态路由
-            let dyRoutes = JSON.parse(localStorage.getItem('routes'))
-            if (dyRoutes) {
-                for (let i = 0; i < dyRoutes.length; i++) {
-                    let dyRoute = dyRoutes[i]
-                    if (dyRoute.type === 9) {
-                        router.addRoute({
-                            name: dyRoute.path,
-                            path: encodeURI('/' + dyRoute.path),
-                            component: resolve => require([`@/views/${dyRoute.path}`], resolve),
-                            meta: {
-                                title: dyRoute.name
-                            }
-                        })
-                    } else {
-                        let pathStr = dyRoute.path
-                        let queryStr = pathStr.split('?')[1]
-                        let keyObj = {}
-                        if (queryStr != '' && queryStr != undefined && queryStr != null) {
-                            let list = queryStr.split('&')
-                            list.forEach(element => {
-                                let queryObj = element.split('=')
-                                keyObj[queryObj[0]] = queryObj[1]
-                            })
-                            dyRoute.path = pathStr.split('?')[0]
-                            dyRoute.query = keyObj
-                        }
-                        router.addRoute('home', {
-                            name: dyRoute.path,
-                            path: encodeURI('/' + dyRoute.path),
-                            component: resolve => require([`@/views/${dyRoute.path}`], resolve),
-                            query: dyRoute.query,
-                            meta: {
-                                title: dyRoute.name
-                            }
-                        })
-                    }
-                }
-                next({ ...to, replace: true })
-            } else {
-                next()
-            }
-        } else {
-            next()
-        }
+        next()
     } else {
-        if (to.path === '/' || to.path === '/login' || to.path === '/wps' || to.path === '/rtc') {
+        if (to.path === '/' || to.path === '/login') {
             next()
         } else {
             next('/login')

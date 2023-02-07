@@ -1,14 +1,7 @@
 <template>
     <div>
-        <top @changeTheme="changeTheme" />
-        <sidebar ref="leftmenu" />
-        <div
-            class="content"
-            :style="{
-                left: isCollapse ? '64px' : '230px',
-                width: isCollapse ? 'calc(100% - 64px)' : 'calc(100% - 230px)'
-            }"
-        >
+        <top />
+        <div class="content">
             <worktab />
             <div style="height: calc(100% - 49px); overflow: auto">
                 <keep-alive>
@@ -22,25 +15,15 @@
 
 <script>
 import top from '@/views/layout/top'
-import sidebar from '@/views/layout/sidebar'
 import worktab from '@/views/layout/worktab'
 export default {
     components: {
         top,
-        sidebar,
         worktab
     },
     computed: {
         key() {
             return this.$route.fullPath
-        },
-        isCollapse() {
-            return this.$store.state.isCollapse
-        }
-    },
-    methods: {
-        changeTheme() {
-            this.$refs.leftmenu.getBG()
         }
     }
 }
@@ -49,6 +32,7 @@ export default {
 .content {
     position: absolute;
     top: 60px;
+    width: 100%;
     height: calc(100% - 60px);
     overflow-y: auto;
     overflow-x: hidden;

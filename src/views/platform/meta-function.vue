@@ -61,12 +61,6 @@
 		<!--新增界面-->
 		<el-dialog title="新增" width="500px" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="rules" ref="addForm">
-				<el-form-item label="父节点" prop="parentId">
-					<el-select v-model="addForm.parentId" placeholder="请选择父节点" clearable>
-						<el-option v-for="item in tableData" :key="item.id" :label="item.name" :value="item.id">
-						</el-option>
-					</el-select>
-				</el-form-item>
 				<el-form-item label="名称" prop="name">
 					<el-input v-model="addForm.name" placeholder="请输入名称"></el-input>
 				</el-form-item>
@@ -82,12 +76,6 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" width="500px" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="rules" ref="editForm">
-				<el-form-item label="父节点" prop="parentId">
-					<el-select v-model="editForm.parentId" placeholder="请选择父节点" clearable>
-						<el-option v-for="item in tableData" :key="item.id" :label="item.name" :value="item.id">
-						</el-option>
-					</el-select>
-				</el-form-item>
 				<el-form-item label="名称" prop="name">
 					<el-input v-model.trim="editForm.name" placeholder="请输入名称"></el-input>
 				</el-form-item>
@@ -115,7 +103,6 @@ export default {
 			tableData: [],
 			addFormVisible: false,
 			addForm: {
-				parentId: '',
 				name: '',
 				path: '',
 				script: ''
@@ -123,7 +110,6 @@ export default {
 			editFormVisible: false,
 			editForm: {
 				id: '',
-				parentId: '',
 				name: '',
 				path: '',
 				script: ''
@@ -199,30 +185,25 @@ export default {
 			})
 		},
 		editTableSubmit() {
-			if (this.editForm.id == this.editForm.parentId) {
-				this.$message.error('父节点不能自己')
-			} else {
-				var params = {
-					id: this.editForm.id,
-					parentId: this.editForm.parentId,
-					name: this.editForm.name,
-					path: this.editForm.path,
-					script: this.editForm.script
-				}
-				this.$refs.editForm.validate(valid => {
-					if (valid) {
-						this.$axios.post('metaFunction/update', params).then(res => {
-							if (res.data.code == 200) {
-								this.$message.success('修改成功')
-								this.editFormVisible = false
-								this.queryTable()
-							} else {
-								this.$message.error(res.data.message)
-							}
-						})
-					}
-				})
+			var params = {
+				id: this.editForm.id,
+				name: this.editForm.name,
+				path: this.editForm.path,
+				script: this.editForm.script
 			}
+			this.$refs.editForm.validate(valid => {
+				if (valid) {
+					this.$axios.post('metaFunction/update', params).then(res => {
+						if (res.data.code == 200) {
+							this.$message.success('修改成功')
+							this.editFormVisible = false
+							this.queryTable()
+						} else {
+							this.$message.error(res.data.message)
+						}
+					})
+				}
+			})
 		},
 		deleteTableSubmit(row) {
 			this.$confirm('亲，确认要删除吗？', '提示', { type: 'warning' }).then(() => {
