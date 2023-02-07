@@ -87,7 +87,7 @@
 								align="center"
 							></el-table-column>
 							<el-table-column
-								property="comment"
+								property="remark"
 								label="审批意见"
 								show-overflow-tooltip
 								align="center"
