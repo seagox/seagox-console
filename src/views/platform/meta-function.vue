@@ -188,7 +188,7 @@ export default {
         },
         deleteSubmit(row) {
             this.$confirm('亲，确认要删除吗？', '提示', { type: 'warning' }).then(() => {
-                that.$axios.post('metaFunction/delete/' + row.id, {}).then(res => {
+                this.$axios.post('metaFunction/delete/' + row.id, { path: row.path}).then(res => {
                     if (res.data.code == 200) {
                         this.$message.success('删除成功')
                         this.pageNo = 1
