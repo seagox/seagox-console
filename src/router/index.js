@@ -77,14 +77,6 @@ const routes = [
         }
     },
     {
-        path: '/flowDisplay',
-        name: 'flowDisplay',
-        component: () => import('@/views/flow/flow-display'),
-        meta: {
-            title: '流程查看'
-        }
-    },
-    {
         name: 'home',
         path: '/home',
         component: () => import('@/views/layout/home'),
@@ -175,14 +167,6 @@ const routes = [
                 component: () => import('@/views/platform/task-scheduler'),
                 meta: {
                     title: '定时任务'
-                }
-            },
-            {
-                name: 'test',
-                path: '/test',
-                component: () => import('@/views/platform/test'),
-                meta: {
-                    title: '测试页面'
                 }
             },
             {
@@ -321,14 +305,6 @@ const routes = [
                 component: () => import('@/views/sys/import'),
                 meta: {
                     title: '导入配置'
-                }
-            },
-            {
-                name: 'runCode',
-                path: '/runCode',
-                component: () => import('@/views/layout/run-code'),
-                meta: {
-                    keepAlive: true
                 }
             }
         ]
