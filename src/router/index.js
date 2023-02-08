@@ -130,11 +130,27 @@ const routes = [
                 }
             },
             {
+                name: 'editMetaFunction',
+                path: '/editMetaFunction',
+                component: () => import('@/views/platform/edit-meta-function'),
+                meta: {
+                    title: '编辑元函数'
+                }
+            },
+            {
                 name: 'metaPage',
                 path: '/metaPage',
                 component: () => import('@/views/platform/meta-page'),
                 meta: {
                     title: '元页面'
+                }
+            },
+            {
+                name: 'editMetaPage',
+                path: '/editMetaPage',
+                component: () => import('@/views/platform/edit-meta-page'),
+                meta: {
+                    title: '编辑元页面'
                 }
             },
             {
