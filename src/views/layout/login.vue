@@ -98,21 +98,6 @@ export default {
                             localStorage.setItem('companyId', res.data.data.company[0].id)
                             localStorage.setItem('companyName', res.data.data.company[0].name)
                             localStorage.setItem('Authorization', res.data.data.tokenType + res.data.data.accessToken)
-                            if (res.data.data.permissions) {
-                                localStorage.setItem('permissions', res.data.data.permissions.split(','))
-                            } else {
-                                localStorage.setItem('permissions', 'no')
-                            }
-                            if (res.data.data.roleIds) {
-                                localStorage.setItem('roleIds', res.data.data.roleIds.split(','))
-                            } else {
-                                localStorage.setItem('roleIds', 'no')
-                            }
-                            if (res.data.data.roleNames) {
-                                localStorage.setItem('roleNames', res.data.data.roleNames.split(','))
-                            } else {
-                                localStorage.setItem('roleNames', 'no')
-                            }
                             localStorage.setItem('departmentId', res.data.data.departmentId)
 
                             localStorage.setItem('avatar', res.data.data.avatar)

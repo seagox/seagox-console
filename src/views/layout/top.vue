@@ -195,11 +195,6 @@ export default {
                     localStorage.setItem('companyId', res.data.data.companyId)
                     localStorage.setItem('companyName', res.data.data.companyName)
                     localStorage.setItem('Authorization', res.data.data.tokenType + res.data.data.accessToken)
-                    if (res.data.data.permissions) {
-                        localStorage.setItem('permissions', res.data.data.permissions.split(','))
-                    } else {
-                        localStorage.setItem('permissions', 'no')
-                    }
                     localStorage.setItem('departmentId', res.data.data.departmentId)
 
                     that.$router.go(0)
