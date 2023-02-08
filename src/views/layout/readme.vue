@@ -58,15 +58,6 @@
 		</div>
 		<div class="container">
 			<div>
-				<div class="content" @click="handleClick('/businessRule')">
-					<div
-						class="content-icon"
-						:style="{ 'background-image': `url(${require('@/assets/plugin/rule.png')})` }"
-					></div>
-				</div>
-				<div class="title">规则引擎</div>
-			</div>
-			<div>
 				<div class="content" @click="handleClick('/taskScheduler')">
 					<div
 						class="content-icon"
@@ -111,8 +102,6 @@
 				</div>
 				<div class="title">表单管理</div>
 			</div>
-		</div>
-		<div class="container">
 			<div>
 				<div class="content" @click="handleClick('/gauge')">
 					<div
@@ -122,6 +111,8 @@
 				</div>
 				<div class="title">仪表板</div>
 			</div>
+		</div>
+		<div class="container">
 			<div>
 				<div class="content" @click="handleClick('/door')">
 					<div
@@ -167,8 +158,6 @@
 				</div>
 				<div class="title">流程定义</div>
 			</div>
-		</div>
-		<div class="container">
 			<div>
 				<div class="content" @click="handleClick('/report')">
 					<div
@@ -178,6 +167,8 @@
 				</div>
 				<div class="title">报表管理</div>
 			</div>
+		</div>
+		<div class="container">
 			<div>
 				<div class="content" @click="handleClick('/inform')">
 					<div
@@ -195,6 +186,9 @@
 					></div>
 				</div>
 				<div class="title">导入配置</div>
+			</div>
+			<div>
+				<div class="not-content"><div class="content-icon"></div></div>
 			</div>
 			<div>
 				<div class="not-content"><div class="content-icon"></div></div>

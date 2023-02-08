@@ -170,14 +170,6 @@ const routes = [
                 }
             },
             {
-                name: 'businessRule',
-                path: '/businessRule',
-                component: () => import('@/views/platform/business-rule'),
-                meta: {
-                    title: '规则脚本'
-                }
-            },
-            {
                 name: 'taskScheduler',
                 path: '/taskScheduler',
                 component: () => import('@/views/platform/task-scheduler'),

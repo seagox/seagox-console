@@ -292,7 +292,7 @@ export default {
 			}
 		},
 		async queryRule() {
-			let res = await this.$axios.get('businessRule/queryByCompanyId')
+			let res = await this.$axios.get('metaFunction/queryByCompanyId')
 			if (res.data.code == 200) {
 				this.preconditionOptions = res.data.data
 			}
