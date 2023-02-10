@@ -170,22 +170,16 @@
 		</div>
 		<div class="container">
 			<div>
-				<div class="content" @click="handleClick('/inform')">
-					<div
-						class="content-icon"
-						:style="{ 'background-image': `url(${require('@/assets/plugin/inform.png')})` }"
-					></div>
-				</div>
-				<div class="title">报告模板</div>
-			</div>
-			<div>
 				<div class="content" @click="handleClick('/import')">
 					<div
 						class="content-icon"
-						:style="{ 'background-image': `url(${require('@/assets/plugin/procedure.png')})` }"
+						:style="{ 'background-image': `url(${require('@/assets/plugin/import.png')})` }"
 					></div>
 				</div>
 				<div class="title">导入配置</div>
+			</div>
+			<div>
+				<div class="not-content"><div class="content-icon"></div></div>
 			</div>
 			<div>
 				<div class="not-content"><div class="content-icon"></div></div>

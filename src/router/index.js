@@ -292,14 +292,6 @@ const routes = [
                 }
             },
             {
-                name: 'inform',
-                path: '/inform',
-                component: () => import('@/views/sys/inform'),
-                meta: {
-                    title: '报告模板'
-                }
-            },
-            {
                 name: 'import',
                 path: '/import',
                 component: () => import('@/views/sys/import'),
