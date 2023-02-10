@@ -4,8 +4,6 @@
 	</div>
 </template>
 <script>
-import client from 'webpack-theme-color-replacer/client'
-import forElementUI from 'webpack-theme-color-replacer/forElementUI'
 export default {
 	data() {
 		return {
@@ -13,17 +11,12 @@ export default {
 				'/',
 				'/login',
 				'/home',
-				'/excel',
-				'/editor',
-				'/markdown',
 				'/flowDesigner',
-				'/flowDisplay',
 				'/simplifyDesign',
 				'/seniorDesign',
 				'/printDesign',
 				'/gaugeSetting',
-				'/doorSetting',
-				'/rtc'
+				'/doorSetting'
 			]
 		}
 	},
@@ -41,20 +34,6 @@ export default {
 						path: to.fullPath
 					}
 				})
-			}
-		}
-	},
-	created() {
-		this.changeColor()
-	},
-	methods: {
-		changeColor() {
-			let color = localStorage.getItem('color')
-			if (color) {
-				var options = {
-					newColors: [...forElementUI.getElementUISeries(color)]
-				}
-				client.changer.changeColor(options, Promise).then(() => {})
 			}
 		}
 	}

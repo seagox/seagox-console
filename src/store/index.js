@@ -40,12 +40,6 @@ export default new Vuex.Store({
             }
             state.worktab = worktab
         },
-        handleCollapse(state) {
-            state.isCollapse = !state.isCollapse
-        },
-        handleAddRouter(state, p) {
-            state.isAddRouter = p
-        },
         worktabRemove(state, p) {
             // 关闭标签
             const index = state.worktab.list.findIndex(item => item.path === p)

@@ -1,14 +1,12 @@
 const CompressionPlugin = require('compression-webpack-plugin')
-const ThemeColorReplacer = require('webpack-theme-color-replacer')
-const forElementUI = require('webpack-theme-color-replacer/forElementUI')
 module.exports = {
-    //publicPath:'/yat-web/',
+    //publicPath:'/console/',
     runtimeCompiler: true,
     productionSourceMap: false,
     devServer: {
         open: true,
         host: '0.0.0.0',
-        port: 8080,
+        port: 8081,
         https: false,
         hotOnly: true,
         proxy: {
@@ -46,23 +44,6 @@ module.exports = {
                         test: /\.js$|\.html$|\.css/, //匹配文件名
                         threshold: 10240, //对超过10k的数据进行压缩
                         deleteOriginalAssets: false //是否删除原文件
-                    }),
-                    new ThemeColorReplacer({
-                        matchColors: [...forElementUI.getElementUISeries('#409EFF')],
-                        fileName: 'css/theme-colors-[contenthash:8].css',
-                        changeSelector: forElementUI.changeSelector,
-                        isJsUgly: process.env.NODE_ENV === 'production' ? true : undefined
-                    })
-                ]
-            }
-        } else {
-            return {
-                plugins: [
-                    new ThemeColorReplacer({
-                        matchColors: [...forElementUI.getElementUISeries('#409EFF')],
-                        fileName: 'css/theme-colors-[contenthash:8].css',
-                        changeSelector: forElementUI.changeSelector,
-                        isJsUgly: process.env.NODE_ENV === 'production' ? true : undefined
                     })
                 ]
             }

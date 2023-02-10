@@ -2,6 +2,19 @@
 	<div>
 		<div class="toolView">
 			<el-button type="text" icon="el-icon-plus" @click="showAddDialog" size="small">新增</el-button>
+			<el-upload
+				style="display:inline;margin-left:10px;margin-right:10px;"
+				:action="action"
+				:show-file-list="false"
+				accept=".xlsx,.xls"
+				:headers="headers"
+				:before-upload="beforeUpload"
+				:on-success="successHandle"
+				:data="uploadParams"
+			>
+				<el-button type="text" icon="el-icon-upload2">导入</el-button>
+			</el-upload>
+			<el-button type="text" icon="el-icon-download" @click="downloadTemplate" size="small">下载模版</el-button>
 		</div>
 		<div class="searchView">
 			<el-form label-width="65px">
@@ -310,6 +323,13 @@
 export default {
 	data() {
 		return {
+			action: this.$axios.defaults.baseURL + 'businessField/import',
+			headers: {
+				Authorization: localStorage.getItem('Authorization')
+			},
+			uploadParams: {
+				tableId: this.$route.query.businessTableId
+			},
 			clientHeight: document.documentElement.clientHeight || document.body.clientHeight,
 			searchForm: {
                 name: '',
@@ -390,20 +410,18 @@ export default {
 		this.queryByPage()
 	},
 	methods: {
-		queryByPage() {
-			let that = this
+		async queryByPage() {
 			const params = {
 				pageNo: this.pageNo,
 				businessTableId: this.$route.query.businessTableId,
 				name: this.searchForm.name,
 				remark: this.searchForm.remark
 			}
-			that.$axios.get('businessField/queryByPage', { params }).then(res => {
-				if (res.data.code == 200) {
-					that.tableData = res.data.data.list
-					that.total = res.data.data.total
-				}
-			})
+			let res = await this.$axios.get('businessField/queryByPage', { params })
+			if (res.data.code == 200) {
+				this.tableData = res.data.data.list
+				this.total = res.data.data.total
+			}
 		},
 		handleSearch() {
             this.pageNo = 1
@@ -559,6 +577,45 @@ export default {
 					this.editForm.decimals = 0
 				}
 			}
+		},
+		beforeUpload(file) {
+			const suffix = file.name.substring(file.name.lastIndexOf('.') + 1).toLowerCase()
+			if (suffix != 'xlsx' && suffix != 'xls') {
+				this.$message.error(`只能选择excel文件`)
+				return false
+			}
+			return true
+		},
+		successHandle(res, file, fileList) {
+			if (res.code === 200) {
+				this.$message.success('导入成功')
+				this.queryByPage()
+			} else {
+				this.$message.error(res.message)
+			}
+		},
+		downloadTemplate() {
+			let params = {
+				templateName: 'fieldModel.xlsx'
+			}
+			this.$axios.post('upload/downloadTemplate', params, { responseType: 'blob' }).then(res => {
+				let content = res.data
+				let blob = new Blob([content])
+				if ('download' in document.createElement('a')) {
+					// 非IE下载
+					let elink = document.createElement('a')
+					elink.download = '数据建模.xlsx'
+					elink.style.display = 'none'
+					elink.href = URL.createObjectURL(blob)
+					document.body.appendChild(elink)
+					elink.click()
+					URL.revokeObjectURL(elink.href) // 释放URL 对象
+					document.body.removeChild(elink)
+				} else {
+					// IE10+下载
+					navigator.msSaveBlob(blob, '数据建模.xlsx')
+				}
+			})
 		}
 	}
 }
