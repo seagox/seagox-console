@@ -154,14 +154,6 @@ const routes = [
                 }
             },
             {
-                name: 'openApi',
-                path: '/openApi',
-                component: () => import('@/views/platform/open-api'),
-                meta: {
-                    title: 'openApi'
-                }
-            },
-            {
                 name: 'taskScheduler',
                 path: '/taskScheduler',
                 component: () => import('@/views/platform/task-scheduler'),
