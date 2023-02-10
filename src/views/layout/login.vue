@@ -89,16 +89,14 @@ export default {
             that.$refs[formName].validate(valid => {
                 if (valid) {
                     let params = Object.assign({}, that.ruleForm)
-                    that.$axios.post('auth/login', params).then(res => {
+                    that.$axios.post('auth/loginConsole', params).then(res => {
                         if (res.data.code == 200) {
-                            localStorage.setItem('color', res.data.data.color || '#0574d5')
                             localStorage.setItem('alias', res.data.data.alias)
                             localStorage.setItem('logo', res.data.data.logo)
                             localStorage.setItem('mark', res.data.data.mark)
                             localStorage.setItem('companyId', res.data.data.company[0].id)
                             localStorage.setItem('companyName', res.data.data.company[0].name)
                             localStorage.setItem('Authorization', res.data.data.tokenType + res.data.data.accessToken)
-                            localStorage.setItem('departmentId', res.data.data.departmentId)
 
                             localStorage.setItem('avatar', res.data.data.avatar)
                             localStorage.setItem('userId', res.data.data.userId)
