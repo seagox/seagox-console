@@ -27,8 +27,8 @@
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
-				<el-form-item label="表单设计" prop="designIds">
-					<el-select v-model="form.designIds" filterable placeholder="请选择表单设计">
+				<el-form-item label="表单设计" prop="designId">
+					<el-select v-model="form.designId" filterable placeholder="请选择表单设计">
 						<el-option
 							v-for="item in formDesignOptions"
 							:key="item.id"
@@ -445,7 +445,7 @@ export default {
 				dataSource: '',
 				searchJson: '',
 				tableHeader: '',
-				designIds: '',
+				designId: '',
 				listExportPath: [],
 				detailExportPath: ''
 			},
@@ -538,7 +538,7 @@ export default {
 				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
 				icon: [{ required: true, message: '请输入图标', trigger: 'blur' }],
 				color: [{ required: true, message: '请选择颜色', trigger: 'blur' }],
-				designIds: [{ required: true, message: '请选择表单设计', trigger: 'change' }],
+				designId: [{ required: true, message: '请选择表单设计', trigger: 'change' }],
 				tableHeader: [{ required: true, message: '请选择表格表头', trigger: 'change' }]
 			},
 			iconOptions: [
@@ -701,7 +701,7 @@ export default {
 						detailExportPath: that.form.detailExportPath,
 						searchJson: JSON.stringify(this.searchTableData),
 						tableHeader: that.form.tableHeader,
-						designIds: that.form.designIds,
+						designId: that.form.designId,
 						dataSheetTableJson: JSON.stringify(this.dataSheetTableData),
 						dataTitle: that.form.dataTitle,
 						insertBeforeRule: that.form.insertBeforeRule,
