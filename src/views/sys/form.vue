@@ -43,10 +43,6 @@
 								<el-dropdown-item command="authority">权限配置</el-dropdown-item>
 								<el-dropdown-item command="rule">业务规则</el-dropdown-item>
 								<el-dropdown-item command="detail">详情路由</el-dropdown-item>
-								<el-dropdown-item command="relateSearch">表单联查</el-dropdown-item>
-								<el-dropdown-item command="dataTitle" v-if="scope.row.flowId"
-									>数据标题</el-dropdown-item
-								>
 								<el-dropdown-item command="print">打印模版</el-dropdown-item>
 							</el-dropdown-menu>
 						</el-dropdown>
@@ -251,183 +247,6 @@
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="routerVisible = false">取消</el-button>
 				<el-button type="primary" @click="routerSubmit">提交</el-button>
-			</div>
-		</el-dialog>
-		<!--数据标题-->
-		<el-dialog title="数据标题" width="750px" :visible.sync="dataTitleVisible" :close-on-click-modal="false">
-			<codemirrorCalculate v-if="dataTitleVisible" v-model="calculate" :options="fieldOptions" />
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="dataTitleVisible = false">取 消</el-button>
-				<el-button type="primary" @click="handleDataTitleSave">确 定</el-button>
-			</div>
-		</el-dialog>
-		<!--表单联查-->
-		<el-dialog title="表单联查" width="550px" :visible.sync="relateSearchVisible" :close-on-click-modal="false">
-			<div style="margin-bottom:15px;">
-				<el-button icon="el-icon-plus" @click="handelRelateAdd" size="small">新增</el-button>
-			</div>
-			<el-table :data="relateSearchData" border highlight-current-row stripe>
-				<el-table-column prop="title" label="标题" align="center"></el-table-column>
-				<el-table-column label="操作" align="center">
-					<template slot-scope="scope">
-						<el-button type="text" size="small" @click="handelRelateEdit(scope.row, scope.$index)"
-							>编辑</el-button
-						>
-						<el-button type="text" size="small" @click="handelRelateDel(scope.$index)">删除</el-button>
-					</template>
-				</el-table-column>
-			</el-table>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="relateSearchVisible = false">取消</el-button>
-				<el-button type="primary" @click="relateSearchSubmit">提交</el-button>
-			</div>
-		</el-dialog>
-		<!--新增表单联查-->
-		<el-dialog
-			title="新增表单联查"
-			width="550px"
-			:visible.sync="relateSearchAddVisible"
-			:close-on-click-modal="false"
-		>
-			<el-form
-				:model="relateSearchAddForm"
-				label-width="60px"
-				:rules="relateSearchFormRules"
-				ref="relateSearchAddForm"
-			>
-				<el-form-item label="标题" prop="title">
-					<el-input v-model.trim="relateSearchAddForm.title"></el-input>
-				</el-form-item>
-				<el-form-item label="路径" prop="path">
-					<el-input v-model.trim="relateSearchAddForm.path"></el-input>
-				</el-form-item>
-				<div style="margin-bottom:15px;">
-					<el-button icon="el-icon-plus" @click="handelRelateQueryAdd('add')" size="small"
-						>新增路由参数</el-button
-					>
-				</div>
-				<el-table :data="relateSearchAddForm.query" border highlight-current-row stripe>
-					<el-table-column prop="source" label="源头参数" align="center">
-						<template slot-scope="scope">
-							<el-input v-model.trim="scope.row.source"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column prop="target" label="目标参数" align="center">
-						<template slot-scope="scope">
-							<el-input v-model.trim="scope.row.target"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column label="操作" align="center">
-						<template slot-scope="scope">
-							<el-button type="text" size="small" @click="handelRelateQueryDel('add', scope.$index)"
-								>删除</el-button
-							>
-						</template>
-					</el-table-column>
-				</el-table>
-
-				<div style="margin:15px 0 15px 0">
-					<el-button icon="el-icon-plus" @click="handelRelateSearchAdd('add')" size="small"
-						>新增条件参数</el-button
-					>
-				</div>
-				<el-table :data="relateSearchAddForm.search" border highlight-current-row stripe>
-					<el-table-column prop="source" label="源头参数" align="center">
-						<template slot-scope="scope">
-							<el-input v-model.trim="scope.row.source"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column prop="target" label="目标参数" align="center">
-						<template slot-scope="scope">
-							<el-input v-model.trim="scope.row.target"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column label="操作" align="center">
-						<template slot-scope="scope">
-							<el-button type="text" size="small" @click="handelRelateSearchDel('add', scope.$index)"
-								>删除</el-button
-							>
-						</template>
-					</el-table-column>
-				</el-table>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="relateSearchAddVisible = false">取消</el-button>
-				<el-button type="primary" @click="relateSearchAddSubmit">提交</el-button>
-			</div>
-		</el-dialog>
-		<!--编辑表单联查-->
-		<el-dialog
-			title="编辑表单联查"
-			width="550px"
-			:visible.sync="relateSearchEditVisible"
-			:close-on-click-modal="false"
-		>
-			<el-form
-				:model="relateSearchEditForm"
-				label-width="60px"
-				:rules="relateSearchFormRules"
-				ref="relateSearchEditForm"
-			>
-				<el-form-item label="标题" prop="title">
-					<el-input v-model.trim="relateSearchEditForm.title"></el-input>
-				</el-form-item>
-				<el-form-item label="路径" prop="path">
-					<el-input v-model.trim="relateSearchEditForm.path"></el-input>
-				</el-form-item>
-				<div style="margin-bottom:15px;">
-					<el-button icon="el-icon-plus" @click="handelRelateQueryAdd('edit')" size="small"
-						>新增路由参数</el-button
-					>
-				</div>
-				<el-table :data="relateSearchEditForm.query" border highlight-current-row stripe>
-					<el-table-column prop="source" label="源头参数" align="center">
-						<template slot-scope="scope">
-							<el-input v-model.trim="scope.row.source"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column prop="target" label="目标参数" align="center">
-						<template slot-scope="scope">
-							<el-input v-model.trim="scope.row.target"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column label="操作" align="center">
-						<template slot-scope="scope">
-							<el-button type="text" size="small" @click="handelRelateQueryDel('edit', scope.$index)"
-								>删除</el-button
-							>
-						</template>
-					</el-table-column>
-				</el-table>
-
-				<div style="margin:15px 0 15px 0">
-					<el-button icon="el-icon-plus" @click="handelRelateSearchAdd('edit')" size="small"
-						>新增条件参数</el-button
-					>
-				</div>
-				<el-table :data="relateSearchEditForm.search" border highlight-current-row stripe>
-					<el-table-column prop="source" label="源头参数" align="center">
-						<template slot-scope="scope">
-							<el-input v-model.trim="scope.row.source"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column prop="target" label="目标参数" align="center">
-						<template slot-scope="scope">
-							<el-input v-model.trim="scope.row.target"></el-input>
-						</template>
-					</el-table-column>
-					<el-table-column label="操作" align="center">
-						<template slot-scope="scope">
-							<el-button type="text" size="small" @click="handelRelateSearchDel('edit', scope.$index)"
-								>删除</el-button
-							>
-						</template>
-					</el-table-column>
-				</el-table>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="relateSearchEditVisible = false">取消</el-button>
-				<el-button type="primary" @click="relateSearchEditSubmit">提交</el-button>
 			</div>
 		</el-dialog>
 		<!--权限设置-->
@@ -789,11 +608,9 @@
 </template>
 
 <script>
-import codemirrorCalculate from '@/views/components/codemirror/calculate'
 import codemirrorJavascript from '@/views/components/codemirror/javascript'
 export default {
 	components: {
-		codemirrorCalculate,
 		codemirrorJavascript
 	},
 	data() {
@@ -822,30 +639,7 @@ export default {
 			businessRuleOptions: [],
 			routerVisible: false,
 			routerScript: '',
-			relateSearchCurrentRow: null,
-			relateSearchVisible: false,
-			relateSearchAddVisible: false,
-			relateSearchEditVisible: false,
-			relateSearchData: [],
-			relateSearchAddForm: {
-				title: '',
-				path: '',
-				query: [],
-				search: []
-			},
-			relateSearchEditForm: {
-				title: '',
-				path: '',
-				query: [],
-				search: []
-			},
-			relateSearchFormRules: {
-				title: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-				path: [{ required: true, message: '请输入路径', trigger: 'blur' }]
-			},
 			copySourceOptions: [],
-			dataTitleVisible: false,
-			calculate: '',
 			fieldOptions: [],
 			authorityVisible: false,
 			roleOptions: [],
@@ -1064,117 +858,10 @@ export default {
 				} else {
 					this.routerScript = ''
 				}
-			} else if (command === 'relateSearch') {
-				this.relateSearchVisible = true
-				if (row.relateSearchJson) {
-					this.relateSearchData = JSON.parse(row.relateSearchJson)
-				} else {
-					this.relateSearchData = []
-				}
-			} else if (command === 'dataTitle') {
-				this.queryBusinessField(row)
 			} else if (command === 'print') {
 				this.printVisible = true
 				this.detailExportPath = row.detailExportPath
 			}
-		},
-
-		handelRelateAdd() {
-			this.relateSearchAddForm = {
-				title: '',
-				path: '',
-				query: [],
-				search: []
-			}
-			this.relateSearchAddVisible = true
-		},
-
-		handelRelateEdit(row, index) {
-			this.relateSearchCurrentRow = JSON.parse(JSON.stringify(row))
-			this.relateSearchCurrentRow.index = index
-			this.relateSearchEditForm = JSON.parse(JSON.stringify(row))
-			this.relateSearchEditVisible = true
-		},
-
-		handelRelateDel(index) {
-			this.relateSearchData.splice(index, 1)
-		},
-
-		handelRelateQueryAdd(type) {
-			if (type === 'add') {
-				this.relateSearchAddForm.query.push({
-					source: '',
-					target: ''
-				})
-			} else if (type === 'edit') {
-				this.relateSearchEditForm.query.push({
-					source: '',
-					target: ''
-				})
-			}
-		},
-
-		handelRelateQueryDel(type, index) {
-			if (type === 'add') {
-				this.relateSearchAddForm.query.splice(index, 1)
-			} else if (type === 'edit') {
-				this.relateSearchEditForm.query.splice(index, 1)
-			}
-		},
-
-		handelRelateSearchAdd(type) {
-			if (type === 'add') {
-				this.relateSearchAddForm.search.push({
-					source: '',
-					target: ''
-				})
-			} else if (type === 'edit') {
-				this.relateSearchEditForm.search.push({
-					source: '',
-					target: ''
-				})
-			}
-		},
-
-		handelRelateSearchDel(type, index) {
-			if (type === 'add') {
-				this.relateSearchAddForm.search.splice(index, 1)
-			} else if (type === 'edit') {
-				this.relateSearchEditForm.search.splice(index, 1)
-			}
-		},
-
-		relateSearchAddSubmit() {
-			this.$refs.relateSearchAddForm.validate(valid => {
-				if (valid) {
-					this.relateSearchData.push(this.relateSearchAddForm)
-					this.relateSearchAddVisible = false
-				}
-			})
-		},
-
-		relateSearchEditSubmit() {
-			this.$refs.relateSearchEditForm.validate(valid => {
-				if (valid) {
-					this.$set(this.relateSearchData, this.relateSearchCurrentRow.index, this.relateSearchEditForm)
-					this.relateSearchEditVisible = false
-				}
-			})
-		},
-
-		relateSearchSubmit() {
-			let that = this
-			let params = that.currentRow
-			params.relateSearchJson = JSON.stringify(this.relateSearchData)
-			that.$axios.post('jellyForm/update', params).then(res => {
-				if (res.data.code == 200) {
-					that.$message.success('配置成功')
-					that.relateSearchVisible = false
-					that.queryByPage()
-				} else {
-					that.$message.error(res.data.message)
-				}
-			})
 		},
 		routerSubmit() {
 			let that = this
@@ -1231,23 +918,7 @@ export default {
 					}
 				}
 				this.fieldOptions = fieldOptions
-				this.calculate = row.dataTitle
-				this.dataTitleVisible = true
 			}
-		},
-		handleDataTitleSave() {
-			let that = this
-			let params = that.currentRow
-			params.dataTitle = this.calculate
-			that.$axios.post('jellyForm/update', params).then(res => {
-				if (res.data.code == 200) {
-					that.$message.success('设置成功')
-					that.dataTitleVisible = false
-					that.queryByPage()
-				} else {
-					that.$message.error(res.data.message)
-				}
-			})
 		},
 		authorityVisibleSubmit() {
 			let that = this

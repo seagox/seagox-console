@@ -178,14 +178,6 @@ const routes = [
                 }
             },
             {
-                name: 'tableColumn',
-                path: '/tableColumn',
-                component: () => import('@/views/sys/table-column'),
-                meta: {
-                    title: '表格表头'
-                }
-            },
-            {
                 name: 'form',
                 path: '/form',
                 component: () => import('@/views/sys/form'),

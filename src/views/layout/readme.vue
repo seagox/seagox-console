@@ -76,15 +76,6 @@
 				<div class="title">表单设计</div>
 			</div>
 			<div>
-				<div class="content" @click="handleClick('/tableColumn')">
-					<div
-						class="content-icon"
-						:style="{ 'background-image': `url(${require('@/assets/plugin/header.png')})` }"
-					></div>
-				</div>
-				<div class="title">表格表头</div>
-			</div>
-			<div>
 				<div class="content" @click="handleClick('/form')">
 					<div
 						class="content-icon"
@@ -111,8 +102,6 @@
 				</div>
 				<div class="title">门户管理</div>
 			</div>
-		</div>
-		<div class="container">
 			<div>
 				<div class="content" @click="handleClick('/menu')">
 					<div
@@ -122,6 +111,8 @@
 				</div>
 				<div class="title">权限管理</div>
 			</div>
+		</div>
+		<div class="container">
 			<div>
 				<div class="content" @click="handleClick('/log')">
 					<div
@@ -166,6 +157,9 @@
 					></div>
 				</div>
 				<div class="title">导入配置</div>
+			</div>
+			<div>
+				<div class="not-content"><div class="content-icon"></div></div>
 			</div>
 		</div>
 	</div>

@@ -445,8 +445,7 @@ export default {
 				searchJson: '',
 				tableHeader: '',
 				designId: '',
-				listExportPath: [],
-				detailExportPath: ''
+				listExportPath: []
 			},
 			searchTableData: [],
 			addSearchVisible: false,
@@ -677,7 +676,6 @@ export default {
 						color: that.form.color,
 						flowId: that.form.flowId,
 						listExportPath: JSON.stringify(that.form.listExportPath),
-						detailExportPath: that.form.detailExportPath,
 						dataSource: that.form.dataSource,
 						searchJson: JSON.stringify(this.searchTableData),
 						tableHeader: that.form.tableHeader,

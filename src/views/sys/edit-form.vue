@@ -446,8 +446,7 @@ export default {
 				searchJson: '',
 				tableHeader: '',
 				designId: '',
-				listExportPath: [],
-				detailExportPath: ''
+				listExportPath: []
 			},
 			searchTableData: [],
 			addSearchVisible: false,
@@ -698,12 +697,10 @@ export default {
 						flowId: that.form.flowId,
 						dataSource: that.form.dataSource,
 						listExportPath: JSON.stringify(that.form.listExportPath),
-						detailExportPath: that.form.detailExportPath,
 						searchJson: JSON.stringify(this.searchTableData),
 						tableHeader: that.form.tableHeader,
 						designId: that.form.designId,
 						dataSheetTableJson: JSON.stringify(this.dataSheetTableData),
-						dataTitle: that.form.dataTitle,
 						insertBeforeRule: that.form.insertBeforeRule,
 						insertAfterRule: that.form.insertAfterRule,
 						updateBeforeRule: that.form.updateBeforeRule,
