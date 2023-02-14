@@ -20,8 +20,8 @@
 			<el-form label-width="65px">
 				<el-row>
 					<el-col :span="6">
-						<el-form-item label="名称">
-							<el-input v-model="searchForm.name" clearable placeholder="请输入名称"></el-input>
+						<el-form-item label="字段名">
+							<el-input v-model="searchForm.name" clearable placeholder="请输入字段名"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="6">
@@ -45,36 +45,23 @@
 			<!--列表-->
 			<el-table :data="tableData" border highlight-current-row stripe>
 				<el-table-column type="index" label="#" width="50" align="center"></el-table-column>
-				<el-table-column
-					prop="name"
-					label="名称"
-					align="center"
-					show-overflow-tooltip
-				></el-table-column>
-				<el-table-column
-					prop="remark"
-					label="注释"
-					align="center"
-					show-overflow-tooltip
-				></el-table-column>
-				<el-table-column
-					prop="type"
-					label="类型"
-					align="center"
-					:formatter="typeFormatter"
-				></el-table-column>
-				<el-table-column label="非空" align="center">
-					<template slot-scope="scope">
-						<el-switch
-							v-model="scope.row.notNull"
-							:active-value="1"
-							:inactive-value="0"
-							@change="notNullchange($event, scope.row)"
-						></el-switch>
-					</template>
-				</el-table-column>
+				<el-table-column prop="name" label="字段名" align="center"></el-table-column>
+				<el-table-column prop="type" label="字段类型" align="center"></el-table-column>
 				<el-table-column prop="length" label="长度" align="center"></el-table-column>
 				<el-table-column prop="decimals" label="小数" align="center"></el-table-column>
+				<el-table-column label="可否为NULL" align="center">
+					<template slot-scope="scope">
+						<i class="el-icon-check" style="color:green;font-weight:bold;" v-if="scope.row.notNull === 0"></i>
+						<i class="el-icon-close" style="color:red;font-weight:bold;" v-else></i>
+					</template>
+				</el-table-column>
+				<el-table-column prop="defaultValue" label="默认值" align="center">
+					<template slot-scope="scope">
+						<div v-if="scope.row.defaultValue">{{scope.row.defaultValue}}</div>
+						<div v-else>-</div>
+					</template>
+				</el-table-column>
+				<el-table-column prop="remark" label="注释" align="center" show-overflow-tooltip></el-table-column>
 				<el-table-column
 					prop="kind"
 					label="种类"
@@ -184,9 +171,27 @@
 						</el-select>
 					</el-form-item>
 				</el-col>
-				<el-col :span="24">
+				<el-col :span="12">
 					<el-form-item label="是否为空" prop="notNull">
 						<el-switch v-model="addForm.notNull" :active-value="0" :inactive-value="1"> </el-switch>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12">
+					<el-form-item label="目标模型" prop="targetTableId">
+						<el-select
+							v-model="addForm.targetTableId"
+							placeholder="请选择数据表名"
+							clearable
+							filterable
+						>
+							<el-option
+								v-for="item in tableOptions"
+								:key="item.id"
+								:label="item.remark + '(' + item.name + ')'"
+								:value="item.id"
+							>
+							</el-option>
+						</el-select>
 					</el-form-item>
 				</el-col>
 				<el-col :span="24" v-if="addForm.type != 'text'">
@@ -292,9 +297,27 @@
 						</el-select>
 					</el-form-item>
 				</el-col>
-				<el-col :span="24">
+				<el-col :span="12">
 					<el-form-item label="是否为空" prop="notNull">
 						<el-switch v-model="editForm.notNull" :active-value="0" :inactive-value="1"> </el-switch>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12">
+					<el-form-item label="目标模型" prop="targetTableId">
+						<el-select
+							v-model="editForm.targetTableId"
+							placeholder="请选择数据表名"
+							clearable
+							filterable
+						>
+							<el-option
+								v-for="item in tableOptions"
+								:key="item.id"
+								:label="item.remark + '(' + item.name + ')'"
+								:value="item.id"
+							>
+							</el-option>
+						</el-select>
 					</el-form-item>
 				</el-col>
 				<el-col :span="24" v-if="editForm.type != 'text'">
@@ -348,7 +371,8 @@ export default {
 				kind: 1,
 				type: '',
 				notNull: 0,
-				defaultValue: ''
+				defaultValue: '',
+				targetTableId: ''
 			},
 			editFormVisible: false,
 			editForm: {
@@ -361,7 +385,8 @@ export default {
 				kind: 1,
 				type: '',
 				notNull: 0,
-				defaultValue: ''
+				defaultValue: '',
+				targetTableId: ''
 			},
 			rules: {
 				name: [
@@ -398,7 +423,8 @@ export default {
 					label: '省市区',
 					value: 6
 				}
-			]
+			],
+			tableOptions: []
 		}
 	},
 	computed: {
@@ -408,6 +434,7 @@ export default {
 	},
 	mounted() {
 		this.queryByPage()
+		this.queryTable()
 	},
 	methods: {
 		async queryByPage() {
@@ -421,6 +448,12 @@ export default {
 			if (res.data.code == 200) {
 				this.tableData = res.data.data.list
 				this.total = res.data.data.total
+			}
+		},
+		async queryTable() {
+			let res = await this.$axios.get('businessTable/queryAll')
+			if (res.data.code == 200) {
+				this.tableOptions = res.data.data
 			}
 		},
 		handleSearch() {
@@ -507,27 +540,6 @@ export default {
 				})
 			})
 		},
-		typeFormatter(row) {
-			if (row.type === 'int' || row.type === 'integer') {
-				return '整数值'
-			} else if (row.type === 'bigint') {
-				return '大整数值'
-			} else if (row.type === 'decimal') {
-				return '小数值'
-			} else if (row.type === 'number') {
-				return '数字值'
-			} else if (row.type === 'date') {
-				return '日期值'
-			} else if (row.type === 'timestamp') {
-				return '日期时间值'
-			} else if (row.type === 'varchar') {
-				return '字符串'
-			} else if (row.type === 'text') {
-				return '长文本'
-			} else {
-				return row.type
-			}
-		},
 		kindFormatter(row) {
 			if (row.kind === 1) {
 				return '基本类型'
@@ -544,16 +556,6 @@ export default {
 			} else {
 				return '其他'
 			}
-		},
-		notNullchange(value, row) {
-			let that = this
-			that.$axios.post('businessField/update', row).then(res => {
-				if (res.data.code == 200) {
-					that.$message.success('修改成功')
-				} else {
-					that.$message.error(res.data.message)
-				}
-			})
 		},
 		typeChange(value) {
 			if (value === 'text') {

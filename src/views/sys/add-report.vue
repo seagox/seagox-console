@@ -225,7 +225,7 @@
 						<el-option
 							v-for="item in tableOptions"
 							:key="item.id"
-							:label="item.comment + '(' + item.name + ')'"
+							:label="item.remark + '(' + item.name + ')'"
 							:value="item.id"
 						>
 						</el-option>

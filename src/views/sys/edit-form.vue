@@ -259,7 +259,7 @@
 						<el-option
 							v-for="item in tableOptions"
 							:key="item.name"
-							:label="item.comment"
+							:label="item.remark"
 							:value="item.name"
 						>
 						</el-option>
