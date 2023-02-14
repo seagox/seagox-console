@@ -2,7 +2,7 @@
 	<div class="container">
 		<el-steps :active="active" finish-status="success" align-center>
 			<el-step title="基础设置"></el-step>
-			<el-step title="数据表设置"></el-step>
+			<el-step title="表头设置"></el-step>
 			<el-step title="数据源设置"></el-step>
 			<el-step title="搜索条件"></el-step>
 		</el-steps>
@@ -20,30 +20,10 @@
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
-				<el-form-item label="图标" prop="icon">
-					<el-select v-model="form.icon" filterable placeholder="请选择图标">
-						<el-option v-for="icon in iconOptions" :key="icon" :label="icon" :value="icon"> </el-option>
-					</el-select>
-				</el-form-item>
-			</el-col>
-			<el-col :span="12">
-				<el-form-item label="表单设计" prop="designId">
-					<el-select v-model="form.designId" filterable placeholder="请选择表单设计">
+				<el-form-item label="页面" prop="designId">
+					<el-select v-model="form.designId" filterable placeholder="请选择页面">
 						<el-option
 							v-for="item in formDesignOptions"
-							:key="item.id"
-							:label="item.name"
-							:value="String(item.id)"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-			</el-col>
-			<el-col :span="12">
-				<el-form-item label="表格表头" prop="tableHeader">
-					<el-select v-model="form.tableHeader" filterable placeholder="请选择表格表头">
-						<el-option
-							v-for="item in tableHeaderOptions"
 							:key="item.id"
 							:label="item.name"
 							:value="item.id"
@@ -53,11 +33,18 @@
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
+				<el-form-item label="图标" prop="icon">
+					<el-select v-model="form.icon" filterable placeholder="请选择图标">
+						<el-option v-for="icon in iconOptions" :key="icon" :label="icon" :value="icon"> </el-option>
+					</el-select>
+				</el-form-item>
+			</el-col>
+			<el-col :span="12">
 				<el-form-item label="颜色" prop="color">
 					<el-color-picker v-model="form.color" :predefine="predefine"></el-color-picker>
 				</el-form-item>
 			</el-col>
-			<el-col :span="12">
+			<el-col :span="24">
 				<el-form-item label="流程">
 					<el-select v-model="form.flowId" filterable placeholder="请选择流程" clearable>
 						<el-option v-for="item in flowOptions" :key="item.id" :label="item.name" :value="item.id">
@@ -99,27 +86,30 @@
 		</el-form>
 		<div v-show="active === 1">
 			<div class="toolView">
-				<el-button icon="el-icon-plus" @click="showDataSheetAddDialog" size="small">新增</el-button>
+				<el-button icon="el-icon-plus" @click="showTableHeaderAddDialog" size="small">新增</el-button>
 			</div>
 			<div class="table">
-				<el-table :data="dataSheetTableData" border highlight-current-row stripe>
-					<el-table-column prop="tableName" label="数据表名" align="center"></el-table-column>
-					<el-table-column
-						prop="singleFlag"
-						label="数据类型"
-						align="center"
-						:formatter="singleFLagFormatter"
-					></el-table-column>
+				<el-table
+					:data="tableHeaderData"
+					border
+					highlight-current-row
+					stripe
+					row-key="id"
+					:tree-props="{ children: 'children' }"
+				>
+					<el-table-column type="index" label="#" width="50" align="center"></el-table-column>
+					<el-table-column prop="label" label="标题" align="center"></el-table-column>
+					<el-table-column prop="prop" label="字段名" align="center"></el-table-column>
+					<el-table-column prop="width" label="宽度" align="center"></el-table-column>
+					<el-table-column label="锁定" align="center" :formatter="lockingFormatter"></el-table-column>
+					<el-table-column label="汇总" align="center" :formatter="summaryFormatter"></el-table-column>
+					<el-table-column label="合计" align="center" :formatter="totalFormatter"></el-table-column>
 					<el-table-column prop="sort" label="排序" align="center"></el-table-column>
-					<el-table-column prop="relateTable" label="关联表" align="center"></el-table-column>
-					<el-table-column prop="relateField" label="关联字段" align="center"></el-table-column>
 					<el-table-column label="操作" align="center">
 						<template slot-scope="scope">
-							<el-button type="text" @click="showDataSheetEditDialog(scope.$index, scope.row)" size="small"
-								>编辑</el-button
-							>
+							<el-button type="text" size="small" @click="showTableHeaderEditDialog(scope.$index, scope.row)">编辑</el-button>
 							<el-divider direction="vertical"></el-divider>
-							<el-button type="text" @click="dataSheetDelSubmit(scope.$index)" size="small">删除</el-button>
+							<el-button type="text" size="small" @click="tableHeaderDelSubmit(scope.$index)">删除</el-button>
 						</template>
 					</el-table-column>
 				</el-table>
@@ -165,131 +155,197 @@
 			<el-button type="primary" @click="handleNext" v-if="active != 3">下一步</el-button>
 			<el-button type="primary" @click="submitForm">保存</el-button>
 		</div>
-		<el-dialog title="新增" width="500px" :visible.sync="addDataSheetVisible" :close-on-click-modal="false">
-			<el-form :model="addDataSheetForm" label-width="80px" :rules="dataSheetRules" ref="addDataSheetForm">
-				<el-form-item label="数据表名" prop="tableName">
-					<el-select
-						v-model="addDataSheetForm.tableName"
-						placeholder="请选择数据表名"
-						@change="handleRelateTableChange"
-						filterable
-					>
-						<el-option
-							v-for="item in tableOptions"
-							:key="item.name"
-							:label="item.comment"
-							:value="item.name"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="数据类型" prop="singleFlag">
-					<el-select v-model="addDataSheetForm.singleFlag" placeholder="请选择数据类型">
-						<el-option
-							v-for="item in singleFlagOptions"
-							:key="item.value"
-							:label="item.label"
-							:value="item.value"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="排序" prop="sort">
-					<el-input-number v-model="addDataSheetForm.sort" label="请选择排序"></el-input-number>
-				</el-form-item>
-				<el-form-item label="关联表">
-					<el-select v-model="addDataSheetForm.relateTable" placeholder="请选择关联表" clearable filterable>
-						<el-option
-							v-for="item in tableOptions"
-							:key="item.name"
-							:label="item.comment"
-							:value="item.name"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="关联字段">
-					<el-select v-model="addDataSheetForm.relateField" placeholder="请选择关联字段" clearable filterable>
-						<el-option
-							v-for="item in fieldOptions"
-							:key="item.name"
-							:label="item.comment"
-							:value="item.name"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
+		<!--新增表头界面-->
+		<el-dialog title="新增" width="750px" :visible.sync="addTableHeaderVisible" :close-on-click-modal="false">
+			<el-form :model="addTableHeaderForm" label-width="80px" :rules="tableHeaderRules" ref="addTableHeaderForm">
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="字段名" prop="prop">
+							<el-input v-model="addTableHeaderForm.prop" placeholder="请输入字段名"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="标题" prop="label">
+							<el-input v-model="addTableHeaderForm.label" placeholder="请输入标题"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="上级" prop="parentId">
+							<el-cascader
+								v-model="addTableHeaderForm.parentId"
+								:options="parentOptions"
+								:props="{ checkStrictly: true, emitPath: false, value: 'id' }"
+								clearable
+								placeholder="请选择上级"
+							>
+							</el-cascader>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="宽度" prop="width">
+							<el-input-number
+								v-model="addTableHeaderForm.width"
+								:controls="false"
+								:precision="0"
+								placeholder="请输入宽度"
+							></el-input-number>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="锁定" prop="locking">
+							<el-select v-model="addTableHeaderForm.locking">
+								<el-option label="左" :value="1"></el-option>
+								<el-option label="右" :value="2"></el-option>
+								<el-option label="无" :value="3"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="数据对象" prop="target">
+							<el-select v-model="addTableHeaderForm.target">
+								<el-option label="无" :value="0"></el-option>
+								<el-option label="数据字典" :value="1"></el-option>
+								<el-option label="区域数据" :value="2"></el-option>
+								<el-option label="图片数据" :value="3"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12" v-if="addTableHeaderForm.target === 1">
+						<el-form-item label="格式化" prop="formatter">
+							<el-select
+								v-model="addTableHeaderForm.formatter"
+								placeholder="请选择数据源"
+								clearable
+								@change="formatterChange"
+							>
+								<el-option
+									v-for="item in formatterOptions"
+									:key="item.id"
+									:label="item.name"
+									:value="item.id"
+								>
+								</el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="排序号" prop="sort">
+							<el-input-number v-model="addTableHeaderForm.sort"></el-input-number>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="汇总" prop="summary">
+							<el-switch v-model="addTableHeaderForm.summary" :active-value="1" :inactive-value="2"> </el-switch>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="合计" prop="total">
+							<el-switch v-model="addTableHeaderForm.total" :active-value="1" :inactive-value="2"> </el-switch>
+						</el-form-item>
+					</el-col>
+				</el-row>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click="addDataSheetVisible = false">取消</el-button>
-				<el-button type="primary" @click="addDataSheetSubmit">提交</el-button>
+				<el-button @click="addTableHeaderFormVisible = false">取消</el-button>
+				<el-button type="primary" @click="addTableHeaderSubmit">提交</el-button>
 			</div>
 		</el-dialog>
-		<el-dialog title="编辑" width="500px" :visible.sync="editDataSheetVisible" :close-on-click-modal="false">
-			<el-form :model="editDataSheetForm" label-width="80px" :rules="dataSheetRules" ref="editDataSheetForm">
-				<el-form-item label="数据表名" prop="tableName">
-					<el-select
-						v-model="editDataSheetForm.tableName"
-						placeholder="请选择数据表名"
-						@change="handleRelateTableChange"
-						filterable
-					>
-						<el-option
-							v-for="item in tableOptions"
-							:key="item.name"
-							:label="item.comment"
-							:value="item.name"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="数据类型" prop="singleFlag">
-					<el-select v-model="editDataSheetForm.singleFlag" placeholder="请选择数据类型">
-						<el-option
-							v-for="item in singleFlagOptions"
-							:key="item.value"
-							:label="item.label"
-							:value="item.value"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="关联表">
-					<el-select v-model="editDataSheetForm.relateTable" placeholder="请选择关联表" clearable filterable>
-						<el-option
-							v-for="item in tableOptions"
-							:key="item.name"
-							:label="item.remark"
-							:value="item.name"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="排序" prop="sort">
-					<el-input-number v-model="editDataSheetForm.sort" label="请选择排序"></el-input-number>
-				</el-form-item>
-				<el-form-item label="关联字段">
-					<el-select
-						v-model="editDataSheetForm.relateField"
-						placeholder="请选择关联字段"
-						clearable
-						filterable
-					>
-						<el-option
-							v-for="item in fieldOptions"
-							:key="item.name"
-							:label="item.comment"
-							:value="item.name"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
+		<!--编辑表头界面-->
+		<el-dialog title="编辑" width="750px" :visible.sync="editTableHeaderVisible" :close-on-click-modal="false">
+			<el-form :model="editTableHeaderForm" label-width="80px" :rules="tableHeaderRules" ref="editTableHeaderForm">
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="字段名" prop="prop">
+							<el-input v-model="editTableHeaderForm.prop" placeholder="请输入字段名"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="标题" prop="label">
+							<el-input v-model="editTableHeaderForm.label" placeholder="请输入标题"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="上级" prop="parentId">
+							<el-cascader
+								v-model="editTableHeaderForm.parentId"
+								:options="parentOptions"
+								:props="{ checkStrictly: true, emitPath: false, value: 'id' }"
+								clearable
+								placeholder="请选择上级"
+							>
+							</el-cascader>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="宽度" prop="width">
+							<el-input-number
+								v-model="editTableHeaderForm.width"
+								:controls="false"
+								:precision="0"
+								placeholder="请输入宽度"
+							></el-input-number>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="锁定" prop="locking">
+							<el-select v-model="editTableHeaderForm.locking">
+								<el-option label="左" :value="1"></el-option>
+								<el-option label="右" :value="2"></el-option>
+								<el-option label="无" :value="3"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="数据对象" prop="target">
+							<el-select v-model="editTableHeaderForm.target">
+								<el-option label="无" :value="0"></el-option>
+								<el-option label="数据字典" :value="1"></el-option>
+								<el-option label="区域数据" :value="2"></el-option>
+								<el-option label="图片数据" :value="3"></el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12" v-if="editTableHeaderForm.target === 1">
+						<el-form-item label="格式化" prop="formatter">
+							<el-select
+								v-model="editTableHeaderForm.formatter"
+								placeholder="请选择数据源"
+								clearable
+								@change="formatterChange"
+							>
+								<el-option
+									v-for="item in formatterOptions"
+									:key="item.id"
+									:label="item.name"
+									:value="item.id"
+								>
+								</el-option>
+							</el-select>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="排序号" prop="sort">
+							<el-input-number v-model="editTableHeaderForm.sort"></el-input-number>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="汇总" prop="summary">
+							<el-switch v-model="editTableHeaderForm.summary" :active-value="1" :inactive-value="2"> </el-switch>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="合计" prop="total">
+							<el-switch v-model="editTableHeaderForm.total" :active-value="1" :inactive-value="2"> </el-switch>
+						</el-form-item>
+					</el-col>
+				</el-row>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click="editDataSheetVisible = false">取消</el-button>
-				<el-button type="primary" @click="editDataSheetSubmit">提交</el-button>
+				<el-button @click="editFormVisible = false">取消</el-button>
+				<el-button type="primary" @click="editTableHeaderSubmit">提交</el-button>
 			</div>
 		</el-dialog>
+		<!-- 新增搜索页面 -->
 		<el-dialog title="新增" width="500px" :visible.sync="addSearchVisible" :close-on-click-modal="false">
 			<el-form :model="addSearchForm" label-width="80px" :rules="searchRules" ref="addSearchForm">
 				<el-form-item label="字段" prop="field">
@@ -356,6 +412,7 @@
 				<el-button type="primary" @click="addSearchSubmit">提交</el-button>
 			</div>
 		</el-dialog>
+		<!-- 编辑搜索页面 -->
 		<el-dialog title="编辑" width="500px" :visible.sync="editSearchVisible" :close-on-click-modal="false">
 			<el-form :model="editSearchForm" label-width="80px" :rules="searchRules" ref="editSearchForm">
 				<el-form-item label="字段" prop="field">
@@ -439,15 +496,86 @@ export default {
 			},
 			active: 0,
 			form: {
+				id: '',
 				name: '',
-				icon: '',
-				color: '',
+				designId: '',
+				icon: 'start-o',
+				color: '#1879FE',
+				flowId: '',
+				tableHeader: '',
 				dataSource: '',
 				searchJson: '',
-				tableHeader: '',
-				designId: '',
 				listExportPath: []
 			},
+			rules: {
+				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+				icon: [{ required: true, message: '请输入图标', trigger: 'blur' }],
+				color: [{ required: true, message: '请选择颜色', trigger: 'blur' }],
+				designId: [{ required: true, message: '请选择页面', trigger: 'change' }]
+			},
+			formDesignOptions: [],
+			iconOptions: [
+				'location-o',
+				'like-o',
+				'star-o',
+				'phone-o',
+				'setting-o',
+				'fire-o',
+				'coupon-o',
+				'cart-o',
+				'shopping-cart-o',
+				'cart-circle-o',
+				'friends-o',
+				'comment-o',
+				'gem-o',
+				'gift-o',
+				'point-gift-o',
+				'send-gift-o',
+				'service-o',
+				'bag-o',
+				'todo-list-o',
+				'balance-list-o'
+			],
+			predefine: ['#1879fe', '#5d0bc7', '#1700c2', '#1cb6b4', '#35a110', '#f5b017', '#ee6c16', '#ef0022'],
+			flowOptions: [],
+			tags: ['select', 'where', 'if', 'foreach', 'insert', 'update', 'delete'],
+			tableHeaderData: [],
+			parentOptions: [],
+			tableHeaderRules: {
+				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+				prop: [{ required: true, message: '请输入字段名', trigger: 'blur' }],
+				label: [{ required: true, message: '请输入标题', trigger: 'blur' }],
+				formatter: [{ required: true, message: '请选择格式化', trigger: 'change' }]
+			},
+			addTableHeaderVisible: false,
+			addTableHeaderForm: {
+				parentId: '',
+				prop: '',
+				label: '',
+				width: undefined,
+				locking: 3,
+				summary: 2,
+				total: 2,
+				target: 0,
+				formatter: '',
+				sort: 1,
+				options: ''
+			},
+			editTableHeaderVisible: false,
+			editTableHeaderForm: {
+				parentId: '',
+				prop: '',
+				label: '',
+				width: undefined,
+				locking: 3,
+				summary: 2,
+				total: 2,
+				target: 0,
+				formatter: '',
+				sort: 1,
+				options: ''
+			},
+			currentTableHeaderIndex: -1,
 			searchTableData: [],
 			addSearchVisible: false,
 			addSearchForm: {
@@ -494,90 +622,17 @@ export default {
 				}
 			],
 			formatterOptions: [],
-			dataSheetTableData: [],
-			tableOptions: [],
-			fieldOptions: [],
-			dataSheetRules: {
-				tableName: [{ required: true, message: '请选择数据表名', trigger: 'change' }],
-				singleFlag: [{ required: true, message: '请选择数据类型', trigger: 'change' }],
-				sort: [{ required: true, message: '请选择排序', trigger: 'change' }]
-			},
-			singleFlagOptions: [
-				{
-					label: '单条数据',
-					value: 1
-				},
-				{
-					label: '多条数据',
-					value: 2
-				}
-			],
-			addDataSheetVisible: false,
-			addDataSheetForm: {
-				formId: '',
-				tableName: '',
-				singleFalg: '',
-				sort: 1,
-				relateTable: '',
-				relateField: ''
-			},
-			editDataSheetVisible: false,
-			editDataSheetForm: {
-				formId: '',
-				tableName: '',
-				singleFlag: '',
-				sort: 1,
-				relateTable: '',
-				relateField: ''
-			},
-			currentDataSheetIndex: -1,
-			formDesignOptions: [],
-			tableHeaderOptions: [],
-			rules: {
-				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-				icon: [{ required: true, message: '请输入图标', trigger: 'blur' }],
-				color: [{ required: true, message: '请选择颜色', trigger: 'blur' }],
-				designId: [{ required: true, message: '请选择表单设计', trigger: 'change' }],
-				tableHeader: [{ required: true, message: '请选择表格表头', trigger: 'change' }]
-			},
-			iconOptions: [
-				'location-o',
-				'like-o',
-				'star-o',
-				'phone-o',
-				'setting-o',
-				'fire-o',
-				'coupon-o',
-				'cart-o',
-				'shopping-cart-o',
-				'cart-circle-o',
-				'friends-o',
-				'comment-o',
-				'gem-o',
-				'gift-o',
-				'point-gift-o',
-				'send-gift-o',
-				'service-o',
-				'bag-o',
-				'todo-list-o',
-				'balance-list-o'
-			],
-			predefine: ['#1879fe', '#5d0bc7', '#1700c2', '#1cb6b4', '#35a110', '#f5b017', '#ee6c16', '#ef0022'],
-			tags: ['select', 'where', 'if', 'foreach', 'insert', 'update', 'delete'],
-			flowOptions: [],
 			height: (document.documentElement.clientHeight || document.body.clientHeight) - 360
 		}
 	},
-	created() {
-		this.queryById()
-		this.queryBusinessTable()
-		this.queryFormatter()
-		this.queryFormDesign()
-		this.queryTableHeader()
-		this.queryFlowData()
-	},
 	activated() {
 		this.active = 0
+	},
+	created() {
+		this.queryById()
+		this.queryFormDesign()
+		this.queryFlowData()
+		this.queryFormatter()
 	},
 	methods: {
 		async queryById() {
@@ -585,24 +640,12 @@ export default {
 			if (res.data.code === 200) {
 				this.form = res.data.data
 				if (this.form.listExportPath) {
-					this.form.listExportPath = JSON.parse(this.form.listExportPath)
+ 					this.form.listExportPath = JSON.parse(this.form.listExportPath)
 				} else {
 					this.form.listExportPath = []
 				}
-				this.searchTableData = JSON.parse(this.form.searchJson)
-				this.dataSheetTableData = JSON.parse(this.form.dataSheetTableJson)
-			}
-		},
-		async queryBusinessTable() {
-			let res = await this.$axios.get('businessTable/queryAll')
-			if (res.data.code === 200) {
-				this.tableOptions = res.data.data
-			}
-		},
-		async queryFormatter() {
-			let res = await this.$axios.get('dictionaryClassify/queryDisplay')
-			if (res.data.code === 200) {
-				this.formatterOptions = res.data.data
+ 				this.searchTableData = JSON.parse(this.form.searchJson)
+				this.tableHeaderData = JSON.parse(this.form.tableHeader)
 			}
 		},
 		async queryFormDesign() {
@@ -611,41 +654,71 @@ export default {
 				this.formDesignOptions = res.data.data
 			}
 		},
-		async queryTableHeader() {
-			let res = await this.$axios.get('tableClassify/queryAll')
-			if (res.data.code === 200) {
-				this.tableHeaderOptions = res.data.data
-			}
-		},
 		async queryFlowData() {
 			let res = await this.$axios.get('seaDefinition/queryAll')
 			if (res.data.code === 200) {
 				this.flowOptions = res.data.data
 			}
 		},
-		verifySql() {
-			if (!this.form.dataSource) {
-				this.$message.error('数据源不能为空')
-				return
+		async queryFormatter() {
+			let res = await this.$axios.get('dictionaryClassify/queryDisplay')
+			if (res.data.code === 200) {
+				this.formatterOptions = res.data.data
 			}
+		},
+		beforeUpload(file) {
+			let pattern = /.(xls|xlsx)$/g
+			if (!pattern.test(file.name)) {
+				this.$message.error('只能上传xls/xlsx文件')
+				return false
+			}
+			const fileSize = file.size / 1024 / 1024 < 10
+			if (!fileSize) {
+				this.$message.error('上传文件大小不能超过 10MB')
+				return false
+			}
+			return true
+		},
+		handleFileSuccess(res, file, fileList, type) {
+			if (res.code === 200) {
+				let fileArray = this.form.listExportPath
 
-			if (this.searchTableData.length === 0) {
-				this.$message.error('搜索条件不能为空')
-				return
+				fileArray.push({
+					name: file.name,
+					size: file.size,
+					url: res.data
+				})
+				this.form.listExportPath = fileArray
+			} else {
+				this.$message.error(res.message)
 			}
-
-			let that = this
-			var params = {
-				searchJson: JSON.stringify(this.searchTableData),
-				sql: this.form.dataSource
+		},
+		handleFileDownload(file) {
+			let params = {
+				url: file.url,
+				fileName: file.name
 			}
-			that.$axios.post('jellyForm/verifySql', params).then(res => {
-				if (res.data.code == 200) {
-					that.$message.success('验证成功')
+			this.$axios.post('upload/download', params, { responseType: 'blob' }).then(res => {
+				let content = res.data
+				let blob = new Blob([content])
+				if ('download' in document.createElement('a')) {
+					// 非IE下载
+					let elink = document.createElement('a')
+					elink.download = file.name
+					elink.style.display = 'none'
+					elink.href = URL.createObjectURL(blob)
+					document.body.appendChild(elink)
+					elink.click()
+					URL.revokeObjectURL(elink.href) // 释放URL 对象
+					document.body.removeChild(elink)
 				} else {
-					that.$message.error('SQL有误')
+					// IE10+下载
+					navigator.msSaveBlob(blob, file.name)
 				}
 			})
+		},
+		handleFileRemove(file) {
+			this.form.listExportPath = []
 		},
 		handleLast() {
 			this.active--
@@ -658,8 +731,8 @@ export default {
 					}
 				})
 			} else if (this.active === 1) {
-				if (this.dataSheetTableData.length === 0) {
-					this.$message.error('数据表不能为空')
+				if (this.tableHeaderData.length === 0) {
+					this.$message.error('表头不能为空')
 					return
 				}
 				this.active++
@@ -671,53 +744,97 @@ export default {
 				this.active++
 			}
 		},
+		showTableHeaderAddDialog() {
+			this.addTableHeaderVisible = true
+			if (this.$refs.addTableHeaderForm) {
+				this.$refs.addTableHeaderForm.resetFields()
+			}
+		},
+		addTableHeaderSubmit() {
+			this.$refs.addTableHeaderForm.validate(valid => {
+				if (valid) {
+					this.tableHeaderData = this.tableHeaderData.concat(
+						JSON.parse(JSON.stringify(this.addTableHeaderForm))
+					)
+					this.addTableHeaderVisible = false
+				}
+			})
+		},
+		editTableHeaderSubmit() {
+			this.$refs.editTableHeaderForm.validate(valid => {
+				if (valid) {
+					this.editTableHeaderVisible = false
+					this.tableHeaderData.splice(
+						this.currentTableHeaderIndex,
+						1,
+						JSON.parse(JSON.stringify(this.editTableHeaderForm))
+					)
+				}
+			})
+		},
+		showTableHeaderEditDialog(index, row) {
+			this.editTableHeaderVisible = true
+			if (this.$refs.editTableHeaderForm) {
+				this.$refs.editTableHeaderForm.resetFields()
+			}
+			this.editTableHeaderForm = Object.assign({}, row)
+			this.currentTableHeaderIndex = index
+		},
+		tableHeaderDelSubmit(index) {
+			this.tableHeaderData.splice(index, 1)
+		},
+		lockingFormatter(row) {
+			if (row.locking === 1) {
+				return '左'
+			} else if (row.locking === 2) {
+				return '右'
+			} else {
+				return '无'
+			}
+		},
+		summaryFormatter(row) {
+			if (row.summary === 1) {
+				return '是'
+			} else {
+				return '否'
+			}
+		},
+		totalFormatter(row) {
+			if (row.total === 1) {
+				return '是'
+			} else {
+				return '否'
+			}
+		},
 		submitForm() {
-			if (this.dataSheetTableData.length === 0) {
-				this.$message.error('数据表不能为空')
+			if (this.tableHeaderData.length === 0) {
+				this.$message.error('表头不能为空')
 				return
 			}
 			if (!this.form.dataSource) {
 				this.$message.error('数据源不能为空')
 				return
 			}
-			// if (this.searchTableData.length === 0) {
-			// 	this.$message.error('搜索条件不能为空')
-			// 	return
-			// }
-
 			let that = this
-
 			this.$refs['ruleForm'].validate(valid => {
 				if (valid) {
 					var params = {
 						id: that.form.id,
 						name: that.form.name,
+						designId: that.form.designId,
 						icon: that.form.icon,
 						color: that.form.color,
 						flowId: that.form.flowId,
 						dataSource: that.form.dataSource,
-						listExportPath: JSON.stringify(that.form.listExportPath),
-						searchJson: JSON.stringify(this.searchTableData),
-						tableHeader: that.form.tableHeader,
-						designId: that.form.designId,
-						dataSheetTableJson: JSON.stringify(this.dataSheetTableData),
-						insertBeforeRule: that.form.insertBeforeRule,
-						insertAfterRule: that.form.insertAfterRule,
-						updateBeforeRule: that.form.updateBeforeRule,
-						updateAfterRule: that.form.updateAfterRule,
-						deleteBeforeRule: that.form.deleteBeforeRule,
-						deleteAfterRule: that.form.deleteAfterRule,
-						processEndRule: that.form.processEndRule,
-						abandonRule: that.form.abandonRule,
-						exportRule: that.form.exportRule
+						searchJson: JSON.stringify(that.searchTableData),
+						tableHeader: JSON.stringify(that.tableHeaderData)
 					}
-
-					that.$axios.post('jellyForm/update', params).then(res => {
-						if (res.data.code == 200) {
-							that.$message.success('编辑成功')
+					that.$axios.post('jellyForm/update', params).then(function(response) {
+						if (response.data.code == 200) {
+							that.$message.success('新增成功')
 							that.$store.commit('worktabRemove', that.$route.fullPath)
 						} else {
-							that.$message.error(res.data.message)
+							that.$message.error(response.data.message)
 						}
 					})
 				}
@@ -791,130 +908,6 @@ export default {
 				}
 			})
 		},
-		showDataSheetAddDialog() {
-			this.addDataSheetVisible = true
-			if (this.$refs.addDataSheetForm) {
-				this.$refs.addDataSheetForm.resetFields()
-			}
-			this.addDataSheetForm.relateTable = ''
-			this.addDataSheetForm.relateField = ''
-		},
-		handleRelateTableChange(value) {
-			let that = this
-			that.$axios.get('businessField/queryAll?display=0&tableName=' + value).then(res => {
-				if (res.data.code === 200) {
-					that.fieldOptions = res.data.data
-				}
-			})
-		},
-		singleFLagFormatter(row) {
-			if (row.singleFlag === 1) {
-				return '单条'
-			} else {
-				return '多条'
-			}
-		},
-		queryBusinessTable() {
-			let that = this
-			that.$axios.get('businessTable/queryAll').then(res => {
-				if (res.data.code === 200) {
-					that.tableOptions = res.data.data
-				}
-			})
-		},
-		addDataSheetSubmit() {
-			let that = this
-			this.$refs.addDataSheetForm.validate(valid => {
-				if (valid) {
-					that.dataSheetTableData = that.dataSheetTableData.concat(
-						JSON.parse(JSON.stringify(that.addDataSheetForm))
-					)
-					that.addDataSheetVisible = false
-				}
-			})
-		},
-		editDataSheetSubmit() {
-			let that = this
-			this.$refs.editDataSheetForm.validate(valid => {
-				if (valid) {
-					that.editDataSheetVisible = false
-					that.dataSheetTableData.splice(
-						that.currentDataSheetIndex,
-						1,
-						JSON.parse(JSON.stringify(that.editDataSheetForm))
-					)
-				}
-			})
-		},
-		showDataSheetEditDialog(index, row) {
-			this.editDataSheetVisible = true
-			if (this.$refs.editDataSheetForm) {
-				this.$refs.editDataSheetForm.resetFields()
-			}
-			this.editDataSheetForm = Object.assign({}, row)
-			this.currentDataSheetIndex = index
-			this.handleRelateTableChange(row.tableName)
-		},
-		dataSheetDelSubmit(index) {
-			this.dataSheetTableData.splice(index, 1)
-		},
-		handIcon() {
-			window.open('https://element.eleme.cn/#/zh-CN/component/icon')
-		},
-		beforeUpload(file) {
-			let pattern = /.(xls|xlsx)$/g
-			if (!pattern.test(file.name)) {
-				this.$message.error('只能上传xls/xlsx文件')
-				return false
-			}
-			const fileSize = file.size / 1024 / 1024 < 10
-			if (!fileSize) {
-				this.$message.error('上传文件大小不能超过 10MB')
-				return false
-			}
-			return true
-		},
-		handleFileSuccess(res, file, fileList, type) {
-			if (res.code === 200) {
-				let fileArray = this.form.listExportPath
-
-				fileArray.push({
-					name: file.name,
-					size: file.size,
-					url: res.data
-				})
-				this.form.listExportPath = fileArray
-			} else {
-				this.$message.error(res.message)
-			}
-		},
-		handleFileDownload(file) {
-			let params = {
-				url: file.url,
-				fileName: file.name
-			}
-			this.$axios.post('upload/download', params, { responseType: 'blob' }).then(res => {
-				let content = res.data
-				let blob = new Blob([content])
-				if ('download' in document.createElement('a')) {
-					// 非IE下载
-					let elink = document.createElement('a')
-					elink.download = file.name
-					elink.style.display = 'none'
-					elink.href = URL.createObjectURL(blob)
-					document.body.appendChild(elink)
-					elink.click()
-					URL.revokeObjectURL(elink.href) // 释放URL 对象
-					document.body.removeChild(elink)
-				} else {
-					// IE10+下载
-					navigator.msSaveBlob(blob, file.name)
-				}
-			})
-		},
-		handleFileRemove(file) {
-			this.form.listExportPath = []
-		},
 		moveUp(index) {
 			if (index === 0) {
 				return
@@ -968,5 +961,8 @@ export default {
 }
 ::v-deep .upload-disabled .el-upload--picture-card {
 	display: none;
+}
+::v-deep .is-without-controls .el-input .el-input__inner {
+	text-align: left;
 }
 </style>
