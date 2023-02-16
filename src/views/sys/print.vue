@@ -66,7 +66,8 @@
 						>
 							<i class="el-icon-plus"></i>
 							<div slot="file" slot-scope="{ file }">
-								<img class="el-upload-list__item-thumbnail" src="@/assets/fileType/word.svg"/>
+								<img class="el-upload-list__item-thumbnail" src="@/assets/fileType/word.svg" v-if="file.type === 'word'"/>
+								<img class="el-upload-list__item-thumbnail" src="@/assets/fileType/excel.svg" v-else/>
 								<span class="el-upload-list__item-actions">
 									<span class="el-upload-list__item-delete" @click="handleFileDownload(file)">
 										<i class="el-icon-download"></i>
@@ -120,7 +121,8 @@
 						>
 							<i class="el-icon-plus"></i>
 							<div slot="file" slot-scope="{ file }">
-								<img class="el-upload-list__item-thumbnail" src="@/assets/fileType/word.svg"/>
+								<img class="el-upload-list__item-thumbnail" src="@/assets/fileType/word.svg" v-if="file.type === 'word'"/>
+								<img class="el-upload-list__item-thumbnail" src="@/assets/fileType/excel.svg" v-else/>
 								<span class="el-upload-list__item-actions">
 									<span class="el-upload-list__item-delete" @click="handleFileDownload(file)">
 										<i class="el-icon-download"></i>
@@ -275,9 +277,9 @@ export default {
 			})
 		},
 		beforeUpload(file) {
-			let pattern = /.(docx)$/g
+			let pattern = /.(docx|xls|xlsx)$/g
 			if (!pattern.test(file.name)) {
-				this.$message.error('只能上传docx文件')
+				this.$message.error('只能上传docx、xls、xlsx文件')
 				return false
 			}
 			const fileSize = file.size / 1024 / 1024 < 10
@@ -287,12 +289,31 @@ export default {
 			}
 			return true
 		},
+		//获取文件类型
+		getFileType(suffix) {
+			let result = ''
+			// 匹配 excel
+			const excelist = ['xls', 'xlsx']
+			result = excelist.find(item => item === suffix)
+			if (result) {
+				return 'excel'
+			}
+			// 匹配 word
+			const wordlist = ['docx']
+			result = wordlist.find(item => item === suffix)
+			if (result) {
+				return 'word'
+			}
+			// 其他 文件类型
+			return 'other'
+		},
 		handleFileSuccess(res, file) {
 			if (res.code === 200) {
+				var suffix = file.name.split('.')[1].toLocaleLowerCase()
 				if(this.addFormVisible) {
 					let fileArray = this.addForm.templateSource
 					fileArray.push({
-						type: 'word',
+						type: this.getFileType(suffix),
 						name: file.name,
 						size: file.size,
 						url: res.data
@@ -301,7 +322,7 @@ export default {
 				} else {
 					let fileArray = this.editForm.templateSource
 					fileArray.push({
-						type: 'word',
+						type: this.getFileType(suffix),
 						name: file.name,
 						size: file.size,
 						url: res.data
