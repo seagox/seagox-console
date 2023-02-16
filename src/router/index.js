@@ -61,14 +61,6 @@ const routes = [
         }
     },
     {
-        path: '/printDesign',
-        name: 'printDesign',
-        component: () => import('@/views/print/print-design'),
-        meta: {
-            title: '打印模版'
-        }
-    },
-    {
         path: '/flowDesigner',
         name: 'flowDesigner',
         component: () => import('@/views/flow/flow-designer'),

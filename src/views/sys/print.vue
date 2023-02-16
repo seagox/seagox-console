@@ -5,16 +5,17 @@
 		</div>
 		<div class="table">
 			<!--列表-->
-			<el-table :data="tableData" border>
+			<el-table :data="tableData" border highlight-current-row stripe>
 				<el-table-column type="index" label="#" width="50" align="center"></el-table-column>
-				<el-table-column prop="name" label="名称" align="center"></el-table-column>
-				<el-table-column label="操作" align="center">
+				<el-table-column prop="name" label="名称" align="center" show-overflow-tooltip></el-table-column>
+				<el-table-column prop="createTime" label="创建时间" align="center"></el-table-column>
+				<el-table-column label="操作" align="center" width="200">
 					<template slot-scope="scope">
 						<el-button type="text" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
 						<el-divider direction="vertical"></el-divider>
-						<el-button type="text" size="small" @click="designSubmit(scope.row)">设计</el-button>
-						<el-divider direction="vertical"></el-divider>
 						<el-button type="text" size="small" @click="deleteSubmit(scope.row)">删除</el-button>
+						<el-divider direction="vertical"></el-divider>
+						<el-button type="text" size="small" @click="handlePreview(scope.row)">预览</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
@@ -31,11 +32,53 @@
 			</div>
 		</div>
 		<!--新增界面-->
-		<el-dialog title="新增" width="500px" :visible.sync="addFormVisible" :close-on-click-modal="false">
+		<el-dialog title="新增" width="750px" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="formRules" ref="addForm">
-				<el-form-item label="名称" prop="name">
-					<el-input v-model.trim="addForm.name" placeholder="请输入名称"></el-input>
-				</el-form-item>
+				<el-col :span="12">
+					<el-form-item label="名称" prop="name">
+						<el-input v-model.trim="addForm.name" placeholder="请输入名称"></el-input>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12">
+					<el-form-item label="数据源" prop="dataSource">
+						<el-select v-model="addForm.dataSource" filterable placeholder="请选择数据源">
+							<el-option
+								v-for="item in metaFunctionOptions"
+								:key="item.id"
+								:label="item.name"
+								:value="item.id"
+							>
+							</el-option>
+						</el-select>
+					</el-form-item>
+				</el-col>
+				<el-col :span="24">
+					<el-form-item label="模板" prop="templateSource">
+						<el-upload
+							:limit="1"
+							:action="action"
+							:headers="headers"
+							:file-list="addForm.templateSource"
+							list-type="picture-card"
+							:before-upload="beforeUpload"
+							:class="addForm.templateSource.length === 1 ? 'upload-disabled' : ''"
+							:on-success="handleFileSuccess"
+						>
+							<i class="el-icon-plus"></i>
+							<div slot="file" slot-scope="{ file }">
+								<img class="el-upload-list__item-thumbnail" src="@/assets/fileType/word.svg"/>
+								<span class="el-upload-list__item-actions">
+									<span class="el-upload-list__item-delete" @click="handleFileDownload(file)">
+										<i class="el-icon-download"></i>
+									</span>
+									<span class="el-upload-list__item-delete" @click="handleFileRemove(file)">
+										<i class="el-icon-delete"></i>
+									</span>
+								</span>
+							</div>
+						</el-upload>
+					</el-form-item>
+				</el-col>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="addFormVisible = false">取消</el-button>
@@ -43,11 +86,53 @@
 			</div>
 		</el-dialog>
 		<!--编辑界面-->
-		<el-dialog title="编辑" width="500px" :visible.sync="editFormVisible" :close-on-click-modal="false">
+		<el-dialog title="编辑" width="750px" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="formRules" ref="editForm">
-				<el-form-item label="名称" prop="name">
-					<el-input v-model.trim="editForm.name" placeholder="请输入名称"></el-input>
-				</el-form-item>
+				<el-col :span="12">
+					<el-form-item label="名称" prop="name">
+						<el-input v-model.trim="editForm.name" placeholder="请输入名称"></el-input>
+					</el-form-item>
+				</el-col>
+				<el-col :span="12">
+					<el-form-item label="数据源" prop="dataSource">
+						<el-select v-model="editForm.dataSource" filterable placeholder="请选择数据源">
+							<el-option
+								v-for="item in metaFunctionOptions"
+								:key="item.id"
+								:label="item.name"
+								:value="item.id"
+							>
+							</el-option>
+						</el-select>
+					</el-form-item>
+				</el-col>
+				<el-col :span="24">
+					<el-form-item label="模板" prop="templateSource">
+						<el-upload
+							:limit="1"
+							:action="action"
+							:headers="headers"
+							:file-list="editForm.templateSource"
+							list-type="picture-card"
+							:before-upload="beforeUpload"
+							:class="editForm.templateSource.length === 1 ? 'upload-disabled' : ''"
+							:on-success="handleFileSuccess"
+						>
+							<i class="el-icon-plus"></i>
+							<div slot="file" slot-scope="{ file }">
+								<img class="el-upload-list__item-thumbnail" src="@/assets/fileType/word.svg"/>
+								<span class="el-upload-list__item-actions">
+									<span class="el-upload-list__item-delete" @click="handleFileDownload(file)">
+										<i class="el-icon-download"></i>
+									</span>
+									<span class="el-upload-list__item-delete" @click="handleFileRemove(file)">
+										<i class="el-icon-delete"></i>
+									</span>
+								</span>
+							</div>
+						</el-upload>
+					</el-form-item>
+				</el-col>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="editFormVisible = false">取消</el-button>
@@ -61,25 +146,37 @@
 export default {
 	data() {
 		return {
+			action: this.$axios.defaults.baseURL + 'upload/putObject/oss',
+			headers: {
+				Authorization: window.localStorage.getItem('Authorization')
+			},
 			tableData: [],
 			pageNo: 1,
 			total: 0,
+			metaFunctionOptions: [],
 			addFormVisible: false,
 			addForm: {
-				name: ''
+				name: '',
+				dataSource: '',
+				templateSource: []
 			},
 			editFormVisible: false,
 			editForm: {
 				id: '',
-				name: ''
+				name: '',
+				dataSource: '',
+				templateSource: []
 			},
 			formRules: {
-				name: [{ required: true, message: '请输入名称', trigger: 'blur' }]
+				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+				dataSource: [{ required: true, message: '请选择数据源', trigger: 'change' }],
+				templateSource: [{ required: true, message: '请选择模板', trigger: 'change' }]
 			}
 		}
 	},
 	created() {
 		this.queryByPage()
+		this.queryMetaFunction()
 	},
 	methods: {
 		async queryByPage() {
@@ -87,12 +184,26 @@ export default {
 				pageNo: this.pageNo
 			}
 			let res = await this.$axios.get('jellyPrint/queryByPage', { params })
+				
 			if (res.data.code == 200) {
 				this.tableData = res.data.data.list
 				this.total = res.data.data.total
 			}
 		},
-		handleCurrentChange(val) {
+		async queryMetaFunction() {
+            let res = await this.$axios.get('metaFunction/queryByCompanyId')
+            if (res.data.code === 200) {
+                this.metaFunctionOptions = res.data.data
+            }
+        },
+		typeFormatter(row) {
+			if(row.type == 1) {
+				return 'word'
+			} else {
+				return 'excel'
+			}
+		},
+		handleCurrentChange() {
 			this.queryByPage()
 		},
 		showAddDialog() {
@@ -104,7 +215,12 @@ export default {
 		addSubmit() {
 			this.$refs.addForm.validate(valid => {
 				if (valid) {
-					this.$axios.post('jellyPrint/insert', this.addForm).then(res => {
+					var params = {
+						name: this.addForm.name,
+						dataSource: this.addForm.dataSource,
+						templateSource: JSON.stringify(this.addForm.templateSource)
+					}
+					this.$axios.post('jellyPrint/insert', params).then(res => {
 						if (res.data.code == 200) {
 							this.$message.success('新增成功')
 							this.addFormVisible = false
@@ -118,6 +234,7 @@ export default {
 		},
 		showEditDialog(row) {
 			this.editForm = Object.assign({}, row)
+			this.editForm.templateSource = JSON.parse(this.editForm.templateSource)
 			this.editFormVisible = true
 			if (this.$refs.editForm) {
 				this.$refs.editForm.resetFields()
@@ -126,7 +243,13 @@ export default {
 		editSubmit() {
 			this.$refs.editForm.validate(valid => {
 				if (valid) {
-					this.$axios.post('jellyPrint/update', this.editForm).then(res => {
+					var params = {
+						id: this.editForm.id,
+						name: this.editForm.name,
+						dataSource: this.editForm.dataSource,
+						templateSource: JSON.stringify(this.editForm.templateSource)
+					}
+					this.$axios.post('jellyPrint/update', params).then(res => {
 						if (res.data.code == 200) {
 							this.$message.success('修改成功')
 							this.editFormVisible = false
@@ -135,16 +258,6 @@ export default {
 							this.$message.error(res.data.message)
 						}
 					})
-				}
-			})
-		},
-		designSubmit(row) {
-			//高级版
-			this.$router.push({
-				path: '/printDesign',
-				query: {
-					id: row.id,
-                    type: 'print'
 				}
 			})
 		},
@@ -160,7 +273,85 @@ export default {
 					}
 				})
 			})
-		}
+		},
+		beforeUpload(file) {
+			let pattern = /.(docx)$/g
+			if (!pattern.test(file.name)) {
+				this.$message.error('只能上传docx文件')
+				return false
+			}
+			const fileSize = file.size / 1024 / 1024 < 10
+			if (!fileSize) {
+				this.$message.error('上传文件大小不能超过 10MB')
+				return false
+			}
+			return true
+		},
+		handleFileSuccess(res, file) {
+			if (res.code === 200) {
+				if(this.addFormVisible) {
+					let fileArray = this.addForm.templateSource
+					fileArray.push({
+						type: 'word',
+						name: file.name,
+						size: file.size,
+						url: res.data
+					})
+					this.addForm.templateSource = fileArray
+				} else {
+					let fileArray = this.editForm.templateSource
+					fileArray.push({
+						type: 'word',
+						name: file.name,
+						size: file.size,
+						url: res.data
+					})
+					this.editForm.templateSource = fileArray
+				}
+			} else {
+				this.$message.error(res.message)
+			}
+		},
+		handleFileDownload(file) {
+			let params = {
+				url: file.url,
+				fileName: file.name
+			}
+			this.$axios.post('upload/download', params, { responseType: 'blob' }).then(res => {
+				let content = res.data
+				let blob = new Blob([content])
+				if ('download' in document.createElement('a')) {
+					// 非IE下载
+					let elink = document.createElement('a')
+					elink.download = file.name
+					elink.style.display = 'none'
+					elink.href = URL.createObjectURL(blob)
+					document.body.appendChild(elink)
+					elink.click()
+					URL.revokeObjectURL(elink.href) // 释放URL 对象
+					document.body.removeChild(elink)
+				} else {
+					// IE10+下载
+					navigator.msSaveBlob(blob, file.name)
+				}
+			})
+		},
+		handleFileRemove() {
+			if(this.addFormVisible) {
+				this.addForm.templateSource = []
+			} else {
+				this.editForm.templateSource = []
+			}
+		},
+		handlePreview(row) {
+			window.open(window.platform.url + 'upload/print/' + row.id)
+        }
 	}
 }
 </script>
+
+<style scoped>
+::v-deep .upload-disabled .el-upload--picture-card {
+	display: none;
+}
+</style>
