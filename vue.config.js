@@ -22,13 +22,6 @@ module.exports = {
     },
     transpileDependencies: ['vue-grid-layout', 'x-data-spreadsheet', 'quill-image-extend-module'],
     chainWebpack: config => {
-        /* 添加分析工具 */
-        if (process.env.NODE_ENV === 'production') {
-            config
-                .plugin('webpack-bundle-analyzer')
-                .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
-                .end()
-        }
         // 移除 prefetch 插件
         config.plugins.delete('prefetch')
         // 移除 preload 插件
