@@ -86,7 +86,7 @@ const routes = [
                 path: '/company',
                 component: () => import('@/views/platform/company'),
                 meta: {
-                    title: '单位管理'
+                    title: '组织定义'
                 }
             },
             {

@@ -8,7 +8,7 @@
 						:style="{ 'background-image': `url(${require('@/assets/plugin/company.png')})` }"
 					></div>
 				</div>
-				<div class="title">单位管理</div>
+				<div class="title">组织定义</div>
 			</div>
 			<div>
 				<div class="content" @click="handleClick('/businessTable')">
