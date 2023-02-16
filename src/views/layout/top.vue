@@ -197,6 +197,7 @@ export default {
                     localStorage.setItem('Authorization', res.data.data.tokenType + res.data.data.accessToken)
                     localStorage.setItem('departmentId', res.data.data.departmentId)
 
+                    that.$store.commit('closeAll')
                     that.$router.go(0)
                 } else {
                     that.$message.error(res.data.message)
