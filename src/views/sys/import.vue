@@ -116,7 +116,7 @@
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in businessRuleOptions"
+                                    v-for="item in metaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -134,7 +134,7 @@
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in businessRuleOptions"
+                                    v-for="item in metaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -152,7 +152,7 @@
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in businessRuleOptions"
+                                    v-for="item in metaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -231,10 +231,10 @@
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in businessRuleOptions"
+                                    v-for="item in metaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
-                                    :value="item.id"
+                                    :value="item.id+''"
                                 >
                                 </el-option>
                             </el-select>
@@ -249,7 +249,7 @@
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in businessRuleOptions"
+                                    v-for="item in metaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -267,7 +267,7 @@
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in businessRuleOptions"
+                                    v-for="item in metaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -430,6 +430,25 @@
                 <el-button type="primary" @click="editFieldSubmit">提交</el-button>
             </div>
         </el-dialog>
+        <!--选择规则界面-->
+        <el-dialog title="新增" width="500px" :visible.sync="ruleTypeVisible" :close-on-click-modal="false">
+            <el-form :model="ruleTypeForm" label-width="75px" :rules="ruleDetailFormRules" ref="ruleTypeForm">
+                <el-form-item label="规则" prop="ruleTypeId">
+                    <el-select  v-model="ruleTypeForm.ruleTypeId" filterable placeholder="请选择规则">
+                        <el-option
+                            v-for="item in ruleTypes"
+                            :key="item.value"
+                            :label="item.name"
+                            :value="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="ruleTypeSubmit">提交</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -437,6 +456,23 @@
 export default {
     data() {
         return {
+          ruleTypeForm:{
+            ruleTypeId:''
+          },
+          ruleTypeVisible:false,
+          ruleTypes: [
+            {name: "不为空", value: "@NotNull(message = \"必须不为null\")"},
+            {name: "长度", value: "@Length(max = 11, min = 7, message = \"长度必须大于等于7或小于等于11\")"},
+            {name: "最小值", value: "@Min(0)"},
+            {name: "最大值", value: "@Max(0)"},
+            {name: "小数最小值", value: "@DecimalMin(0.0)"},
+            {name: "小数最大值", value: "@DecimalMax(0.0)"},
+            {name: "指定范围", value: "@Range(max = 80, min = 18, message = \"必须大于等于18或小于等于80\")"},
+            {name: "正则表达式", value: "@Pattern(regexp = \"\\\\\\\\d{11}\",message = \"必须为数字，并且长度为11\")"},
+            {name: "替换", value: "@Replace(\"字典\")"},
+            {name: "日期", value: "@DateTimeFormat(pattern = \"yyyy-MM-dd HH:mm:ss\")"},
+            {name: "小数", value: "@Decimal"},
+          ],
             clientHeight: document.documentElement.clientHeight || document.body.clientHeight,
             action: this.$axios.defaults.baseURL + 'upload/putObject/oss',
             headers: {
@@ -632,15 +668,16 @@ export default {
             },
             ruleDetailFormRules: {
                 field: [{ required: true, message: '请选择字段', trigger: 'change' }],
-                col: [{ required: true, message: '请选择对应列', trigger: 'change' }]
+                col: [{ required: true, message: '请选择对应列', trigger: 'change' }],
+                ruleTypeId: [{ required: true, message: '请选择对应规则', trigger: 'change' }]
             },
-            businessRuleOptions: []
+            metaFunctionOptions: []
         }
     },
     created() {
         this.queryRules()
         this.queryBusinessTable()
-        this.queryBusinessRule()
+        this.queryMetaFunction()
     },
     methods: {
         async queryRules() {
@@ -655,10 +692,10 @@ export default {
                 this.tableOptions = res.data.data
             }
         },
-        async queryBusinessRule() {
+        async queryMetaFunction() {
             let res = await this.$axios.get('metaFunction/queryByCompanyId')
-            if (res.data.code == 200) {
-                this.businessRuleOptions = res.data.data
+            if (res.data.code === 200) {
+                this.metaFunctionOptions = res.data.data
             }
         },
         async queryFieldByTableId(tableId) {
@@ -934,21 +971,25 @@ export default {
             }
         },
         showAnnotationDialog() {
-            if (this.addFieldFormVisible) {
-                this.addFieldForm.rule.push({
-                    rule: ''
-                })
-            } else {
-                this.editFieldForm.rule.push({
-                    rule: ''
-                })
-            }
+          this.ruleTypeVisible=true
         },
         deleteAnnotationSubmit(index) {
             if (this.addFieldFormVisible) {
                 this.addFieldForm.rule.splice(index, 1)
             } else {
                 this.editFieldForm.rule.splice(index, 1)
+            }
+        },
+        ruleTypeSubmit(){
+            this.ruleTypeVisible = false
+            if (this.addFieldFormVisible) {
+                this.addFieldForm.rule.push({
+                    rule: this.ruleTypeForm.ruleTypeId
+                })
+            } else {
+                this.editFieldForm.rule.push({
+                    rule: this.ruleTypeForm.ruleTypeId
+                })
             }
         }
     }
