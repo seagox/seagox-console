@@ -355,14 +355,8 @@
 					>设置计算公式</el-button
 				>
 			</el-row>
-			<el-row v-if="form.type != 'table' && form.type != 'calculate' && form.type != 'word'">
-				<el-button type="primary" size="medium" @click="submitConfigForm" style="width:100%">保存</el-button>
-			</el-row>
-			<el-row v-if="form.type != 'word'">
-				<el-button type="danger" size="medium" @click="deleteConfigForm" style="width:100%">删除</el-button>
-			</el-row>
 			<!-- 验证规则 -->
-			<!-- <div v-if="form.type === 'text' || form.type === 'textarea' || form.type === 'number'">
+			<div v-if="form.type === 'text' || form.type === 'textarea' || form.type === 'number'">
 				<el-divider>验证规则</el-divider>
 				<div class="formVerify" v-for="(item, index) in form.rules" :key="index">
 					<el-form-item label="类型">
@@ -388,7 +382,13 @@
 					<i class="el-icon-circle-close" @click="handleDelRule(index)"></i>
 				</div>
 				<el-button type="text" icon="el-icon-circle-plus-outline" @click="handleAddRule">添加规则</el-button>
-			</div> -->
+			</div>
+			<el-row v-if="form.type != 'table' && form.type != 'calculate' && form.type != 'word'">
+				<el-button type="primary" size="medium" @click="submitConfigForm" style="width:100%">保存</el-button>
+			</el-row>
+			<el-row v-if="form.type != 'word'">
+				<el-button type="danger" size="medium" @click="deleteConfigForm" style="width:100%">删除</el-button>
+			</el-row>
 		</el-form>
 		<excel-table ref="excelTable" @submitForm="submitForm" :form="form" :fieldOptions="fieldOptions" />
 		<excel-calculate ref="excelCalculate" @calculateSubmit="calculateSubmit" />
@@ -630,7 +630,7 @@ export default {
 			this.$emit('submitConfigForm', this.form)
 		},
 		handleAddRule() {
-			this.$emit(this.form, 'rules', [])
+			this.$set(this.form, 'rules', [])
 			this.form.rules.push({
 				type: '',
 				expression: '',
