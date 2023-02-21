@@ -17,6 +17,23 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="4">
+                        <el-form-item label="类型">
+                            <el-select
+                                v-model="searchForm.type"
+                                clearable
+                                placeholder="请选择类型"
+                            >
+                                <el-option
+                                    v-for="item in typeOptions"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value"
+                                >
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="4">
                         <el-button
                             type="primary"
                             icon="el-icon-search"
@@ -59,6 +76,21 @@
         <!--新增界面-->
         <el-dialog title="新增" width="500px" :visible.sync="addFormVisible" :close-on-click-modal="false">
             <el-form :model="addForm" label-width="80px" :rules="formRules" ref="addForm">
+                <el-form-item label="类型" prop="type">
+                    <el-select
+                        v-model="addForm.type"
+                        clearable
+                        placeholder="请选择类型"
+                    >
+                        <el-option
+                            v-for="item in typeOptions"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value"
+                        >
+                        </el-option>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="名称" prop="name">
                     <el-input v-model.trim="addForm.name" placeholder="请输入名称"></el-input>
                 </el-form-item>
@@ -103,18 +135,31 @@ export default {
             addFormVisible: false,
             addForm: {
                 name: '',
-                path: ''
+                path: '',
+                type: 1
             },
             editFormVisible: false,
             editForm: {
                 id: '',
                 name: '',
-                path: ''
+                path: '',
+                type: undefined
             },
             formRules: {
+                type: [{ required: true, message: '请选择类型', trigger: 'change' }],
                 name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
                 path: [{ required: true, message: '请输入路径', trigger: 'blur' }]
-            }
+            },
+            typeOptions: [
+                {
+                    value: 1,
+                    label: '函数'
+                },
+                {
+                    value: 2,
+                    label: '规则'
+                }
+            ]
         }
     },
     created() {
@@ -125,7 +170,8 @@ export default {
             const params = {
                 pageNo: this.pageNo,
                 name: this.searchForm.name,
-				path: this.searchForm.path
+				path: this.searchForm.path,
+                type: this.searchForm.type
             }
             let res = await this.$axios.get('metaFunction/queryByPage', { params })
 			if (res.data.code == 200) {
@@ -184,7 +230,7 @@ export default {
             })
         },
         showConfig(row) {
-            this.$router.push({ path: '/editMetaFunction', query: { id: row.id } })
+            this.$router.push({ path: '/editMetaFunction', query: { id: row.id, path: row.path } })
         },
         deleteSubmit(row) {
             this.$confirm('亲，确认要删除吗？', '提示', { type: 'warning' }).then(() => {

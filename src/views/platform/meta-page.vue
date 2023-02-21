@@ -184,7 +184,7 @@ export default {
             })
         },
         showConfig(row) {
-            this.$router.push({ path: '/editMetaPage', query: { id: row.id } })
+            this.$router.push({ path: '/editMetaPage', query: { id: row.id, path: row.path } })
         },
         deleteSubmit(row) {
             this.$confirm('亲，确认要删除吗？', '提示', { type: 'warning' }).then(() => {
