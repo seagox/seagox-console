@@ -20,9 +20,12 @@
 			</el-col>
 			<el-col :span="12">
 				<el-form-item label="图标" prop="icon">
-					<el-select v-model="form.icon" filterable placeholder="请选择图标">
-						<el-option v-for="icon in iconOptions" :key="icon" :label="icon" :value="icon"> </el-option>
-					</el-select>
+                    <div class="inside-input">
+                        <div class="iconView">
+                            <div v-html="form.icon"></div>
+                        </div>
+                        <i class="el-icon-document-copy iconE" @click="handleIconDialog"></i>
+                    </div>
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
@@ -225,7 +228,7 @@
 						<el-option
 							v-for="item in tableOptions"
 							:key="item.id"
-							:label="item.remark + '(' + item.name + ')'"
+							:label="item.comment + '(' + item.name + ')'"
 							:value="item.id"
 						>
 						</el-option>
@@ -278,6 +281,58 @@
 				<el-button type="primary" @click="settingFormVisible = false">保存</el-button>
 			</div>
 		</el-dialog>
+        <!--图标选择界面-->
+        <el-dialog title="图标选择" width="950px" :visible.sync="iconFormVisible" :close-on-click-modal="false">
+            <div class="searchView">
+                <el-form label-width="65px">
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="名称">
+                                <el-input v-model="searchIconName" clearable placeholder="请输入名称"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="3">
+                            <el-button
+                                type="primary"
+                                icon="el-icon-search"
+                                @click.native="handleCurrentChange"
+                                style="margin-left: 15px"
+                            >查询</el-button
+                            >
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </div>
+            <el-scrollbar style="height:100%">
+                <el-row>
+                    <el-col
+                        :span="4"
+                        v-for="(item, index) in iconData"
+                        :key="index"
+                        style="margin-bottom: 20px; cursor: pointer;"
+                    >
+                        <el-card shadow="hover">
+                            <div @click="handleIconClick(item)">
+                                <i v-html="item.content"></i>
+                                <span style="margin-left: 30px;">{{ item.name }}</span>
+                            </div>
+                        </el-card>
+                    </el-col>
+                </el-row>
+            </el-scrollbar>
+            <!--分页-->
+            <div class="pagination">
+                <el-pagination
+                    background
+                    @current-change="handleCurrentChange"
+                    layout="total, prev, pager, next"
+                    :current-page.sync="pageNo"
+                    :page-size.sync="pageSize"
+                    :total="total"
+                >
+                </el-pagination>
+            </div>
+        </el-dialog>
 	</div>
 </template>
 
@@ -374,28 +429,6 @@ export default {
 					{ pattern: /^(1|[1-9]\d?|26)$/, message: '范围在1-20', trigger: 'blur' }
 				]
 			},
-			iconOptions: [
-				'location-o',
-				'like-o',
-				'star-o',
-				'phone-o',
-				'setting-o',
-				'fire-o',
-				'coupon-o',
-				'cart-o',
-				'shopping-cart-o',
-				'cart-circle-o',
-				'friends-o',
-				'comment-o',
-				'gem-o',
-				'gift-o',
-				'point-gift-o',
-				'send-gift-o',
-				'service-o',
-				'bag-o',
-				'todo-list-o',
-				'balance-list-o'
-			],
 			predefine: ['#1879fe', '#5d0bc7', '#1700c2', '#1cb6b4', '#35a110', '#f5b017', '#ee6c16', '#ef0022'],
 			excelOption: {
 				showBottomBar: false,
@@ -417,7 +450,13 @@ export default {
 			xs: null,
 			rowIndex: 0,
 			colIndex: 0,
-			settingFormVisible: false
+			settingFormVisible: false,
+            iconFormVisible: false,
+            pageSize: 30,
+            pageNo: 1,
+            total: 0,
+            searchIconName: '',
+            iconData: []
 		}
 	},
 	created() {
@@ -645,7 +684,32 @@ export default {
 			} else {
 				return '隐藏'
 			}
-		}
+		},
+        queryIconByPage(){
+            let that = this
+            var params = {
+                pageSize: this.pageSize,
+                pageNo: this.pageNo,
+                name: this.searchIconName
+            }
+            that.$axios.get('jellySvg/queryByPage', {params}).then(res => {
+                if (res.data.code == 200) {
+                    this.iconData = res.data.data.list
+                    this.total = res.data.data.total
+                }
+            })
+        },
+        handleCurrentChange(){
+            this.queryIconByPage()
+        },
+        handleIconDialog(){
+            this.queryIconByPage()
+            this.iconFormVisible = true
+        },
+        handleIconClick(item){
+            this.form.icon = item.content
+            this.iconFormVisible = false
+        }
 	}
 }
 </script>
@@ -655,5 +719,35 @@ export default {
 }
 ::v-deep .upload-disabled .el-upload--picture-card {
 	display: none;
+}
+.inside-input {
+    position: relative;
+}
+.inside-input .iconE {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #c0c4cc;
+}
+::v-deep .inside-input .el-input--suffix .el-input__inner {
+    padding-right: 48px;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-arrow-up {
+    display: none;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-circle-close {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: #c0c4cc;
+}
+.iconView{
+    border: 1px solid #DCDFE6;
+    border-radius: 4px;
+    padding: 0px 20px;
+    height: 40px;
 }
 </style>

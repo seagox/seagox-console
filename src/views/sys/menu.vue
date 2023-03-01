@@ -15,7 +15,7 @@
 				<el-table-column type="index" label="#" width="50" align="center"></el-table-column>
 				<el-table-column prop="name" label="菜单名称" header-align="center">
 					<template slot-scope="scope">
-						<i :class="scope.row.icon"></i>
+						<i v-html="scope.row.icon"></i>
 						{{ scope.row.name }}
 					</template>
 				</el-table-column>
@@ -112,11 +112,12 @@
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="图标" prop="icon">
-							<el-select v-model="addForm.icon" placeholder="请选择图标" filterable>
-								<el-option v-for="icon in icons" :key="icon" :label="icon" :value="icon">
-									<i :class="icon"> {{ icon }} </i>
-								</el-option>
-							</el-select>
+                            <div class="inside-input">
+                                <div class="iconView">
+                                    <div v-html="addForm.icon"></div>
+                                </div>
+                                <i class="el-icon-document-copy iconE" @click="handleIconDialog"></i>
+                            </div>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
@@ -197,13 +198,14 @@
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
-						<el-form-item label="图标" prop="icon">
-							<el-select v-model="editForm.icon" placeholder="请选择图标" filterable>
-								<el-option v-for="icon in icons" :key="icon" :label="icon" :value="icon">
-									<i :class="icon"> {{ icon }} </i>
-								</el-option>
-							</el-select>
-						</el-form-item>
+                        <el-form-item label="图标" prop="icon">
+                            <div class="inside-input">
+                                <div class="iconView">
+                                    <div v-html="editForm.icon"></div>
+                                </div>
+                                <i class="el-icon-document-copy iconE" @click="handleIconDialog"></i>
+                            </div>
+                        </el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="排序">
@@ -222,6 +224,59 @@
 				<el-button type="primary" @click="editSubmit">提交</el-button>
 			</div>
 		</el-dialog>
+
+        <!--图标选择界面-->
+        <el-dialog title="图标选择" width="950px" :visible.sync="iconFormVisible" :close-on-click-modal="false">
+            <div class="searchView">
+                <el-form label-width="65px">
+                    <el-row>
+                        <el-col :span="8">
+                            <el-form-item label="名称">
+                                <el-input v-model="searchIconName" clearable placeholder="请输入名称"></el-input>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="3">
+                            <el-button
+                                type="primary"
+                                icon="el-icon-search"
+                                @click.native="handleCurrentChange"
+                                style="margin-left: 15px"
+                            >查询</el-button
+                            >
+                        </el-col>
+                    </el-row>
+                </el-form>
+            </div>
+            <el-scrollbar style="height:100%">
+                <el-row>
+                    <el-col
+                        :span="4"
+                        v-for="(item, index) in iconData"
+                        :key="index"
+                        style="margin-bottom: 20px; cursor: pointer;"
+                    >
+                        <el-card shadow="hover">
+                            <div @click="handleIconClick(item)">
+                                <i v-html="item.content"></i>
+                                <span style="margin-left: 30px;">{{ item.name }}</span>
+                            </div>
+                        </el-card>
+                    </el-col>
+                </el-row>
+            </el-scrollbar>
+            <!--分页-->
+            <div class="pagination">
+                <el-pagination
+                    background
+                    @current-change="handleCurrentChange"
+                    layout="total, prev, pager, next"
+                    :current-page.sync="pageNo"
+                    :page-size.sync="pageSize"
+                    :total="total"
+                >
+                </el-pagination>
+            </div>
+        </el-dialog>
 	</div>
 </template>
 
@@ -302,234 +357,13 @@ export default {
 				quickName: [{ max: 30, message: '简称不超过30个字符', trigger: 'blur' }]
 			},
 			frgOptions: [],
-			icons: [
-				'el-icon-delete',
-				'el-icon-setting',
-				'el-icon-user',
-				'el-icon-more-outline',
-				'el-icon-star-off',
-				'el-icon-zoom-in',
-				'el-icon-zoom-out',
-				'el-icon-warning-outline',
-				'el-icon-phone-outline',
-				'el-icon-remove-outline',
-				'el-icon-circle-plus-outline',
-				'el-icon-circle-check',
-				'el-icon-circle-close',
-				'el-icon-help',
-				'el-icon-minus',
-				'el-icon-plus',
-				'el-icon-check',
-				'el-icon-close',
-				'el-icon-picture-outline',
-				'el-icon-picture-outline-round',
-				'el-icon-upload2',
-				'el-icon-download',
-				'el-icon-camera',
-				'el-icon-video-camera',
-				'el-icon-bell',
-				'el-icon-bottom-left',
-				'el-icon-bottom-right',
-				'el-icon-back',
-				'el-icon-right',
-				'el-icon-bottom',
-				'el-icon-top',
-				'el-icon-top-left',
-				'el-icon-top-right',
-				'el-icon-arrow-left',
-				'el-icon-arrow-right',
-				'el-icon-arrow-down',
-				'el-icon-arrow-up',
-				'el-icon-d-arrow-left',
-				'el-icon-d-arrow-right',
-				'el-icon-video-pause',
-				'el-icon-video-play',
-				'el-icon-refresh',
-				'el-icon-refresh-right',
-				'el-icon-refresh-left',
-				'el-icon-finished',
-				'el-icon-sort',
-				'el-icon-sort-up',
-				'el-icon-sort-down',
-				'el-icon-rank',
-				'el-icon-view',
-				'el-icon-c-scale-to-original',
-				'el-icon-date',
-				'el-icon-edit',
-				'el-icon-edit-outline',
-				'el-icon-folder',
-				'el-icon-folder-opened',
-				'el-icon-folder-add',
-				'el-icon-folder-remove',
-				'el-icon-folder-delete',
-				'el-icon-folder-checked',
-				'el-icon-tickets',
-				'el-icon-document-remove',
-				'el-icon-document-delete',
-				'el-icon-document-copy',
-				'el-icon-document-checked',
-				'el-icon-document',
-				'el-icon-document-add',
-				'el-icon-printer',
-				'el-icon-paperclip',
-				'el-icon-takeaway-box',
-				'el-icon-search',
-				'el-icon-monitor',
-				'el-icon-attract',
-				'el-icon-mobile',
-				'el-icon-scissors',
-				'el-icon-umbrella',
-				'el-icon-headset',
-				'el-icon-brush',
-				'el-icon-mouse',
-				'el-icon-coordinate',
-				'el-icon-magic-stick',
-				'el-icon-reading',
-				'el-icon-data-line',
-				'el-icon-data-board',
-				'el-icon-pie-chart',
-				'el-icon-data-analysis',
-				'el-icon-collection-tag',
-				'el-icon-film',
-				'el-icon-suitcase',
-				'el-icon-suitcase-1',
-				'el-icon-receiving',
-				'el-icon-collection',
-				'el-icon-files',
-				'el-icon-notebook-1',
-				'el-icon-notebook-2',
-				'el-icon-toilet-paper',
-				'el-icon-office-building',
-				'el-icon-school',
-				'el-icon-table-lamp',
-				'el-icon-house',
-				'el-icon-no-smoking',
-				'el-icon-smoking',
-				'el-icon-shopping-cart-full',
-				'el-icon-shopping-cart-1',
-				'el-icon-shopping-cart-2',
-				'el-icon-shopping-bag-1',
-				'el-icon-shopping-bag-2',
-				'el-icon-sold-out',
-				'el-icon-sell',
-				'el-icon-present',
-				'el-icon-box',
-				'el-icon-bank-card',
-				'el-icon-money',
-				'el-icon-coin',
-				'el-icon-wallet',
-				'el-icon-discount',
-				'el-icon-price-tag',
-				'el-icon-news',
-				'el-icon-guide',
-				'el-icon-male',
-				'el-icon-female',
-				'el-icon-thumb',
-				'el-icon-cpu',
-				'el-icon-link',
-				'el-icon-connection',
-				'el-icon-open',
-				'el-icon-turn-off',
-				'el-icon-set-up',
-				'el-icon-chat-round',
-				'el-icon-chat-line-round',
-				'el-icon-chat-square',
-				'el-icon-chat-dot-round',
-				'el-icon-chat-dot-square',
-				'el-icon-chat-line-square',
-				'el-icon-message',
-				'el-icon-postcard',
-				'el-icon-position',
-				'el-icon-turn-off-microphone',
-				'el-icon-microphone',
-				'el-icon-close-notification',
-				'el-icon-bangzhu',
-				'el-icon-time',
-				'el-icon-odometer',
-				'el-icon-crop',
-				'el-icon-aim',
-				'el-icon-switch-button',
-				'el-icon-full-screen',
-				'el-icon-copy-document',
-				'el-icon-mic',
-				'el-icon-stopwatch',
-				'el-icon-medal-1',
-				'el-icon-medal',
-				'el-icon-trophy',
-				'el-icon-trophy-1',
-				'el-icon-first-aid-kit',
-				'el-icon-discover',
-				'el-icon-place',
-				'el-icon-location',
-				'el-icon-location-outline',
-				'el-icon-location-information',
-				'el-icon-add-location',
-				'el-icon-delete-location',
-				'el-icon-map-location',
-				'el-icon-alarm-clock',
-				'el-icon-timer',
-				'el-icon-watch-1',
-				'el-icon-watch',
-				'el-icon-lock',
-				'el-icon-unlock',
-				'el-icon-key',
-				'el-icon-service',
-				'el-icon-mobile-phone',
-				'el-icon-bicycle',
-				'el-icon-truck',
-				'el-icon-ship',
-				'el-icon-basketball',
-				'el-icon-football',
-				'el-icon-soccer',
-				'el-icon-baseball',
-				'el-icon-wind-power',
-				'el-icon-light-rain',
-				'el-icon-lightning',
-				'el-icon-heavy-rain',
-				'el-icon-sunrise',
-				'el-icon-sunrise-1',
-				'el-icon-sunset',
-				'el-icon-sunny',
-				'el-icon-cloudy',
-				'el-icon-partly-cloudy',
-				'el-icon-cloudy-and-sunny',
-				'el-icon-moon',
-				'el-icon-moon-night',
-				'el-icon-dish',
-				'el-icon-dish-1',
-				'el-icon-food',
-				'el-icon-chicken',
-				'el-icon-fork-spoon',
-				'el-icon-knife-fork',
-				'el-icon-burger',
-				'el-icon-tableware',
-				'el-icon-sugar',
-				'el-icon-dessert',
-				'el-icon-ice-cream',
-				'el-icon-hot-water',
-				'el-icon-water-cup',
-				'el-icon-coffee-cup',
-				'el-icon-cold-drink',
-				'el-icon-goblet',
-				'el-icon-goblet-full',
-				'el-icon-goblet-square',
-				'el-icon-goblet-square-full',
-				'el-icon-refrigerator',
-				'el-icon-grape',
-				'el-icon-watermelon',
-				'el-icon-cherry',
-				'el-icon-apple',
-				'el-icon-pear',
-				'el-icon-orange',
-				'el-icon-coffee',
-				'el-icon-ice-tea',
-				'el-icon-ice-drink',
-				'el-icon-milk-tea',
-				'el-icon-potato-strips',
-				'el-icon-lollipop',
-				'el-icon-ice-cream-square',
-				'el-icon-ice-cream-round'
-			]
+            iconOptions: [],
+            iconFormVisible: false,
+            pageSize: 30,
+            pageNo: 1,
+            total: 0,
+            searchIconName: '',
+            iconData: []
 		}
 	},
 	created() {
@@ -644,7 +478,6 @@ export default {
 			})
 		},
 		showEditDialog(row) {
-			let that = this
 			this.editForm = Object.assign({}, row)
 			this.editFormVisible = true
 			if (this.$refs.editForm) {
@@ -698,7 +531,68 @@ export default {
 					}
 				})
 			})
-		}
+		},
+        queryIconByPage(){
+            let that = this
+            var params = {
+                pageSize: this.pageSize,
+                pageNo: this.pageNo,
+                name: this.searchIconName
+            }
+            that.$axios.get('jellySvg/queryByPage', {params}).then(res => {
+                if (res.data.code == 200) {
+                    this.iconData = res.data.data.list
+                    this.total = res.data.data.total
+                }
+            })
+        },
+        handleCurrentChange(){
+            this.queryIconByPage()
+        },
+        handleIconDialog(){
+		    this.queryIconByPage()
+            this.iconFormVisible = true
+        },
+        handleIconClick(item){
+		    if (this.addFormVisible){
+                this.addForm.icon = item.content
+            } else {
+				this.editForm.icon = item.content
+			}
+            this.iconFormVisible = false
+        }
 	}
 }
 </script>
+<style scoped>
+.inside-input {
+    position: relative;
+}
+.inside-input .iconE {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #c0c4cc;
+}
+::v-deep .inside-input .el-input--suffix .el-input__inner {
+    padding-right: 48px;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-arrow-up {
+    display: none;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-circle-close {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: #c0c4cc;
+}
+.iconView{
+    border: 1px solid #DCDFE6;
+    border-radius: 4px;
+    padding: 0px 20px;
+    height: 40px;
+}
+</style>
