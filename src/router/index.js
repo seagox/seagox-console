@@ -53,14 +53,6 @@ const routes = [
         }
     },
     {
-        path: '/seniorDesign',
-        name: 'seniorDesign',
-        component: () => import('@/views/senior/senior-design'),
-        meta: {
-            title: '表单设计'
-        }
-    },
-    {
         path: '/flowDesigner',
         name: 'flowDesigner',
         component: () => import('@/views/flow/flow-designer'),
