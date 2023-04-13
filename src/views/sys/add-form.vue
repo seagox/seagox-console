@@ -299,7 +299,7 @@
 				</el-row>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click="addTableHeaderFormVisible = false">取消</el-button>
+				<el-button @click="addTableHeaderVisible = false">取消</el-button>
 				<el-button type="primary" @click="addTableHeaderSubmit">提交</el-button>
 			</div>
 		</el-dialog>
@@ -394,7 +394,7 @@
 				</el-row>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click="editFormVisible = false">取消</el-button>
+				<el-button @click="editTableHeaderVisible = false">取消</el-button>
 				<el-button type="primary" @click="editTableHeaderSubmit">提交</el-button>
 			</div>
 		</el-dialog>
@@ -745,11 +745,14 @@ export default {
 		},
 		handleNext() {
 			if (this.active === 0) {
-				this.$refs['ruleForm'].validate(valid => {
+				this.$refs.ruleForm.validate(valid => {
 					if (valid) {
 						this.active++
 					}
 				})
+				if(this.tableHeaderData.length === 0) {
+					this.queryTableField()
+				}
 			} else if (this.active === 1) {
 				if (this.tableHeaderData.length === 0) {
 					this.$message.error('表头不能为空')
@@ -762,6 +765,29 @@ export default {
 					return
 				}
 				this.active++
+			}
+		},
+		async queryTableField() {
+			let res = await this.$axios.get('businessField/queryByTableId/' + this.form.tableId)
+			if (res.data.code === 200) {
+				for(let i=0;i<res.data.data.length;i++) {
+					let field = res.data.data[i]
+					if(!(field.name == 'company_id' || field.name == 'user_id')) {
+						this.tableHeaderData.push({
+							parentId: '',
+							prop: field.name,
+							label: field.remark,
+							width: undefined,
+							locking: 3,
+							summary: 2,
+							total: 2,
+							target: 0,
+							formatter: '',
+							sort: 1,
+							options: ''
+						})
+					}
+				}
 			}
 		},
 		showTableHeaderAddDialog() {
@@ -836,7 +862,7 @@ export default {
 				return
 			}
 			let that = this
-			this.$refs['ruleForm'].validate(valid => {
+			this.$refs.ruleForm.validate(valid => {
 				if (valid) {
 					var params = {
 						name: this.form.name,
