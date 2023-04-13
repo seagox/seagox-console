@@ -13,7 +13,7 @@
 				:tree-props="{ children: 'children' }"
 			>
 				<el-table-column type="index" label="#" width="50" align="center"></el-table-column>
-				<el-table-column prop="name" label="菜单名称" header-align="center">
+				<el-table-column prop="name" label="菜单名称" header-align="center" >
 					<template slot-scope="scope">
 						<i v-html="scope.row.icon"></i>
 						{{ scope.row.name }}
@@ -224,41 +224,38 @@
 				<el-button type="primary" @click="editSubmit">提交</el-button>
 			</div>
 		</el-dialog>
-
         <!--图标选择界面-->
         <el-dialog title="图标选择" width="950px" :visible.sync="iconFormVisible" :close-on-click-modal="false">
-            <div class="searchView">
-                <el-form label-width="65px">
-                    <el-row>
-                        <el-col :span="8">
-                            <el-form-item label="名称">
-                                <el-input v-model="searchIconName" clearable placeholder="请输入名称"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="3">
-                            <el-button
-                                type="primary"
-                                icon="el-icon-search"
-                                @click.native="handleCurrentChange"
-                                style="margin-left: 15px"
-                            >查询</el-button
-                            >
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </div>
+			<el-form label-width="65px">
+				<el-row>
+					<el-col :span="8">
+						<el-form-item label="名称">
+							<el-input v-model="searchIconName" clearable placeholder="请输入名称"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="3">
+						<el-button
+							type="primary"
+							icon="el-icon-search"
+							@click.native="handleCurrentChange"
+							style="margin-left: 15px"
+						>查询</el-button
+						>
+					</el-col>
+				</el-row>
+			</el-form>
             <el-scrollbar style="height:100%">
                 <el-row>
                     <el-col
                         :span="4"
                         v-for="(item, index) in iconData"
                         :key="index"
-                        style="margin-bottom: 20px; cursor: pointer;"
+                        style="margin-bottom: 15px; cursor: pointer;padding-right:15px;box-sizing:border-box"
                     >
                         <el-card shadow="hover">
-                            <div @click="handleIconClick(item)">
-                                <i v-html="item.content"></i>
-                                <span style="margin-left: 30px;">{{ item.name }}</span>
+                            <div @click="handleIconClick(item)" style="display:flex;align-items: center;">
+                                <i v-html="item.content" style="display:flex;align-items: center;"></i>
+                                <span style="margin-left:15px;">{{ item.name }}</span>
                             </div>
                         </el-card>
                     </el-col>
@@ -437,21 +434,20 @@ export default {
 			}
 		},
 		statusChange(row, value) {
-			let that = this
 			var params = {
 				id: row.id,
 				status: value,
 				parentId: row.parent_id
 			}
-			that.$axios.post('menu/update', params).then(res => {
+			this.$axios.post('menu/update', params).then(res => {
 				if (res.data.code == 200) {
 					if (value === 1) {
-						that.$message.success('启用成功')
+						this.$message.success('启用成功')
 					} else {
-						that.$message.success('禁用成功')
+						this.$message.success('禁用成功')
 					}
 				} else {
-					that.$message.error(res.data.message)
+					this.$message.error(res.data.message)
 				}
 			})
 		},
@@ -462,16 +458,15 @@ export default {
 			}
 		},
 		addSubmit() {
-			let that = this
 			this.$refs.addForm.validate(valid => {
 				if (valid) {
-					that.$axios.post('menu/insert', that.addForm).then(res => {
+					this.$axios.post('menu/insert', this.addForm).then(res => {
 						if (res.data.code == 200) {
-							that.$message.success('新增成功')
-							that.addFormVisible = false
-							that.queryByCompanyId()
+							this.$message.success('新增成功')
+							this.addFormVisible = false
+							this.queryByCompanyId()
 						} else {
-							that.$message.error(res.data.message)
+							this.$message.error(res.data.message)
 						}
 					})
 				}
@@ -492,54 +487,51 @@ export default {
 			}
 		},
 		editSubmit() {
-			let that = this
 			this.$refs.editForm.validate(valid => {
 				if (valid) {
 					var params = {
-						icon: that.editForm.icon,
-						id: that.editForm.id,
-						type: that.editForm.type,
-						name: that.editForm.name,
-						path: that.editForm.path,
-						sort: that.editForm.sort,
-						status: that.editForm.status,
-						parentId: that.editForm.parentId,
-						quickName: that.editForm.quickName
+						icon: this.editForm.icon,
+						id: this.editForm.id,
+						type: this.editForm.type,
+						name: this.editForm.name,
+						path: this.editForm.path,
+						sort: this.editForm.sort,
+						status: this.editForm.status,
+						parentId: this.editForm.parentId,
+						quickName: this.editForm.quickName
 					}
-					that.$axios.post('menu/update', params).then(res => {
+					this.$axios.post('menu/update', params).then(res => {
 						if (res.data.code == 200) {
-							that.$message.success('修改成功')
-							that.editFormVisible = false
-							that.queryByCompanyId()
+							this.$message.success('修改成功')
+							this.editFormVisible = false
+							this.queryByCompanyId()
 						} else {
-							that.$message.error(res.data.message)
+							this.$message.error(res.data.message)
 						}
 					})
 				}
 			})
 		},
 		deleteSubmit(row) {
-			let that = this
 			this.$confirm('亲，确认要删除吗？', '提示', { type: 'warning' }).then(() => {
-				that.$axios.post('menu/delete/' + row.id, {}).then(res => {
+				this.$axios.post('menu/delete/' + row.id, {}).then(res => {
 					if (res.data.code == 200) {
-						that.$message.success('删除成功')
-						that.pageNo = 1
-						that.queryByCompanyId()
+						this.$message.success('删除成功')
+						tthishat.pageNo = 1
+						this.queryByCompanyId()
 					} else {
-						that.$message.error(res.data.message)
+						this.$message.error(res.data.message)
 					}
 				})
 			})
 		},
         queryIconByPage(){
-            let that = this
             var params = {
                 pageSize: this.pageSize,
                 pageNo: this.pageNo,
                 name: this.searchIconName
             }
-            that.$axios.get('jellySvg/queryByPage', {params}).then(res => {
+            this.$axios.get('jellySvg/queryByPage', {params}).then(res => {
                 if (res.data.code == 200) {
                     this.iconData = res.data.data.list
                     this.total = res.data.data.total
@@ -556,7 +548,7 @@ export default {
         handleIconClick(item){
 		    if (this.addFormVisible){
                 this.addForm.icon = item.content
-            } else {
+            } else if (this.editFormVisible) {
 				this.editForm.icon = item.content
 			}
             this.iconFormVisible = false
