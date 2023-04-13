@@ -36,18 +36,18 @@
 				<el-form-item label="名称" prop="name">
 					<el-input v-model.trim="addForm.name" placeholder="请输入名称"></el-input>
 				</el-form-item>
-				<el-form-item label="数据源" prop="dataSourceValue">
+				<el-form-item label="数据建模" prop="dataSourceValue">
 					<el-select
 						v-model="addForm.dataSourceValue"
 						filterable
 						multiple
-						placeholder="请选择数据源"
+						placeholder="请选择数据建模"
 						clearable
 					>
 						<el-option
 							v-for="item in dataSourceOptions"
 							:key="item.id"
-							:label="item.remark"
+							:label="item.remark + '(' + item.name + ')'"
 							:value="String(item.id)"
 						>
 						</el-option>
@@ -65,18 +65,18 @@
 				<el-form-item label="名称" prop="name">
 					<el-input v-model.trim="editForm.name" placeholder="请输入名称"></el-input>
 				</el-form-item>
-				<el-form-item label="数据源" prop="dataSourceValue">
+				<el-form-item label="数据建模" prop="dataSourceValue">
 					<el-select
 						v-model="editForm.dataSourceValue"
 						filterable
 						multiple
-						placeholder="请选择数据源"
+						placeholder="请选择数据建模"
 						clearable
 					>
 						<el-option
 							v-for="item in dataSourceOptions"
 							:key="item.id"
-							:label="item.remark"
+							:label="item.remark + '(' + item.name + ')'"
 							:value="String(item.id)"
 						>
 						</el-option>
