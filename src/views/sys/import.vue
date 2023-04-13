@@ -95,8 +95,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="24">
-                        <el-form-item label="模板引擎" prop="dataSource">
-                            <el-select v-model="addRuleForm.dataSource" filterable placeholder="请选择模板引擎">
+                        <el-form-item label="数据模型" prop="dataSource">
+                            <el-select v-model="addRuleForm.dataSource" filterable placeholder="请选择数据模型">
                                 <el-option
                                     v-for="item in tableOptions"
                                     :key="item.id"
@@ -192,8 +192,8 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="24">
-                        <el-form-item label="模板引擎" prop="dataSource">
-                            <el-select v-model="editRuleForm.dataSource" filterable placeholder="请选择模板引擎">
+                        <el-form-item label="数据模型" prop="dataSource">
+                            <el-select v-model="editRuleForm.dataSource" filterable placeholder="请选择数据模型">
                                 <el-option
                                     v-for="item in tableOptions"
                                     :key="item.id"
@@ -605,7 +605,7 @@ export default {
                     { required: true, message: '请输入规则名称', trigger: 'blur' },
                     { max: 50, message: '请输入50个以内字符', trigger: 'blur' }
                 ],
-                dataSource: [{ required: true, message: '请选择模板引擎', trigger: 'change' }],
+                dataSource: [{ required: true, message: '请选择数据模型', trigger: 'change' }],
                 templateSource: [{ required: true, message: '请选择导入模板', trigger: 'change' }]
             },
             ruleId: '',
