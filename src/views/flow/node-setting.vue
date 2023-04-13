@@ -156,18 +156,6 @@
 								<el-radio :label="2" style="margin-top:20px">会签(须所有人同意)</el-radio>
 							</el-radio-group>
 						</div>
-						<div v-if="nodeItem.type == 'approver'">
-							<p>前置条件</p>
-							<el-select v-model="nodeItem.precondition" clearable placeholder="请选择前置条件">
-								<el-option
-									v-for="item in preconditionOptions"
-									:key="item.id"
-									:label="item.name"
-									:value="item.id"
-								>
-								</el-option>
-							</el-select>
-						</div>
 					</el-tab-pane>
 					<el-tab-pane label="表单操作权限" name="operationAuthority">
 						<span slot="label"
@@ -269,14 +257,12 @@ export default {
 			memberTags: [],
 			roleValue: [],
 			deptValue: '',
-			preconditionOptions: [],
 			operationAuthorityJson: []
 		}
 	},
 	created() {
 		this.queryDepartment()
 		this.queryRole()
-		this.queryRule()
 	},
 	methods: {
 		async queryDepartment() {
@@ -289,12 +275,6 @@ export default {
 			let res = await this.$axios.get('role/queryAll')
 			if (res.data.code == 200) {
 				this.roleData = res.data.data
-			}
-		},
-		async queryRule() {
-			let res = await this.$axios.get('metaFunction/queryByCompanyId')
-			if (res.data.code == 200) {
-				this.preconditionOptions = res.data.data
 			}
 		},
 		showDialog() {

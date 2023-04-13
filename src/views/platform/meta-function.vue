@@ -170,6 +170,14 @@ export default {
                 {
                     value: 5,
                     label: '定时任务'
+                },
+                {
+                    value: 6,
+                    label: '打印规则'
+                },
+                {
+                    value: 7,
+                    label: '下载规则'
                 }
             ]
         }

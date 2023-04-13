@@ -656,15 +656,15 @@ export default {
             }
         },
         async queryMetaFunction() {
-            let params = { type: 3 }
-            let res1 = await this.$axios.get('metaFunction/queryByCompanyId', {params})
-            if (res1.data.code === 200) {
-                this.verifyMetaFunctionOptions = res1.data.data
+            let verifyParams = { type: 3 }
+            let verifyRes = await this.$axios.get('metaFunction/queryByCompanyId', {verifyParams})
+            if (verifyRes.data.code === 200) {
+                this.verifyMetaFunctionOptions = verifyRes.data.data
             }
-            params.type = 4
-            let res2 = await this.$axios.get('metaFunction/queryByCompanyId', {params})
-            if (res2.data.code === 200) {
-                this.handleMetaFunctionOptions = res2.data.data
+            let handleParams = { type: 4 }
+            let handleRes = await this.$axios.get('metaFunction/queryByCompanyId', {handleParams})
+            if (handleRes.data.code === 200) {
+                this.handleMetaFunctionOptions = handleRes.data.data
             }
         },
         async queryFieldByTableId(tableId) {
