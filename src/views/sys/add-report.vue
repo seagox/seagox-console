@@ -787,7 +787,7 @@ export default {
     transform: translateY(-50%);
     color: #c0c4cc;
 }
-.iconView{
+.iconView {
     border: 1px solid #DCDFE6;
     border-radius: 4px;
     padding: 0px 20px;

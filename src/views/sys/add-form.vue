@@ -20,23 +20,13 @@
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
-				<el-form-item label="页面" prop="designId">
-					<el-select v-model="form.designId" filterable placeholder="请选择页面">
-						<el-option
-							v-for="item in formDesignOptions"
-							:key="item.id"
-							:label="item.name"
-							:value="String(item.id)"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-			</el-col>
-			<el-col :span="12">
 				<el-form-item label="图标" prop="icon">
-					<el-select v-model="form.icon" filterable placeholder="请选择图标">
-						<el-option v-for="icon in iconOptions" :key="icon" :label="icon" :value="icon"> </el-option>
-					</el-select>
+                    <div class="inside-input">
+                        <div class="iconView">
+                            <div v-html="form.icon"></div>
+                        </div>
+                        <i class="el-icon-document-copy iconE" @click="handleIconDialog"></i>
+                    </div>
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
@@ -44,7 +34,7 @@
 					<el-color-picker v-model="form.color" :predefine="predefine"></el-color-picker>
 				</el-form-item>
 			</el-col>
-			<el-col :span="24">
+			<el-col :span="12">
 				<el-form-item label="流程">
 					<el-select v-model="form.flowId" filterable placeholder="请选择流程" clearable>
 						<el-option v-for="item in flowOptions" :key="item.id" :label="item.name" :value="item.id">
@@ -88,7 +78,7 @@
 			<div class="toolView">
 				<el-button icon="el-icon-plus" @click="showTableHeaderAddDialog" size="small">新增</el-button>
 			</div>
-			<div class="table">
+			<div class="table" style="margin-top:10px">
 				<el-table
 					:data="tableHeaderData"
 					border
@@ -155,6 +145,56 @@
 			<el-button type="primary" @click="handleNext" v-if="active != 3">下一步</el-button>
 			<el-button type="primary" @click="submitForm">保存</el-button>
 		</div>
+		<!--图标选择界面-->
+        <el-dialog title="图标选择" width="950px" :visible.sync="iconFormVisible" :close-on-click-modal="false">
+			<el-form label-width="65px">
+				<el-row>
+					<el-col :span="8">
+						<el-form-item label="名称">
+							<el-input v-model="searchIconName" clearable placeholder="请输入名称"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="3">
+						<el-button
+							type="primary"
+							icon="el-icon-search"
+							@click.native="handleCurrentChange"
+							style="margin-left: 15px"
+						>查询</el-button
+						>
+					</el-col>
+				</el-row>
+			</el-form>
+            <el-scrollbar style="height:100%">
+                <el-row>
+                    <el-col
+                        :span="4"
+                        v-for="(item, index) in iconData"
+                        :key="index"
+                        style="margin-bottom: 15px; cursor: pointer;padding-right:15px;box-sizing:border-box"
+                    >
+                        <el-card shadow="hover">
+                            <div @click="handleIconClick(item)" style="display:flex;align-items: center;">
+                                <i v-html="item.content" style="display:flex;align-items: center;"></i>
+                                <span style="margin-left:15px;">{{ item.name }}</span>
+                            </div>
+                        </el-card>
+                    </el-col>
+                </el-row>
+            </el-scrollbar>
+            <!--分页-->
+            <div class="pagination">
+                <el-pagination
+                    background
+                    @current-change="handleCurrentChange"
+                    layout="total, prev, pager, next"
+                    :current-page.sync="pageNo"
+                    :page-size.sync="pageSize"
+                    :total="total"
+                >
+                </el-pagination>
+            </div>
+        </el-dialog>
 		<!--新增表头界面-->
 		<el-dialog title="新增" width="750px" :visible.sync="addTableHeaderVisible" :close-on-click-modal="false">
 			<el-form :model="addTableHeaderForm" label-width="80px" :rules="tableHeaderRules" ref="addTableHeaderForm">
@@ -497,8 +537,8 @@ export default {
 			active: 0,
 			form: {
 				name: '',
-				designId: '',
-				icon: 'start-o',
+				design: '',
+				icon: '',
 				color: '#1879FE',
 				flowId: '',
 				tableHeader: '',
@@ -512,29 +552,12 @@ export default {
 				color: [{ required: true, message: '请选择颜色', trigger: 'blur' }],
 				designId: [{ required: true, message: '请选择页面', trigger: 'change' }]
 			},
-			formDesignOptions: [],
-			iconOptions: [
-				'location-o',
-				'like-o',
-				'star-o',
-				'phone-o',
-				'setting-o',
-				'fire-o',
-				'coupon-o',
-				'cart-o',
-				'shopping-cart-o',
-				'cart-circle-o',
-				'friends-o',
-				'comment-o',
-				'gem-o',
-				'gift-o',
-				'point-gift-o',
-				'send-gift-o',
-				'service-o',
-				'bag-o',
-				'todo-list-o',
-				'balance-list-o'
-			],
+			iconFormVisible: false,
+            pageSize: 30,
+            pageNo: 1,
+            total: 0,
+            searchIconName: '',
+            iconData: [],
 			predefine: ['#1879fe', '#5d0bc7', '#1700c2', '#1cb6b4', '#35a110', '#f5b017', '#ee6c16', '#ef0022'],
 			flowOptions: [],
 			tags: ['select', 'where', 'if', 'foreach', 'insert', 'update', 'delete'],
@@ -625,17 +648,10 @@ export default {
 		}
 	},
 	created() {
-		this.queryFormDesign()
 		this.queryFlowData()
 		this.queryFormatter()
 	},
 	methods: {
-		async queryFormDesign() {
-			let res = await this.$axios.get('jellyFormDesign/queryAll')
-			if (res.data.code === 200) {
-				this.formDesignOptions = res.data.data
-			}
-		},
 		async queryFlowData() {
 			let res = await this.$axios.get('seaDefinition/queryAll')
 			if (res.data.code === 200) {
@@ -926,7 +942,32 @@ export default {
 			insertPos.line = curPos.line
 			insertPos.ch = curPos.ch
 			this.$refs.codemirror.editor.replaceRange(script, insertPos)
-		}
+		},
+		queryIconByPage(){
+            let that = this
+            var params = {
+                pageSize: this.pageSize,
+                pageNo: this.pageNo,
+                name: this.searchIconName
+            }
+            that.$axios.get('jellySvg/queryByPage', {params}).then(res => {
+                if (res.data.code == 200) {
+                    this.iconData = res.data.data.list
+                    this.total = res.data.data.total
+                }
+            })
+        },
+        handleCurrentChange(){
+            this.queryIconByPage()
+        },
+        handleIconDialog(){
+            this.queryIconByPage()
+            this.iconFormVisible = true
+        },
+        handleIconClick(item){
+            this.form.icon = item.content
+            this.iconFormVisible = false
+        },
 	}
 }
 </script>
@@ -945,5 +986,35 @@ export default {
 }
 ::v-deep .is-without-controls .el-input .el-input__inner {
 	text-align: left;
+}
+.inside-input {
+    position: relative;
+}
+.inside-input .iconE {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #c0c4cc;
+}
+::v-deep .inside-input .el-input--suffix .el-input__inner {
+    padding-right: 48px;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-arrow-up {
+    display: none;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-circle-close {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: #c0c4cc;
+}
+.iconView {
+    border: 1px solid #DCDFE6;
+    border-radius: 4px;
+    padding: 0px 20px;
+    height: 40px;
 }
 </style>
