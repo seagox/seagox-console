@@ -94,9 +94,9 @@
                             <el-input v-model="addRuleForm.name" placeholder="请输入名称"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="数据源" prop="dataSource">
-                            <el-select v-model="addRuleForm.dataSource" filterable placeholder="请选择数据源">
+                    <el-col :span="24">
+                        <el-form-item label="模板引擎" prop="dataSource">
+                            <el-select v-model="addRuleForm.dataSource" filterable placeholder="请选择模板引擎">
                                 <el-option
                                     v-for="item in tableOptions"
                                     :key="item.id"
@@ -112,11 +112,11 @@
                             <el-select
                                 v-model="addRuleForm.verifyRuleId"
                                 filterable
-                                placeholder="请选择数据源"
+                                placeholder="请选择规则"
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in metaFunctionOptions"
+                                    v-for="item in verifyMetaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -126,33 +126,15 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="导入前规则" prop="beforeRuleId">
+                        <el-form-item label="处理规则" prop="handleRuleId">
                             <el-select
-                                v-model="addRuleForm.beforeRuleId"
+                                v-model="addRuleForm.handleRuleId"
                                 filterable
-                                placeholder="请选择数据源"
+                                placeholder="请选择规则"
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in metaFunctionOptions"
-                                    :key="item.id"
-                                    :label="item.name"
-                                    :value="item.id"
-                                >
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="导入后规则" prop="afterRuleId">
-                            <el-select
-                                v-model="addRuleForm.afterRuleId"
-                                filterable
-                                placeholder="请选择数据源"
-                                clearable
-                            >
-                                <el-option
-                                    v-for="item in metaFunctionOptions"
+                                    v-for="item in handleMetaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -209,9 +191,9 @@
                             <el-input v-model="editRuleForm.name" placeholder="请输入规则名称"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="数据源" prop="dataSource">
-                            <el-select v-model="editRuleForm.dataSource" filterable placeholder="请选择数据源">
+                    <el-col :span="24">
+                        <el-form-item label="模板引擎" prop="dataSource">
+                            <el-select v-model="editRuleForm.dataSource" filterable placeholder="请选择模板引擎">
                                 <el-option
                                     v-for="item in tableOptions"
                                     :key="item.id"
@@ -227,29 +209,11 @@
                             <el-select
                                 v-model="editRuleForm.verifyRuleId"
                                 filterable
-                                placeholder="请选择数据源"
+                                placeholder="请选择规则"
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in metaFunctionOptions"
-                                    :key="item.id"
-                                    :label="item.name"
-                                    :value="item.id+''"
-                                >
-                                </el-option>
-                            </el-select>
-                        </el-form-item>
-                    </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="导入前规则" prop="beforeRuleId">
-                            <el-select
-                                v-model="editRuleForm.beforeRuleId"
-                                filterable
-                                placeholder="请选择数据源"
-                                clearable
-                            >
-                                <el-option
-                                    v-for="item in metaFunctionOptions"
+                                    v-for="item in verifyMetaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -259,15 +223,15 @@
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
-                        <el-form-item label="导入后规则" prop="afterRuleId">
+                        <el-form-item label="处理规则" prop="handleRuleId">
                             <el-select
-                                v-model="editRuleForm.afterRuleId"
+                                v-model="editRuleForm.handleRuleId"
                                 filterable
-                                placeholder="请选择数据源"
+                                placeholder="请选择规则"
                                 clearable
                             >
                                 <el-option
-                                    v-for="item in metaFunctionOptions"
+                                    v-for="item in handleMetaFunctionOptions"
                                     :key="item.id"
                                     :label="item.name"
                                     :value="item.id"
@@ -316,7 +280,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="字段" prop="field">
-                            <el-select v-model="addFieldForm.field" filterable placeholder="请选择数据源">
+                            <el-select v-model="addFieldForm.field" filterable placeholder="请选择字段">
                                 <el-option
                                     v-for="item in fieldOptions"
                                     :key="item.id"
@@ -329,7 +293,7 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="对应列" prop="col">
-                            <el-select v-model="addFieldForm.col" filterable placeholder="请选择数据源">
+                            <el-select v-model="addFieldForm.col" filterable placeholder="请选择对应列">
                                 <el-option v-for="item in letterOptions" :key="item" :label="item" :value="item">
                                 </el-option>
                             </el-select>
@@ -376,7 +340,7 @@
                 <el-row>
                     <el-col :span="12">
                         <el-form-item label="字段" prop="field">
-                            <el-select v-model="editFieldForm.field" filterable placeholder="请选择数据源">
+                            <el-select v-model="editFieldForm.field" filterable placeholder="请选择字段">
                                 <el-option
                                     v-for="item in fieldOptions"
                                     :key="item.id"
@@ -389,7 +353,7 @@
                     </el-col>
                     <el-col :span="12">
                         <el-form-item label="对应列" prop="col">
-                            <el-select v-model="editFieldForm.col" filterable placeholder="请选择数据源">
+                            <el-select v-model="editFieldForm.col" filterable placeholder="请选择对应列">
                                 <el-option v-for="item in letterOptions" :key="item" :label="item" :value="item">
                                 </el-option>
                             </el-select>
@@ -461,17 +425,17 @@ export default {
           },
           ruleTypeVisible:false,
           ruleTypes: [
-            {name: "不为空", value: "@NotNull(message = \"必须不为null\")"},
-            {name: "长度", value: "@Length(max = 11, min = 7, message = \"长度必须大于等于7或小于等于11\")"},
+            {name: "不为空", value: '@NotNull(message = "必须不为null")'},
+            {name: "长度", value: '@Length(max = 11,min = 7,message = "长度必须大于等于7或小于等于11")'},
             {name: "最小值", value: "@Min(0)"},
             {name: "最大值", value: "@Max(0)"},
             {name: "小数最小值", value: "@DecimalMin(0.0)"},
             {name: "小数最大值", value: "@DecimalMax(0.0)"},
-            {name: "指定范围", value: "@Range(max = 80, min = 18, message = \"必须大于等于18或小于等于80\")"},
-            {name: "正则表达式", value: "@Pattern(regexp = \"\\\\\\\\d{11}\",message = \"必须为数字，并且长度为11\")"},
-            {name: "替换", value: "@Replace(\"字典\")"},
-            {name: "日期", value: "@DateTimeFormat(pattern = \"yyyy-MM-dd HH:mm:ss\")"},
-            {name: "小数", value: "@Decimal"},
+            {name: "指定范围", value: '@Range(max = 80,min = 18,message = "必须大于等于18或小于等于80")'},
+            {name: "正则表达式", value: '@Pattern(regexp = "d{11}",message = "必须为数字，并且长度为11")'},
+            {name: "替换", value: '@Replace("字典")'},
+            {name: "日期", value: '@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")'},
+            {name: "小数", value: "@Decimal"}
           ],
             clientHeight: document.documentElement.clientHeight || document.body.clientHeight,
             action: this.$axios.defaults.baseURL + 'upload/putObject/oss',
@@ -618,8 +582,7 @@ export default {
                 code: '',
                 name: '',
                 dataSource: '',
-                beforeRuleId: '',
-                afterRuleId: '',
+                handleRuleId: '',
                 templateSource: [],
                 verifyRuleId: ''
             },
@@ -629,8 +592,7 @@ export default {
                 code: '',
                 name: '',
                 dataSource: '',
-                beforeRuleId: '',
-                afterRuleId: '',
+                handleRuleId: '',
                 templateSource: [],
                 verifyRuleId: ''
             },
@@ -643,7 +605,7 @@ export default {
                     { required: true, message: '请输入规则名称', trigger: 'blur' },
                     { max: 50, message: '请输入50个以内字符', trigger: 'blur' }
                 ],
-                dataSource: [{ required: true, message: '请选择数据源', trigger: 'change' }],
+                dataSource: [{ required: true, message: '请选择模板引擎', trigger: 'change' }],
                 templateSource: [{ required: true, message: '请选择导入模板', trigger: 'change' }]
             },
             ruleId: '',
@@ -671,7 +633,8 @@ export default {
                 col: [{ required: true, message: '请选择对应列', trigger: 'change' }],
                 ruleTypeId: [{ required: true, message: '请选择对应规则', trigger: 'change' }]
             },
-            metaFunctionOptions: []
+            verifyMetaFunctionOptions: [],
+            handleMetaFunctionOptions: []
         }
     },
     created() {
@@ -693,9 +656,15 @@ export default {
             }
         },
         async queryMetaFunction() {
-            let res = await this.$axios.get('metaFunction/queryByCompanyId')
-            if (res.data.code === 200) {
-                this.metaFunctionOptions = res.data.data
+            let params = { type: 3 }
+            let res1 = await this.$axios.get('metaFunction/queryByCompanyId', {params})
+            if (res1.data.code === 200) {
+                this.verifyMetaFunctionOptions = res1.data.data
+            }
+            params.type = 4
+            let res2 = await this.$axios.get('metaFunction/queryByCompanyId', {params})
+            if (res2.data.code === 200) {
+                this.handleMetaFunctionOptions = res2.data.data
             }
         },
         async queryFieldByTableId(tableId) {
@@ -715,8 +684,7 @@ export default {
                 code: this.addRuleForm.code,
                 name: this.addRuleForm.name,
                 dataSource: this.addRuleForm.dataSource,
-                beforeRuleId: this.addRuleForm.beforeRuleId,
-                afterRuleId: this.addRuleForm.afterRuleId,
+                handleRuleId: this.addRuleForm.handleRuleId,
                 verifyRuleId: this.addRuleForm.verifyRuleId,
                 templateSource: JSON.stringify(this.addRuleForm.templateSource)
             }
@@ -781,8 +749,7 @@ export default {
                 code: this.editRuleForm.code,
                 name: this.editRuleForm.name,
                 dataSource: this.editRuleForm.dataSource,
-                beforeRuleId: this.editRuleForm.beforeRuleId,
-                afterRuleId: this.editRuleForm.afterRuleId,
+                handleRuleId: this.editRuleForm.handleRuleId,
                 verifyRuleId: this.editRuleForm.verifyRuleId,
                 templateSource: JSON.stringify(this.editRuleForm.templateSource)
             }
