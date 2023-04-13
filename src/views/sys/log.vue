@@ -64,25 +64,27 @@
 		<!--详情界面-->
 		<el-dialog title="详情" width="750px" :visible.sync="formVisible" :close-on-click-modal="false">
 			<el-form :model="form" label-width="80px" ref="form">
-				<el-form-item label="调用方法" prop="account">
+				<el-form-item label="调用方法">
 					<el-input v-model="form.method" disabled></el-input>
 				</el-form-item>
-				<el-form-item label="请求参数" prop="name">
-					<el-input v-model="form.params" type="textarea" autosize disabled></el-input>
+				<el-form-item label="请求参数">
+					<vue-json-pretty :data="form.params" />
 				</el-form-item>
-				<el-form-item label="操作结果" prop="result">
-					<el-input v-model="form.result" type="textarea" autosize disabled></el-input>
+				<el-form-item label="操作结果">
+					<vue-json-pretty :data="form.result"/>
 				</el-form-item>
 			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="formVisible = false">关闭</el-button>
-			</div>
 		</el-dialog>
 	</div>
 </template>
 
 <script>
+import VueJsonPretty from 'vue-json-pretty'
+import 'vue-json-pretty/lib/styles.css'
 export default {
+	components: {
+    	VueJsonPretty
+  	},
 	data() {
 		return {
 			tableData: [],
@@ -125,6 +127,8 @@ export default {
 		//显示详情界面
 		showDetailDialog(row) {
 			this.form = Object.assign({}, row)
+			this.form.params = JSON.parse(this.form.params)
+			this.form.result = JSON.parse(this.form.result)
 			this.formVisible = true
 			if (this.$refs.form) {
 				this.$refs.form.resetFields()
