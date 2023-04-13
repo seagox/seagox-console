@@ -245,9 +245,7 @@ export default {
     height: 60px;
     font-size: 18px;
     line-height: 60px;
-    background-size: 100% 110%;
-    background-repeat: no-repeat;
-    background-image: url('../../assets/blue-head.png');
+    background-color: #409EFF;
 }
 .sidebar-logo-container {
     position: relative;
