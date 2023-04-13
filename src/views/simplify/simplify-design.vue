@@ -42,24 +42,6 @@
                             </div>
                         </transition-group>
                     </draggable>
-                    <!-- <div class="components-title" style="margin-top:15px">布局组件</div>
-					<draggable
-						:list="layoutLeftArray"
-						:group="{ name: 'form', pull: 'clone', put: false }"
-						ghost-class="ghost"
-						:sort="false"
-					>
-						<transition-group class="components-draggable">
-							<div
-								class="components-item"
-								v-for="element in layoutLeftArray"
-								:key="element.type"
-								@click="handleAddFormItem(element)"
-							>
-								{{ element.label }}
-							</div>
-						</transition-group>
-					</draggable> -->
                 </div>
             </div>
         </div>
@@ -877,9 +859,9 @@
                                 >
                                     <el-option
                                         v-for="item in fieldOptions"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :value="item.value"
+                                        :key="item.id"
+                                        :label="item.remark"
+                                        :value="item.name"
                                     ></el-option>
                                 </el-select>
                             </el-form-item>
@@ -1634,24 +1616,6 @@ export default {
                     multiple: false,
                     span: 12,
                     labelWidth: 80
-                },
-                {
-                    type: 'table',
-                    label: '表格',
-                    required: true,
-                    showSummary: false,
-                    placeholder: '请填写表格',
-                    span: 24,
-                    values: []
-                },
-                {
-                    type: 'business',
-                    label: '业务应用',
-                    placeholder: '请选择业务',
-                    required: true,
-                    disabled: false,
-                    span: 12,
-                    labelWidth: 80
                 }
             ],
             layoutLeftArray: [
@@ -1700,7 +1664,6 @@ export default {
     },
     created() {
         this.queryById()
-        this.queryBusinessTable()
         this.queryBusinessField()
         this.queryDicClassify()
         this.queryBusinessData()
@@ -1717,10 +1680,10 @@ export default {
     },
     methods: {
         async queryById() {
-            const res = await this.$axios.get('jellyFormDesign/queryById/' + this.$route.query.id)
+            const res = await this.$axios.get('jellyForm/queryById/' + this.$route.query.id)
             if (res.data.code === 200) {
-                if (res.data.data.excelJson) {
-                    this.form = JSON.parse(res.data.data.excelJson)
+                if (res.data.data.design) {
+                    this.form = JSON.parse(res.data.data.design)
                     this.centerArray = this.form.fieldOptions
                     for (let i = 0; i < this.centerArray.length; i++) {
                         let item = this.centerArray[i]
@@ -1756,24 +1719,10 @@ export default {
                 this.businessOptions = res.data.data
             }
         },
-        async queryBusinessTable() {
-            let res = await this.$axios.get('jellyFormDesign/queryBusinessTable/' + this.$route.query.id)
-            if (res.data.code === 200) {
-                this.tableOptions = res.data.data
-            }
-        },
         async queryBusinessField() {
-            let res = await this.$axios.get('jellyFormDesign/queryBusinessField/' + this.$route.query.id)
+            let res = await this.$axios.get('jellyForm/queryBusinessField/' + this.$route.query.id)
             if (res.data.code === 200) {
-                let fieldOptions = []
-                for (let i = 0; i < res.data.data.length; i++) {
-                    let fieldObject = res.data.data[i]
-                    fieldOptions.push({
-                        value: fieldObject.tableName + '|' + fieldObject.name,
-                        label: fieldObject.tableComment + '-' + fieldObject.remark
-                    })
-                }
-                this.fieldOptions = fieldOptions
+                this.fieldOptions = res.data.data
             }
         },
         async queryDicClassify() {
@@ -2089,9 +2038,9 @@ export default {
             this.form.fieldOptions = this.centerArray
             var params = {
                 id: this.$route.query.id,
-                excelJson: JSON.stringify(this.form)
+                design: JSON.stringify(this.form)
             }
-            this.$axios.post('jellyFormDesign/update', params).then(res => {
+            this.$axios.post('jellyForm/update', params).then(res => {
                 if (res.data.code == 200) {
                     this.$message.success('保存成功')
                 }
@@ -2301,7 +2250,7 @@ export default {
 .center-scrollbar,
 .left-scrollbar {
     height: calc(100vh - 42px);
-    overflow: scroll;
+    overflow: auto;
 }
 .center-board-row {
     padding: 12px 12px 15px 12px;

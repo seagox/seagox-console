@@ -72,7 +72,7 @@ export default {
 		}
 	},
 	created() {
-		this.queryTargetBusinessField()
+		//this.queryTargetBusinessField()
 	},
 	methods: {
 		async queryTargetBusinessField() {

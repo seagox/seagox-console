@@ -31,7 +31,7 @@ export default {
 		}
 	},
 	created() {
-		this.queryBusinessField()
+		//this.queryBusinessField()
 	},
 	methods: {
 		showDialog(type, calculate) {
