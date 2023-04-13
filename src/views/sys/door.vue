@@ -42,8 +42,8 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="路径" prop="path">
-					<el-select v-model="addForm.path" placeholder="请选择路径" clearable filterable>
+				<el-form-item label="云页面" prop="path">
+					<el-select v-model="addForm.path" placeholder="请选择云页面" clearable filterable>
 						<el-option v-for="item in metaPageOptions" :key="item.id" :label="item.name" :value="item.id">
 						</el-option>
 					</el-select>
@@ -71,8 +71,8 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="路径" prop="path">
-					<el-select v-model="editForm.path" placeholder="请选择路径" clearable filterable>
+				<el-form-item label="云页面" prop="path">
+					<el-select v-model="editForm.path" placeholder="请选择云页面" clearable filterable>
 						<el-option v-for="item in metaPageOptions" :key="item.id" :label="item.name" :value="item.id">
 						</el-option>
 					</el-select>
