@@ -194,7 +194,7 @@ export default {
 		},
 		async queryMetaFunction() {
 			const params = {
-				type: 5
+				type: 6
 			}
             let res = await this.$axios.get('metaFunction/queryByCompanyId', {params})
             if (res.data.code === 200) {

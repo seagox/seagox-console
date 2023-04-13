@@ -35,6 +35,19 @@
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
+				<el-form-item label="数据模型" prop="tableId">
+					<el-select v-model="form.tableId" filterable placeholder="请选择数据模型">
+						<el-option
+							v-for="item in tableOptions"
+							:key="item.id"
+							:label="item.remark + ' - ' + item.name"
+							:value="item.id"
+						>
+						</el-option>
+					</el-select>
+				</el-form-item>
+			</el-col>
+			<el-col :span="24">
 				<el-form-item label="流程">
 					<el-select v-model="form.flowId" filterable placeholder="请选择流程" clearable>
 						<el-option v-for="item in flowOptions" :key="item.id" :label="item.name" :value="item.id">
@@ -540,6 +553,7 @@ export default {
 				design: '',
 				icon: '',
 				color: '#1879FE',
+				tableId: '',
 				flowId: '',
 				tableHeader: '',
 				dataSource: '',
@@ -550,7 +564,7 @@ export default {
 				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
 				icon: [{ required: true, message: '请输入图标', trigger: 'blur' }],
 				color: [{ required: true, message: '请选择颜色', trigger: 'blur' }],
-				designId: [{ required: true, message: '请选择页面', trigger: 'change' }]
+				tableId: [{ required: true, message: '请选择数据模型', trigger: 'change' }]
 			},
 			iconFormVisible: false,
             pageSize: 30,
@@ -644,14 +658,22 @@ export default {
 				}
 			],
 			formatterOptions: [],
-			height: (document.documentElement.clientHeight || document.body.clientHeight) - 360
+			height: (document.documentElement.clientHeight || document.body.clientHeight) - 360,
+			tableOptions: []
 		}
 	},
 	created() {
+		this.queryBusinessTable()
 		this.queryFlowData()
 		this.queryFormatter()
 	},
 	methods: {
+		async queryBusinessTable() {
+            let res = await this.$axios.get('businessTable/queryAll')
+            if (res.data.code === 200) {
+                this.tableOptions = res.data.data
+            }
+        },
 		async queryFlowData() {
 			let res = await this.$axios.get('seaDefinition/queryAll')
 			if (res.data.code === 200) {
@@ -817,21 +839,22 @@ export default {
 			this.$refs['ruleForm'].validate(valid => {
 				if (valid) {
 					var params = {
-						name: that.form.name,
-						designId: that.form.designId,
-						icon: that.form.icon,
-						color: that.form.color,
-						flowId: that.form.flowId,
-						dataSource: that.form.dataSource,
-						searchJson: JSON.stringify(that.searchTableData),
-						tableHeader: JSON.stringify(that.tableHeaderData)
+						name: this.form.name,
+						tableId: this.form.tableId,
+						design: this.form.design,
+						icon: this.form.icon,
+						color: this.form.color,
+						flowId: this.form.flowId,
+						dataSource: this.form.dataSource,
+						searchJson: JSON.stringify(this.searchTableData),
+						tableHeader: JSON.stringify(this.tableHeaderData)
 					}
-					that.$axios.post('jellyForm/insert', params).then(function(response) {
-						if (response.data.code == 200) {
+					this.$axios.post('jellyForm/insert', params).then(res => {
+						if (res.data.code == 200) {
 							that.$message.success('新增成功')
 							that.$store.commit('worktabRemove', that.$route.fullPath)
 						} else {
-							that.$message.error(response.data.message)
+							that.$message.error(res.data.message)
 						}
 					})
 				}
@@ -844,11 +867,10 @@ export default {
 			}
 		},
 		addSearchSubmit() {
-			let that = this
 			this.$refs.addSearchForm.validate(valid => {
 				if (valid) {
-					that.searchTableData = that.searchTableData.concat(JSON.parse(JSON.stringify(that.addSearchForm)))
-					that.addSearchVisible = false
+					this.searchTableData = this.searchTableData.concat(JSON.parse(JSON.stringify(this.addSearchForm)))
+					this.addSearchVisible = false
 				}
 			})
 		},
@@ -861,14 +883,13 @@ export default {
 			this.currentSearchIndex = index
 		},
 		editSearchSubmit() {
-			let that = this
 			this.$refs.editSearchForm.validate(valid => {
 				if (valid) {
-					that.editSearchVisible = false
-					that.searchTableData.splice(
-						that.currentSearchIndex,
+					this.editSearchVisible = false
+					this.searchTableData.splice(
+						this.currentSearchIndex,
 						1,
-						JSON.parse(JSON.stringify(that.editSearchForm))
+						JSON.parse(JSON.stringify(this.editSearchForm))
 					)
 				}
 			})
@@ -894,13 +915,12 @@ export default {
 			}
 		},
 		sourceChange(value) {
-			let that = this
-			that.$axios.get('dictionaryDetail/queryDisplay?classifyId=' + value).then(res => {
+			this.$axios.get('dictionaryDetail/queryDisplay?classifyId=' + value).then(res => {
 				if (res.data.code == 200) {
-					if (that.addHeaderVisible) {
-						that.addSearchForm.sourceOptions = res.data.data
+					if (this.addHeaderVisible) {
+						this.addSearchForm.sourceOptions = res.data.data
 					} else {
-						that.editSearchForm.sourceOptions = res.data.data
+						this.editSearchForm.sourceOptions = res.data.data
 					}
 				}
 			})
@@ -944,13 +964,12 @@ export default {
 			this.$refs.codemirror.editor.replaceRange(script, insertPos)
 		},
 		queryIconByPage(){
-            let that = this
             var params = {
                 pageSize: this.pageSize,
                 pageNo: this.pageNo,
                 name: this.searchIconName
             }
-            that.$axios.get('jellySvg/queryByPage', {params}).then(res => {
+            this.$axios.get('jellySvg/queryByPage', {params}).then(res => {
                 if (res.data.code == 200) {
                     this.iconData = res.data.data.list
                     this.total = res.data.data.total
