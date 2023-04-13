@@ -4,6 +4,7 @@
 			<el-step title="基础设置"></el-step>
 			<el-step title="表头设置"></el-step>
 			<el-step title="数据源设置"></el-step>
+			<el-step title="界面设计"></el-step>
 			<el-step title="搜索条件"></el-step>
 		</el-steps>
 		<el-form
@@ -128,11 +129,11 @@
 				<codemirrorXml ref="codemirror" v-model="form.dataSource" v-if="active === 2" placeholder="请输入SQL" :height="height"/>
 			</el-form-item>
 		</el-form>
-		<div v-show="active === 3">
+		<div v-show="active === 4">
 			<div class="toolView">
 				<el-button icon="el-icon-plus" @click="showSearchAddDialog" size="small">新增</el-button>
 			</div>
-			<div class="table">
+			<div class="table" style="margin-top:10px">
 				<el-table :data="searchTableData" border highlight-current-row stripe max-height="500">
 					<el-table-column prop="field" label="字段" align="center"></el-table-column>
 					<el-table-column prop="type" label="类型" align="center" :formatter="typeFormatter"></el-table-column>
@@ -759,6 +760,9 @@ export default {
 					return
 				}
 				this.active++
+				if(!this.form.dataSource) {
+					this.queryTableById()
+				}
 			} else if (this.active === 2) {
 				if (!this.form.dataSource) {
 					this.$message.error('数据源不能为空')
@@ -788,6 +792,16 @@ export default {
 						})
 					}
 				}
+			}
+		},
+		async queryTableById() {
+			let res = await this.$axios.get('businessTable/queryById/' + this.form.tableId)
+			if (res.data.code === 200) {
+				let curPos = this.$refs.codemirror.editor.getCursor()
+				let insertPos = {}
+				insertPos.line = curPos.line
+				insertPos.ch = curPos.ch
+				this.$refs.codemirror.editor.replaceRange('<select>select * from ' + res.data.data.name + '</select>', insertPos)
 			}
 		},
 		showTableHeaderAddDialog() {
