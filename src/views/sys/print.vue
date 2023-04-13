@@ -34,14 +34,14 @@
 		<!--新增界面-->
 		<el-dialog title="新增" width="750px" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="formRules" ref="addForm">
-				<el-col :span="12">
+				<el-col :span="24">
 					<el-form-item label="名称" prop="name">
 						<el-input v-model.trim="addForm.name" placeholder="请输入名称"></el-input>
 					</el-form-item>
 				</el-col>
-				<el-col :span="12">
-					<el-form-item label="数据源" prop="dataSource">
-						<el-select v-model="addForm.dataSource" filterable placeholder="请选择数据源">
+				<el-col :span="24">
+					<el-form-item label="云函数" prop="dataSource">
+						<el-select v-model="addForm.dataSource" filterable placeholder="请选择云函数">
 							<el-option
 								v-for="item in metaFunctionOptions"
 								:key="item.id"
@@ -53,7 +53,7 @@
 					</el-form-item>
 				</el-col>
 				<el-col :span="24">
-					<el-form-item label="模板" prop="templateSource">
+					<el-form-item label="打印模板" prop="templateSource">
 						<el-upload
 							:limit="1"
 							:action="action"
@@ -89,14 +89,14 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" width="750px" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="formRules" ref="editForm">
-				<el-col :span="12">
+				<el-col :span="24">
 					<el-form-item label="名称" prop="name">
 						<el-input v-model.trim="editForm.name" placeholder="请输入名称"></el-input>
 					</el-form-item>
 				</el-col>
-				<el-col :span="12">
-					<el-form-item label="数据源" prop="dataSource">
-						<el-select v-model="editForm.dataSource" filterable placeholder="请选择数据源">
+				<el-col :span="24">
+					<el-form-item label="云函数" prop="dataSource">
+						<el-select v-model="editForm.dataSource" filterable placeholder="请选择云函数">
 							<el-option
 								v-for="item in metaFunctionOptions"
 								:key="item.id"
@@ -171,8 +171,8 @@ export default {
 			},
 			formRules: {
 				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-				dataSource: [{ required: true, message: '请选择数据源', trigger: 'change' }],
-				templateSource: [{ required: true, message: '请选择模板', trigger: 'change' }]
+				dataSource: [{ required: true, message: '请选择云函数', trigger: 'change' }],
+				templateSource: [{ required: true, message: '请选择打印模板', trigger: 'change' }]
 			}
 		}
 	},
