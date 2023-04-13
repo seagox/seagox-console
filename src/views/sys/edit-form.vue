@@ -20,28 +20,31 @@
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
-				<el-form-item label="页面" prop="designId">
-					<el-select v-model="form.designId" filterable placeholder="请选择页面">
-						<el-option
-							v-for="item in formDesignOptions"
-							:key="item.id"
-							:label="item.name"
-							:value="item.id"
-						>
-						</el-option>
-					</el-select>
-				</el-form-item>
-			</el-col>
-			<el-col :span="12">
 				<el-form-item label="图标" prop="icon">
-					<el-select v-model="form.icon" filterable placeholder="请选择图标">
-						<el-option v-for="icon in iconOptions" :key="icon" :label="icon" :value="icon"> </el-option>
-					</el-select>
+                    <div class="inside-input">
+                        <div class="iconView">
+                            <div v-html="form.icon"></div>
+                        </div>
+                        <i class="el-icon-document-copy iconE" @click="handleIconDialog"></i>
+                    </div>
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
 				<el-form-item label="颜色" prop="color">
 					<el-color-picker v-model="form.color" :predefine="predefine"></el-color-picker>
+				</el-form-item>
+			</el-col>
+			<el-col :span="12">
+				<el-form-item label="数据模型" prop="tableId">
+					<el-select v-model="form.tableId" filterable placeholder="请选择数据模型">
+						<el-option
+							v-for="item in tableOptions"
+							:key="item.id"
+							:label="item.remark + ' - ' + item.name"
+							:value="item.id"
+						>
+						</el-option>
+					</el-select>
 				</el-form-item>
 			</el-col>
 			<el-col :span="24">
@@ -88,7 +91,7 @@
 			<div class="toolView">
 				<el-button icon="el-icon-plus" @click="showTableHeaderAddDialog" size="small">新增</el-button>
 			</div>
-			<div class="table">
+			<div class="table" style="margin-top:10px">
 				<el-table
 					:data="tableHeaderData"
 					border
@@ -129,7 +132,7 @@
 			<div class="toolView">
 				<el-button icon="el-icon-plus" @click="showSearchAddDialog" size="small">新增</el-button>
 			</div>
-			<div class="table">
+			<div class="table" style="margin-top:10px">
 				<el-table :data="searchTableData" border highlight-current-row stripe max-height="500">
 					<el-table-column prop="field" label="字段" align="center"></el-table-column>
 					<el-table-column prop="type" label="类型" align="center" :formatter="typeFormatter"></el-table-column>
@@ -155,6 +158,56 @@
 			<el-button type="primary" @click="handleNext" v-if="active != 3">下一步</el-button>
 			<el-button type="primary" @click="submitForm">保存</el-button>
 		</div>
+		<!--图标选择界面-->
+        <el-dialog title="图标选择" width="950px" :visible.sync="iconFormVisible" :close-on-click-modal="false">
+			<el-form label-width="65px">
+				<el-row>
+					<el-col :span="8">
+						<el-form-item label="名称">
+							<el-input v-model="searchIconName" clearable placeholder="请输入名称"></el-input>
+						</el-form-item>
+					</el-col>
+					<el-col :span="3">
+						<el-button
+							type="primary"
+							icon="el-icon-search"
+							@click.native="handleCurrentChange"
+							style="margin-left: 15px"
+						>查询</el-button
+						>
+					</el-col>
+				</el-row>
+			</el-form>
+            <el-scrollbar style="height:100%">
+                <el-row>
+                    <el-col
+                        :span="4"
+                        v-for="(item, index) in iconData"
+                        :key="index"
+                        style="margin-bottom: 15px; cursor: pointer;padding-right:15px;box-sizing:border-box"
+                    >
+                        <el-card shadow="hover">
+                            <div @click="handleIconClick(item)" style="display:flex;align-items: center;">
+                                <i v-html="item.content" style="display:flex;align-items: center;"></i>
+                                <span style="margin-left:15px;">{{ item.name }}</span>
+                            </div>
+                        </el-card>
+                    </el-col>
+                </el-row>
+            </el-scrollbar>
+            <!--分页-->
+            <div class="pagination">
+                <el-pagination
+                    background
+                    @current-change="handleCurrentChange"
+                    layout="total, prev, pager, next"
+                    :current-page.sync="pageNo"
+                    :page-size.sync="pageSize"
+                    :total="total"
+                >
+                </el-pagination>
+            </div>
+        </el-dialog>
 		<!--新增表头界面-->
 		<el-dialog title="新增" width="750px" :visible.sync="addTableHeaderVisible" :close-on-click-modal="false">
 			<el-form :model="addTableHeaderForm" label-width="80px" :rules="tableHeaderRules" ref="addTableHeaderForm">
@@ -246,7 +299,7 @@
 				</el-row>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click="addTableHeaderFormVisible = false">取消</el-button>
+				<el-button @click="addTableHeaderVisible = false">取消</el-button>
 				<el-button type="primary" @click="addTableHeaderSubmit">提交</el-button>
 			</div>
 		</el-dialog>
@@ -341,7 +394,7 @@
 				</el-row>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-				<el-button @click="editFormVisible = false">取消</el-button>
+				<el-button @click="editTableHeaderVisible = false">取消</el-button>
 				<el-button type="primary" @click="editTableHeaderSubmit">提交</el-button>
 			</div>
 		</el-dialog>
@@ -496,11 +549,11 @@ export default {
 			},
 			active: 0,
 			form: {
-				id: '',
 				name: '',
-				designId: '',
-				icon: 'start-o',
+				design: '',
+				icon: '',
 				color: '#1879FE',
+				tableId: '',
 				flowId: '',
 				tableHeader: '',
 				dataSource: '',
@@ -511,31 +564,14 @@ export default {
 				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
 				icon: [{ required: true, message: '请输入图标', trigger: 'blur' }],
 				color: [{ required: true, message: '请选择颜色', trigger: 'blur' }],
-				designId: [{ required: true, message: '请选择页面', trigger: 'change' }]
+				tableId: [{ required: true, message: '请选择数据模型', trigger: 'change' }]
 			},
-			formDesignOptions: [],
-			iconOptions: [
-				'location-o',
-				'like-o',
-				'star-o',
-				'phone-o',
-				'setting-o',
-				'fire-o',
-				'coupon-o',
-				'cart-o',
-				'shopping-cart-o',
-				'cart-circle-o',
-				'friends-o',
-				'comment-o',
-				'gem-o',
-				'gift-o',
-				'point-gift-o',
-				'send-gift-o',
-				'service-o',
-				'bag-o',
-				'todo-list-o',
-				'balance-list-o'
-			],
+			iconFormVisible: false,
+            pageSize: 30,
+            pageNo: 1,
+            total: 0,
+            searchIconName: '',
+            iconData: [],
 			predefine: ['#1879fe', '#5d0bc7', '#1700c2', '#1cb6b4', '#35a110', '#f5b017', '#ee6c16', '#ef0022'],
 			flowOptions: [],
 			tags: ['select', 'where', 'if', 'foreach', 'insert', 'update', 'delete'],
@@ -622,15 +658,13 @@ export default {
 				}
 			],
 			formatterOptions: [],
-			height: (document.documentElement.clientHeight || document.body.clientHeight) - 360
+			height: (document.documentElement.clientHeight || document.body.clientHeight) - 360,
+			tableOptions: []
 		}
-	},
-	activated() {
-		this.active = 0
 	},
 	created() {
 		this.queryById()
-		this.queryFormDesign()
+		this.queryBusinessTable()
 		this.queryFlowData()
 		this.queryFormatter()
 	},
@@ -640,20 +674,20 @@ export default {
 			if (res.data.code === 200) {
 				this.form = res.data.data
 				if (this.form.listExportPath) {
- 					this.form.listExportPath = JSON.parse(this.form.listExportPath)
+					this.form.listExportPath = JSON.parse(this.form.listExportPath)
 				} else {
 					this.form.listExportPath = []
 				}
- 				this.searchTableData = JSON.parse(this.form.searchJson)
+				this.searchTableData = JSON.parse(this.form.searchJson)
 				this.tableHeaderData = JSON.parse(this.form.tableHeader)
 			}
 		},
-		async queryFormDesign() {
-			let res = await this.$axios.get('jellyFormDesign/queryAll')
-			if (res.data.code === 200) {
-				this.formDesignOptions = res.data.data
-			}
-		},
+		async queryBusinessTable() {
+            let res = await this.$axios.get('businessTable/queryAll')
+            if (res.data.code === 200) {
+                this.tableOptions = res.data.data
+            }
+        },
 		async queryFlowData() {
 			let res = await this.$axios.get('seaDefinition/queryAll')
 			if (res.data.code === 200) {
@@ -725,23 +759,62 @@ export default {
 		},
 		handleNext() {
 			if (this.active === 0) {
-				this.$refs['ruleForm'].validate(valid => {
+				this.$refs.ruleForm.validate(valid => {
 					if (valid) {
 						this.active++
 					}
 				})
+				if(this.tableHeaderData.length === 0) {
+					this.queryTableField()
+				}
 			} else if (this.active === 1) {
 				if (this.tableHeaderData.length === 0) {
 					this.$message.error('表头不能为空')
 					return
 				}
 				this.active++
+				if(!this.form.dataSource) {
+					this.queryTableById()
+				}
 			} else if (this.active === 2) {
 				if (!this.form.dataSource) {
 					this.$message.error('数据源不能为空')
 					return
 				}
 				this.active++
+			}
+		},
+		async queryTableField() {
+			let res = await this.$axios.get('businessField/queryByTableId/' + this.form.tableId)
+			if (res.data.code === 200) {
+				for(let i=0;i<res.data.data.length;i++) {
+					let field = res.data.data[i]
+					if(!(field.name == 'company_id' || field.name == 'user_id')) {
+						this.tableHeaderData.push({
+							parentId: '',
+							prop: field.name,
+							label: field.remark,
+							width: undefined,
+							locking: 3,
+							summary: 2,
+							total: 2,
+							target: 0,
+							formatter: '',
+							sort: 1,
+							options: ''
+						})
+					}
+				}
+			}
+		},
+		async queryTableById() {
+			let res = await this.$axios.get('businessTable/queryById/' + this.form.tableId)
+			if (res.data.code === 200) {
+				let curPos = this.$refs.codemirror.editor.getCursor()
+				let insertPos = {}
+				insertPos.line = curPos.line
+				insertPos.ch = curPos.ch
+				this.$refs.codemirror.editor.replaceRange('<select>select * from ' + res.data.data.name + '</select>', insertPos)
 			}
 		},
 		showTableHeaderAddDialog() {
@@ -816,25 +889,26 @@ export default {
 				return
 			}
 			let that = this
-			this.$refs['ruleForm'].validate(valid => {
+			this.$refs.ruleForm.validate(valid => {
 				if (valid) {
 					var params = {
-						id: that.form.id,
-						name: that.form.name,
-						designId: that.form.designId,
-						icon: that.form.icon,
-						color: that.form.color,
-						flowId: that.form.flowId,
-						dataSource: that.form.dataSource,
-						searchJson: JSON.stringify(that.searchTableData),
-						tableHeader: JSON.stringify(that.tableHeaderData)
+						id: this.form.id,
+						name: this.form.name,
+						tableId: this.form.tableId,
+						design: this.form.design,
+						icon: this.form.icon,
+						color: this.form.color,
+						flowId: this.form.flowId,
+						dataSource: this.form.dataSource,
+						searchJson: JSON.stringify(this.searchTableData),
+						tableHeader: JSON.stringify(this.tableHeaderData)
 					}
-					that.$axios.post('jellyForm/update', params).then(function(response) {
-						if (response.data.code == 200) {
-							that.$message.success('新增成功')
+					this.$axios.post('jellyForm/update', params).then(res => {
+						if (res.data.code == 200) {
+							that.$message.success('编辑成功')
 							that.$store.commit('worktabRemove', that.$route.fullPath)
 						} else {
-							that.$message.error(response.data.message)
+							that.$message.error(res.data.message)
 						}
 					})
 				}
@@ -847,11 +921,10 @@ export default {
 			}
 		},
 		addSearchSubmit() {
-			let that = this
 			this.$refs.addSearchForm.validate(valid => {
 				if (valid) {
-					that.searchTableData = that.searchTableData.concat(JSON.parse(JSON.stringify(that.addSearchForm)))
-					that.addSearchVisible = false
+					this.searchTableData = this.searchTableData.concat(JSON.parse(JSON.stringify(this.addSearchForm)))
+					this.addSearchVisible = false
 				}
 			})
 		},
@@ -864,14 +937,13 @@ export default {
 			this.currentSearchIndex = index
 		},
 		editSearchSubmit() {
-			let that = this
 			this.$refs.editSearchForm.validate(valid => {
 				if (valid) {
-					that.editSearchVisible = false
-					that.searchTableData.splice(
-						that.currentSearchIndex,
+					this.editSearchVisible = false
+					this.searchTableData.splice(
+						this.currentSearchIndex,
 						1,
-						JSON.parse(JSON.stringify(that.editSearchForm))
+						JSON.parse(JSON.stringify(this.editSearchForm))
 					)
 				}
 			})
@@ -897,13 +969,12 @@ export default {
 			}
 		},
 		sourceChange(value) {
-			let that = this
-			that.$axios.get('dictionaryDetail/queryDisplay?classifyId=' + value).then(res => {
+			this.$axios.get('dictionaryDetail/queryDisplay?classifyId=' + value).then(res => {
 				if (res.data.code == 200) {
-					if (that.addHeaderVisible) {
-						that.addSearchForm.sourceOptions = res.data.data
+					if (this.addHeaderVisible) {
+						this.addSearchForm.sourceOptions = res.data.data
 					} else {
-						that.editSearchForm.sourceOptions = res.data.data
+						this.editSearchForm.sourceOptions = res.data.data
 					}
 				}
 			})
@@ -945,7 +1016,31 @@ export default {
 			insertPos.line = curPos.line
 			insertPos.ch = curPos.ch
 			this.$refs.codemirror.editor.replaceRange(script, insertPos)
-		}
+		},
+		queryIconByPage(){
+            var params = {
+                pageSize: this.pageSize,
+                pageNo: this.pageNo,
+                name: this.searchIconName
+            }
+            this.$axios.get('jellySvg/queryByPage', {params}).then(res => {
+                if (res.data.code == 200) {
+                    this.iconData = res.data.data.list
+                    this.total = res.data.data.total
+                }
+            })
+        },
+        handleCurrentChange(){
+            this.queryIconByPage()
+        },
+        handleIconDialog(){
+            this.queryIconByPage()
+            this.iconFormVisible = true
+        },
+        handleIconClick(item){
+            this.form.icon = item.content
+            this.iconFormVisible = false
+        },
 	}
 }
 </script>
@@ -964,5 +1059,35 @@ export default {
 }
 ::v-deep .is-without-controls .el-input .el-input__inner {
 	text-align: left;
+}
+.inside-input {
+    position: relative;
+}
+.inside-input .iconE {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #c0c4cc;
+}
+::v-deep .inside-input .el-input--suffix .el-input__inner {
+    padding-right: 48px;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-arrow-up {
+    display: none;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-circle-close {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: #c0c4cc;
+}
+.iconView {
+    border: 1px solid #DCDFE6;
+    border-radius: 4px;
+    padding: 0px 20px;
+    height: 40px;
 }
 </style>
