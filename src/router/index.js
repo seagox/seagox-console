@@ -154,14 +154,6 @@ const routes = [
                 }
             },
             {
-                name: 'formDesign',
-                path: '/formDesign',
-                component: () => import('@/views/sys/form-design'),
-                meta: {
-                    title: '表单设计'
-                }
-            },
-            {
                 name: 'form',
                 path: '/form',
                 component: () => import('@/views/sys/form'),
