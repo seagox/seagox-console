@@ -70,7 +70,32 @@
             </el-col>
         </el-form>
         <div v-show="active === 1">
-            <div id="spreadsheet" style="margin-top: 15px"></div>
+            <el-form :inline="true" :model="textForm" style="margin-top:5px;">
+                <el-form-item label="表">
+                    <el-select v-model="textForm.tableId" placeholder="请选择表" filterable @change="handleTableChange">
+                        <el-option
+                            v-for="item in tableOptions"
+                            :key="item.id"
+                            :label="item.remark + '(' + item.name + ')'"
+                            :value="item.id"
+                        >
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="字段">
+                    <el-select v-model="textForm.field" placeholder="请选择字段" filterable>
+                        <el-option
+                            v-for="item in fieldOptions"
+                            :key="item.name"
+                            :label="item.remark + '(' + item.name + ')'"
+                            :value="item.name"
+                        >
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-button icon="el-icon-plus" @click="setCellText">插入</el-button>
+            </el-form>
+            <div id="spreadsheet"></div>
         </div>
         <div v-show="active === 2" class="table">
             <div class="toolView" style="margin-bottom:15px">
@@ -143,7 +168,7 @@
                         <el-option
                             v-for="item in tableOptions"
                             :key="item.id"
-                            :label="item.comment + '(' + item.name + ')'"
+                            :label="item.remark + '(' + item.name + ')'"
                             :value="item.id"
                         >
                         </el-option>
@@ -223,7 +248,7 @@
                         <el-option
                             v-for="item in tableOptions"
                             :key="item.id"
-                            :label="item.comment + '(' + item.name + ')'"
+                            :label="item.remark + '(' + item.name + ')'"
                             :value="item.id"
                         >
                         </el-option>
@@ -278,38 +303,36 @@
         </el-dialog>
         <!--图标选择界面-->
         <el-dialog title="图标选择" width="950px" :visible.sync="iconFormVisible" :close-on-click-modal="false">
-            <div class="searchView">
-                <el-form label-width="65px">
-                    <el-row>
-                        <el-col :span="8">
-                            <el-form-item label="名称">
-                                <el-input v-model="searchIconName" clearable placeholder="请输入名称"></el-input>
-                            </el-form-item>
-                        </el-col>
-                        <el-col :span="3">
-                            <el-button
-                                type="primary"
-                                icon="el-icon-search"
-                                @click.native="handleCurrentChange"
-                                style="margin-left: 15px"
-                            >查询</el-button
-                            >
-                        </el-col>
-                    </el-row>
-                </el-form>
-            </div>
+            <el-form label-width="65px">
+                <el-row>
+                    <el-col :span="8">
+                        <el-form-item label="名称">
+                            <el-input v-model="searchIconName" clearable placeholder="请输入名称"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="3">
+                        <el-button
+                            type="primary"
+                            icon="el-icon-search"
+                            @click.native="handleCurrentChange"
+                            style="margin-left: 15px"
+                        >查询</el-button
+                        >
+                    </el-col>
+                </el-row>
+            </el-form>
             <el-scrollbar style="height:100%">
                 <el-row>
                     <el-col
                         :span="4"
                         v-for="(item, index) in iconData"
                         :key="index"
-                        style="margin-bottom: 20px; cursor: pointer;"
+                        style="margin-bottom: 15px; cursor: pointer;padding-right:15px;box-sizing:border-box"
                     >
                         <el-card shadow="hover">
-                            <div @click="handleIconClick(item)">
-                                <i v-html="item.content"></i>
-                                <span style="margin-left: 30px;">{{ item.name }}</span>
+                            <div @click="handleIconClick(item)" style="display:flex;align-items: center;">
+                                <i v-html="item.content" style="display:flex;align-items: center;"></i>
+                                <span style="margin-left:15px;">{{ item.name }}</span>
                             </div>
                         </el-card>
                     </el-col>
@@ -461,7 +484,12 @@ export default {
             pageNo: 1,
             total: 0,
             searchIconName: '',
-            iconData: []
+            iconData: [],
+            fieldOptions: [],
+            textForm: {
+                tableId: '',
+                field: ''
+            }
         }
     },
     created() {
@@ -504,6 +532,12 @@ export default {
             let res = await this.$axios.get('businessTable/queryAll')
             if (res.data.code === 200) {
                 this.tableOptions = res.data.data
+            }
+        },
+        async queryFieldByTableId(tableId) {
+            let res = await this.$axios.get('businessField/queryByTableId/' + tableId)
+            if (res.data.code === 200) {
+                this.fieldOptions = res.data.data
             }
         },
         async queryDataSet() {
@@ -816,6 +850,15 @@ export default {
         handleIconClick(item){
             this.form.icon = item.content
             this.iconFormVisible = false
+        },
+        handleTableChange(value) {
+            this.queryFieldByTableId(value)
+        },
+        setCellText() {
+            if(this.textForm.field) {
+                this.xs.cellText(this.rowIndex, this.colIndex, '{{$value.' + this.textForm.field + '}}', 0)
+                this.xs.reRender()
+            }
         }
     }
 }
