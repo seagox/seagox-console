@@ -34,8 +34,8 @@
 				</el-form-item>
 			</el-col>
 			<el-col :span="12">
-				<el-form-item label="数据源" prop="dataSource">
-					<el-select v-model="form.dataSource" filterable placeholder="请选择数据源">
+				<el-form-item label="模板引擎" prop="dataSource">
+					<el-select v-model="form.dataSource" filterable placeholder="请选择模板引擎">
 						<el-option
 							v-for="item in datasetOptions"
 							:key="item.id"
@@ -373,7 +373,7 @@ export default {
 			form: {
 				name: '',
 				icon: '',
-				color: '',
+				color: '#1879fe',
 				dataSource: '',
 				templateSource: '',
 				searchJson: '',
