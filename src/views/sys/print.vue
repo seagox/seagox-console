@@ -108,7 +108,7 @@
 					</el-form-item>
 				</el-col>
 				<el-col :span="24">
-					<el-form-item label="模板" prop="templateSource">
+					<el-form-item label="打印模板" prop="templateSource">
 						<el-upload
 							:limit="1"
 							:action="action"
