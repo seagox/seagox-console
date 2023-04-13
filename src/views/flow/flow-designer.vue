@@ -674,6 +674,7 @@ export default {
 <style scoped>
 .container {
 	background-color: #f7f8fa;
+	background-image: url('../../assets/dot.png');
 }
 
 .function {
