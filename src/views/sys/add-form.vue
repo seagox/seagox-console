@@ -4,7 +4,6 @@
 			<el-step title="基础设置"></el-step>
 			<el-step title="表头设置"></el-step>
 			<el-step title="数据源设置"></el-step>
-			<el-step title="界面设计"></el-step>
 			<el-step title="搜索条件"></el-step>
 		</el-steps>
 		<el-form
@@ -129,7 +128,7 @@
 				<codemirrorXml ref="codemirror" v-model="form.dataSource" v-if="active === 2" placeholder="请输入SQL" :height="height"/>
 			</el-form-item>
 		</el-form>
-		<div v-show="active === 4">
+		<div v-show="active === 3">
 			<div class="toolView">
 				<el-button icon="el-icon-plus" @click="showSearchAddDialog" size="small">新增</el-button>
 			</div>
