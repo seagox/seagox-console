@@ -112,7 +112,7 @@
                             <el-select
                                 v-model="addRuleForm.verifyRuleId"
                                 filterable
-                                placeholder="请选择规则"
+                                placeholder="请选择云函数规则"
                                 clearable
                             >
                                 <el-option
@@ -130,7 +130,7 @@
                             <el-select
                                 v-model="addRuleForm.handleRuleId"
                                 filterable
-                                placeholder="请选择规则"
+                                placeholder="请选择云函数规则"
                                 clearable
                             >
                                 <el-option
@@ -209,7 +209,7 @@
                             <el-select
                                 v-model="editRuleForm.verifyRuleId"
                                 filterable
-                                placeholder="请选择规则"
+                                placeholder="请选择云函数规则"
                                 clearable
                             >
                                 <el-option
@@ -227,7 +227,7 @@
                             <el-select
                                 v-model="editRuleForm.handleRuleId"
                                 filterable
-                                placeholder="请选择规则"
+                                placeholder="请选择云函数规则"
                                 clearable
                             >
                                 <el-option
