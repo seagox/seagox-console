@@ -6,16 +6,6 @@
         <div class="searchView">
             <el-form label-width="65px">
                 <el-row>
-                    <el-col :span="6">
-                        <el-form-item label="名称">
-                            <el-input v-model="searchForm.name" clearable placeholder="请输入名称"></el-input>
-                        </el-form-item>
-                    </el-col>
-					<el-col :span="6">
-                        <el-form-item label="路径">
-                            <el-input v-model="searchForm.path" clearable placeholder="请输入路径"></el-input>
-                        </el-form-item>
-                    </el-col>
                     <el-col :span="4">
                         <el-form-item label="类型">
                             <el-select
@@ -31,6 +21,16 @@
                                 >
                                 </el-option>
                             </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="4">
+                        <el-form-item label="名称">
+                            <el-input v-model="searchForm.name" clearable placeholder="请输入名称"></el-input>
+                        </el-form-item>
+                    </el-col>
+					<el-col :span="4">
+                        <el-form-item label="路径">
+                            <el-input v-model="searchForm.path" clearable placeholder="请输入路径"></el-input>
                         </el-form-item>
                     </el-col>
                     <el-col :span="4">
@@ -157,7 +157,19 @@ export default {
                 },
                 {
                     value: 2,
-                    label: '规则'
+                    label: '业务规则'
+                },
+                {
+                    value: 3,
+                    label: '导入验证规则'
+                },
+                {
+                    value: 4,
+                    label: '导入处理规则'
+                },
+                {
+                    value: 5,
+                    label: '定时任务'
                 }
             ]
         }

@@ -61,8 +61,21 @@
 				<el-form-item label="表达式" prop="cron">
 					<el-input v-model="addForm.cron" placeholder="请输入表达式"></el-input>
 				</el-form-item>
-				<el-form-item label="规则" prop="script">
-					<codemirrorGroovy v-model="addForm.script" placeholder="请输入规则" v-if="formRules" />
+				<el-form-item label="云函数" prop="ruleId">
+					<el-select
+						v-model="addForm.ruleId"
+						filterable
+						placeholder="请选择云函数"
+						clearable
+					>
+						<el-option
+							v-for="item in metaFunctionOptions"
+							:key="item.id"
+							:label="item.name"
+							:value="item.id"
+						>
+						</el-option>
+					</el-select>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -79,8 +92,21 @@
 				<el-form-item label="表达式" prop="cron">
 					<el-input v-model="editForm.cron" placeholder="请输入表达式"></el-input>
 				</el-form-item>
-				<el-form-item label="规则" prop="script">
-					<codemirrorGroovy v-model="editForm.script" placeholder="请输入规则" v-if="editFormVisible" />
+				<el-form-item label="云函数" prop="ruleId">
+					<el-select
+						v-model="editForm.ruleId"
+						filterable
+						placeholder="请选择云函数"
+						clearable
+					>
+						<el-option
+							v-for="item in metaFunctionOptions"
+							:key="item.id"
+							:label="item.name"
+							:value="item.id"
+						>
+						</el-option>
+					</el-select>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -90,13 +116,8 @@
 		</el-dialog>
 	</div>
 </template>
-
 <script>
-import codemirrorGroovy from '@/views/components/codemirror/groovy'
 export default {
-	components: {
-		codemirrorGroovy
-	},
 	data() {
 		return {
 			tableData: [],
@@ -106,24 +127,26 @@ export default {
 			addForm: {
 				name: '',
 				cron: '',
-				script: ''
+				ruleId: ''
 			},
 			editFormVisible: false,
 			editForm: {
 				id: '',
 				name: '',
 				cron: '',
-				script: ''
+				ruleId: ''
 			},
 			formRules: {
 				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
 				cron: [{ required: true, message: '请输入表达式', trigger: 'blur' }],
-				script: [{ required: true, message: '请输入规则', trigger: 'blur' }]
-			}
+				ruleId: [{ required: true, message: '请选择规则', trigger: 'blur' }]
+			},
+			metaFunctionOptions: []
 		}
 	},
 	created() {
 		this.queryByPage()
+		this.queryMetaFunction()
 	},
 	methods: {
 		statusFormatter(row) {
@@ -139,14 +162,23 @@ export default {
 			this.queryByPage()
 		},
 		queryByPage() {
-			let that = this
 			const params = {
 				pageNo: this.pageNo
 			}
-			that.$axios.get('job/queryByPage', { params }).then(res => {
+			this.$axios.get('job/queryByPage', { params }).then(res => {
 				if (res.data.code == 200) {
-					that.tableData = res.data.data.list
-					that.total = res.data.data.total
+					this.tableData = res.data.data.list
+					this.total = res.data.data.total
+				}
+			})
+		},
+		queryMetaFunction() {
+			const params = {
+				type: 5
+			}
+			this.$axios.get('metaFunction/queryByCompanyId', { params }).then(res => {
+				if (res.data.code == 200) {
+					this.metaFunctionOptions = res.data.data
 				}
 			})
 		},
@@ -157,23 +189,21 @@ export default {
 			}
 		},
 		addSubmit() {
-			let that = this
 			this.$refs.addForm.validate(valid => {
 				if (valid) {
-					that.$axios.post('job/insert', that.addForm).then(res => {
+					this.$axios.post('job/insert', this.addForm).then(res => {
 						if (res.data.code == 200) {
-							that.$message.success('新增成功')
-							that.addFormVisible = false
-							that.queryByPage()
+							this.$message.success('新增成功')
+							this.addFormVisible = false
+							this.queryByPage()
 						} else {
-							that.$message.error(res.data.message)
+							this.$message.error(res.data.message)
 						}
 					})
 				}
 			})
 		},
 		showEditDialog(row) {
-			let that = this
 			this.editForm = Object.assign({}, row)
 			this.editFormVisible = true
 			if (this.$refs.editForm) {
@@ -181,56 +211,52 @@ export default {
 			}
 		},
 		editSubmit() {
-			let that = this
 			this.$refs.editForm.validate(valid => {
 				if (valid) {
-					that.$axios.post('job/update', that.editForm).then(res => {
+					this.$axios.post('job/update', this.editForm).then(res => {
 						if (res.data.code == 200) {
-							that.$message.success('修改成功')
-							that.editFormVisible = false
-							that.queryByPage()
+							this.$message.success('修改成功')
+							this.editFormVisible = false
+							this.queryByPage()
 						} else {
-							that.$message.error(res.data.message)
+							this.$message.error(res.data.message)
 						}
 					})
 				}
 			})
 		},
 		deleteSubmit(row) {
-			let that = this
 			this.$confirm('亲，确认要删除吗？', '提示', { type: 'warning' }).then(() => {
-				that.$axios.post('job/delete/' + row.id, {}).then(res => {
+				this.$axios.post('job/delete/' + row.id, {}).then(res => {
 					if (res.data.code == 200) {
-						that.$message.success('删除成功')
-						that.pageNo = 1
-						that.queryByPage()
+						this.$message.success('删除成功')
+						this.pageNo = 1
+						this.queryByPage()
 					} else {
-						that.$message.error(res.data.message)
+						this.$message.error(res.data.message)
 					}
 				})
 			})
 		},
 		startTaskHandle(row) {
-			let that = this
-			that.$axios.post('job/startJob/' + row.id, {}).then(res => {
+			this.$axios.post('job/startJob/' + row.id, {}).then(res => {
 				if (res.data.code == 200) {
-					that.$message.success('启动成功')
-					that.pageNo = 1
-					that.queryByPage()
+					this.$message.success('启动成功')
+					this.pageNo = 1
+					this.queryByPage()
 				} else {
-					that.$message.error(res.data.message)
+					this.$message.error(res.data.message)
 				}
 			})
 		},
 		stopTaskHandle(row) {
-			let that = this
-			that.$axios.post('job/stopJob/' + row.id, {}).then(res => {
+			this.$axios.post('job/stopJob/' + row.id, {}).then(res => {
 				if (res.data.code == 200) {
-					that.$message.success('暂停成功')
-					that.pageNo = 1
-					that.queryByPage()
+					this.$message.success('暂停成功')
+					this.pageNo = 1
+					this.queryByPage()
 				} else {
-					that.$message.error(res.data.message)
+					this.$message.error(res.data.message)
 				}
 			})
 		}
