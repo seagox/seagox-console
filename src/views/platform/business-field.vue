@@ -49,9 +49,9 @@
 				<el-table-column prop="type" label="字段类型" align="center"></el-table-column>
 				<el-table-column prop="length" label="长度" align="center"></el-table-column>
 				<el-table-column prop="decimals" label="小数" align="center"></el-table-column>
-				<el-table-column label="可否为NULL" align="center">
+				<el-table-column label="是否必填" align="center">
 					<template slot-scope="scope">
-						<i class="el-icon-check" style="color:green;font-weight:bold;" v-if="scope.row.notNull === 0"></i>
+						<i class="el-icon-check" style="color:green;font-weight:bold;" v-if="scope.row.notNull === 1"></i>
 						<i class="el-icon-close" style="color:red;font-weight:bold;" v-else></i>
 					</template>
 				</el-table-column>
@@ -172,15 +172,15 @@
 					</el-form-item>
 				</el-col>
 				<el-col :span="12">
-					<el-form-item label="是否为空" prop="notNull">
-						<el-switch v-model="addForm.notNull" :active-value="0" :inactive-value="1"> </el-switch>
+					<el-form-item label="是否必填" prop="notNull">
+						<el-switch v-model="addForm.notNull" :active-value="1" :inactive-value="0"> </el-switch>
 					</el-form-item>
 				</el-col>
 				<el-col :span="12">
-					<el-form-item label="目标模型" prop="targetTableId">
+					<el-form-item label="外键" prop="targetTableId">
 						<el-select
 							v-model="addForm.targetTableId"
-							placeholder="请选择数据表名"
+							placeholder="请选择表名"
 							clearable
 							filterable
 						>
@@ -298,15 +298,15 @@
 					</el-form-item>
 				</el-col>
 				<el-col :span="12">
-					<el-form-item label="是否为空" prop="notNull">
-						<el-switch v-model="editForm.notNull" :active-value="0" :inactive-value="1"> </el-switch>
+					<el-form-item label="是否必填" prop="notNull">
+						<el-switch v-model="editForm.notNull" :active-value="1" :inactive-value="0"> </el-switch>
 					</el-form-item>
 				</el-col>
 				<el-col :span="12">
-					<el-form-item label="目标模型" prop="targetTableId">
+					<el-form-item label="外键" prop="targetTableId">
 						<el-select
 							v-model="editForm.targetTableId"
-							placeholder="请选择数据表名"
+							placeholder="请选择表名"
 							clearable
 							filterable
 						>
@@ -400,28 +400,44 @@ export default {
 			},
 			kindOptions: [
 				{
-					label: '基本类型',
+					label: '单行文本',
 					value: 1
 				},
 				{
-					label: '数据字典',
+					label: '多行文本',
 					value: 2
 				},
 				{
-					label: '单位',
+					label: '富文本',
 					value: 3
 				},
 				{
-					label: '部门',
+					label: '整数（Int）',
 					value: 4
 				},
 				{
-					label: '用户',
+					label: '浮点数（Float）',
 					value: 5
 				},
 				{
-					label: '省市区',
+					label: '金额',
 					value: 6
+				},
+				{
+					label: '枚举',
+					value: 7
+				},
+				{
+					label: '日期',
+					value: 8
+				},
+				{
+					label: '附件',
+					value: 9
+				},
+				{
+					label: '图片',
+					value: 10
 				}
 			],
 			tableOptions: []
