@@ -550,7 +550,12 @@ export default {
 			active: 0,
 			form: {
 				name: '',
-				design: '',
+				design: {
+					size: '',
+					labelPosition: 'right',
+					labelWidth: 80,
+					gutter: 15
+				},
 				icon: '',
 				color: '#1879FE',
 				tableId: '',
@@ -880,7 +885,7 @@ export default {
 					var params = {
 						name: this.form.name,
 						tableId: this.form.tableId,
-						design: this.form.design,
+						design: JSON.stringify(this.form.design),
 						icon: this.form.icon,
 						color: this.form.color,
 						flowId: this.form.flowId,
