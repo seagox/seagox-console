@@ -103,25 +103,13 @@
 				<el-col :span="12">
 					<el-form-item label="类型" prop="type">
 						<el-select v-model="addForm.type" filterable placeholder="请选择类型" @change="typeChange">
-							<el-option
-								label="整数值(-2147483648~2147483647)"
-								value="integer"
-								v-if="datasourceType != 'oracle'"
-							></el-option>
-							<el-option
-								label="大整数值(-9223372036854775808~9223372036854775807)"
-								value="bigint"
-								v-if="datasourceType != 'oracle'"
-							></el-option>
-							<el-option label="小数值" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
-							<el-option
-								label="number(数字值)"
-								value="number"
-								v-if="datasourceType === 'oracle'"
-							></el-option>
+							<el-option label="整数" value="integer" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="大整数" value="bigint" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="浮点数" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="number(数字值)" value="number" v-if="datasourceType === 'oracle'"></el-option>
 							<el-option label="日期值(YYYY-MM-DD)" value="date"></el-option>
 							<el-option label="日期时间值(YYYY-MM-DD HH:MM:SS)" value="timestamp"></el-option>
-							<el-option label="字符串(0~65535)" value="varchar"></el-option>
+							<el-option label="字符串" value="varchar"></el-option>
 							<el-option label="长文本" value="text"></el-option>
 							<el-option label="json" value="json"></el-option>
 						</el-select>
@@ -229,25 +217,13 @@
 							placeholder="请选择类型"
 							@change="typeChange"
 						>
-							<el-option
-								label="整数值(-2147483648~2147483647)"
-								value="integer"
-								v-if="datasourceType != 'oracle'"
-							></el-option>
-							<el-option
-								label="大整数值(-9223372036854775808~9223372036854775807)"
-								value="bigint"
-								v-if="datasourceType != 'oracle'"
-							></el-option>
-							<el-option label="小数值" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
-							<el-option
-								label="number(数字值)"
-								value="number"
-								v-if="datasourceType === 'oracle'"
-							></el-option>
-							<el-option label="date(日期值 YYYY-MM-DD)" value="date"></el-option>
+							<el-option label="整数" value="integer" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="大整数" value="bigint" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="浮点数" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="number(数字值)" value="number" v-if="datasourceType === 'oracle'"></el-option>
+							<el-option label="日期值(YYYY-MM-DD)" value="date"></el-option>
 							<el-option label="日期时间值(YYYY-MM-DD HH:MM:SS)" value="timestamp"></el-option>
-							<el-option label="字符串(0~65535)" value="varchar"></el-option>
+							<el-option label="字符串" value="varchar"></el-option>
 							<el-option label="长文本" value="text"></el-option>
 							<el-option label="json" value="json"></el-option>
 						</el-select>
