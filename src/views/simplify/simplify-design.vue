@@ -911,7 +911,7 @@
                                 </el-select>
                             </el-form-item>
                             <el-form-item label="表单栅格">
-                                <el-slider v-model="formData.span" :min="1" :max="24"></el-slider>
+                                <el-slider v-model="formData.span" :min="0" :max="24" :step="12" show-stops></el-slider>
                             </el-form-item>
                             <el-form-item label="标签宽度" v-if="formData.type != 'word'">
                                 <el-input-number
