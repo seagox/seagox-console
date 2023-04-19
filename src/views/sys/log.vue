@@ -68,10 +68,10 @@
 					<el-input v-model="form.method" disabled></el-input>
 				</el-form-item>
 				<el-form-item label="请求参数">
-					<vue-json-pretty :data="form.params" />
+					<json-viewer :value="form.params" copyable boxed></json-viewer>
 				</el-form-item>
 				<el-form-item label="操作结果">
-					<vue-json-pretty :data="form.result"/>
+					<json-viewer :value="form.result" copyable boxed></json-viewer>
 				</el-form-item>
 			</el-form>
 		</el-dialog>
@@ -79,11 +79,10 @@
 </template>
 
 <script>
-import VueJsonPretty from 'vue-json-pretty'
-import 'vue-json-pretty/lib/styles.css'
+import JsonViewer from 'vue-json-viewer'
 export default {
 	components: {
-    	VueJsonPretty
+		JsonViewer
   	},
 	data() {
 		return {
