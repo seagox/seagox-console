@@ -808,7 +808,7 @@ export default {
 				}
 			}
 		},
-		execMounted(result) {
+		execMounted() {
 			if(this.jsApi.hasOwnProperty('mounted')) {
 				this.mounted()
 			}
