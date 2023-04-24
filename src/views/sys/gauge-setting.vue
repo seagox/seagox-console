@@ -614,6 +614,7 @@
 				ref="codemirrorJavascript"
 				v-model="javascript"
 				placeholder="请输入脚本"
+				v-if="jsVisible"
 				:style="{height: clientHeight-90 + 'px',margin: '0px 15px'}"
 			/>
 		</el-drawer>
@@ -632,6 +633,7 @@
 					ref="codemirrorXml"
 					v-model="templateEngine"
 					placeholder="请输入脚本"
+					v-if="xmlVisible"
 					:style="{height: clientHeight-140 + 'px',margin: '0px 15px'}"
 				/>
 			</div>
