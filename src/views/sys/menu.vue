@@ -54,7 +54,7 @@
 		<el-dialog title="新增" width="750px" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="formRules" ref="addForm">
 				<el-row>
-					<el-col :span="24">
+					<el-col :span="12">
 						<el-form-item label="类型" prop="type">
 							<el-select v-model="addForm.type" placeholder="请选择类型" @change="typeChange">
 								<el-option
@@ -70,11 +70,6 @@
 					<el-col :span="12">
 						<el-form-item label="名称" prop="name">
 							<el-input v-model.trim="addForm.name" placeholder="请输入名称"></el-input>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="简称" prop="quickName">
-							<el-input v-model="addForm.quickName" placeholder="请输入简称"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
@@ -141,7 +136,7 @@
 		<el-dialog title="编辑" width="750px" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="formRules" ref="editForm">
 				<el-row>
-					<el-col :span="24">
+					<el-col :span="12">
 						<el-form-item label="类型" prop="type">
 							<el-select v-model="editForm.type" placeholder="请选择类型" @change="typeChange">
 								<el-option
@@ -157,11 +152,6 @@
 					<el-col :span="12">
 						<el-form-item label="名称" prop="name">
 							<el-input v-model.trim="editForm.name" placeholder="请输入名称"></el-input>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="简称" prop="quickName">
-							<el-input v-model="editForm.quickName" placeholder="请输入简称"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
@@ -330,8 +320,7 @@ export default {
 				icon: '',
 				path: '',
 				status: 1,
-				sort: 1,
-				quickName: ''
+				sort: 1
 			},
 			editFormVisible: false,
 			editForm: {
@@ -343,15 +332,13 @@ export default {
 				icon: '',
 				path: '',
 				status: 1,
-				sort: 1,
-				quickName: ''
+				sort: 1
 			},
 			formRules: {
 				type: [{ required: true, message: '请选择类型', trigger: 'change' }],
 				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
 				path: [{ required: true, message: '请输入路径', trigger: 'blur,change' }],
-				icon: [{ required: true, message: '请选择图标', trigger: 'change' }],
-				quickName: [{ max: 30, message: '简称不超过30个字符', trigger: 'blur' }]
+				icon: [{ required: true, message: '请选择图标', trigger: 'change' }]
 			},
 			frgOptions: [],
             iconOptions: [],
@@ -497,8 +484,7 @@ export default {
 						path: this.editForm.path,
 						sort: this.editForm.sort,
 						status: this.editForm.status,
-						parentId: this.editForm.parentId,
-						quickName: this.editForm.quickName
+						parentId: this.editForm.parentId
 					}
 					this.$axios.post('menu/update', params).then(res => {
 						if (res.data.code == 200) {
