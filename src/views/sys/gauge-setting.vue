@@ -149,57 +149,12 @@
 						</div>
 					</el-tab-pane>
 					<el-tab-pane label="其他" style="width: 240px">
-						<el-dropdown trigger="click" @command="handleAddQueries" style="width: 100%">
-							<div
-								class="el-dropdown-link"
-								style="
-									margin-top: 15px;
-									margin-bottom: 15px;
-									display: flex;
-									justify-content: center;
-									align-items: center;
-									cursor: pointer;
-								"
-							>
-								<i class="el-icon-plus el-icon--right" style="margin-right: 5px"></i>新建
-							</div>
-							<el-dropdown-menu slot="dropdown">
-								<el-dropdown-item command="ds">DataSource</el-dropdown-item>
-								<el-dropdown-item command="js">JavaScript</el-dropdown-item>
-							</el-dropdown-menu>
-						</el-dropdown>
-						<el-table
-							:data="config.queries"
-							:show-header="false"
-							:row-class-name="tableRowClassName"
-							@row-dblclick="handleDblclickQueries"
-						>
-							<el-table-column prop="name">
-								<template slot-scope="scope">
-									<div style="display: flex; align-items: center" v-if="scope.row.type === 'js'">
-										<span style="color: rgb(87, 87, 87); margin-right: 8px; font-weight: 900"
-											>Js</span
-										>
-										{{ scope.row.name }}
-									</div>
-									<div style="display: flex; align-items: center" v-else>
-										<span style="color: rgb(87, 87, 87); margin-right: 8px; font-weight: 900"
-											>Ds</span
-										>
-										{{ scope.row.name }}
-									</div>
-								</template>
-							</el-table-column>
-							<el-table-column label="操作" align="center" width="45">
-								<template slot-scope="scope">
-									<i
-										class="el-icon-delete"
-										@click="handleDeleteQueries(scope)"
-										style="color: red"
-									></i>
-								</template>
-							</el-table-column>
-						</el-table>
+						<div style="margin:10px;">
+							<el-button type="primary" style="width:100%;" @click="handleScript">js脚本</el-button>
+						</div>
+						<div style="margin:10px;">
+							<el-button  type="primary" plain style="width:100%;" @click="handleTemplateEngine">模板引擎</el-button>
+						</div>
 					</el-tab-pane>
 				</el-tabs>
 			</div>
@@ -570,10 +525,9 @@
 					<el-form-item label="On Click" v-if="attribute.type === 'button' || attribute.type === 'link' || attribute.type === 'image'">
 						<el-select v-model="attribute.click" placeholder="Select action" filterable clearable>
 							<el-option
-								:disabled="query.type != 'js'"
-								:label="query.name"
-								:value="query.name"
-								v-for="(query, index) in config.queries"
+								:label="index"
+								:value="index"
+								v-for="(query, index) in jsApi"
 								:key="index"
 							></el-option>
 						</el-select>
@@ -596,10 +550,9 @@
 					>
 						<el-select v-model="attribute.change" placeholder="Select action" filterable clearable>
 							<el-option
-								:disabled="query.type != 'js'"
-								:label="query.name"
-								:value="query.name"
-								v-for="(query, index) in config.queries"
+								:label="index"
+								:value="index"
+								v-for="(query, index) in jsApi"
 								:key="index"
 							></el-option>
 						</el-select>
@@ -610,10 +563,9 @@
 					>
 						<el-select v-model="attribute.rowDblclick" placeholder="Select action" filterable clearable>
 							<el-option
-								:disabled="query.type != 'js'"
-								:label="query.name"
-								:value="query.name"
-								v-for="(query, index) in config.queries"
+								:label="index"
+								:value="index"
+								v-for="(query, index) in jsApi"
 								:key="index"
 							></el-option>
 						</el-select>
@@ -624,10 +576,9 @@
 					>
 						<el-select v-model="attribute.pageChange" placeholder="Select action" filterable clearable>
 							<el-option
-								:disabled="query.type != 'js'"
-								:label="query.name"
-								:value="query.name"
-								v-for="(query, index) in config.queries"
+								:label="index"
+								:value="index"
+								v-for="(query, index) in jsApi"
 								:key="index"
 							></el-option>
 						</el-select>
@@ -636,39 +587,11 @@
 			</div>
 		</div>
 		<el-dialog title="设置" width="900px" :visible.sync="scriptVisible" :close-on-click-modal="false">
-			<el-form :model="selectedRow" label-width="80px" :rules="rules" ref="selectedRowForm">
-				<el-form-item label="名称" prop="name" v-if="selectedRow.type != 'style'">
-					<el-input v-model="selectedRow.name" placeholder="请输入名称"></el-input>
-				</el-form-item>
-				<div class="source" v-if="selectedRow.type === 'ds'">
-					<el-tag v-for="tag in tags" :key="tag" class="tag" @click="insertCode(tag)">
-						{{ tag }}
-					</el-tag>
-				</div>
-				<el-form-item label="参数" v-if="selectedRow.type === 'js'">
-					<el-tag style="margin-right: 15px">that</el-tag>
-					<el-tag>params</el-tag>
-				</el-form-item>
-				<el-form-item label="脚本" v-if="selectedRow.type === 'ds'" prop="script">
-					<codemirrorXml
-						ref="codemirror"
-						v-model="selectedRow.script"
-						v-if="selectedRow.type === 'ds'"
-						placeholder="请输入脚本"
-					/>
-				</el-form-item>
-				<el-form-item label="脚本" v-if="selectedRow.type === 'js'" prop="script">
-					<codemirrorJavascript
-						ref="codemirror"
-						v-model="selectedRow.script"
-						v-if="selectedRow.type === 'js'"
-						placeholder="请输入脚本"
-					/>
-				</el-form-item>
+			<el-form :model="selectedRow" label-width="80px" ref="selectedRowForm">
 				<el-form label-width="15px" v-if="selectedRow.type === 'style'">
 					<el-form-item>
 						<codemirrorJavascript
-							ref="codemirror"
+							ref="codemirrorStyle"
 							v-model="selectedRow.script"
 							v-if="selectedRow.type === 'style'"
 							placeholder="请输入样式"
@@ -681,6 +604,38 @@
 				<el-button type="primary" @click="scriptSubmit">保存</el-button>
 			</div>
 		</el-dialog>
+		<el-drawer
+			title="js脚本"
+			:visible.sync="jsVisible"
+			direction="ltr"
+			size="900px"
+			:before-close="handleClose">
+			<codemirrorJavascript
+				ref="codemirrorJavascript"
+				v-model="javascript"
+				placeholder="请输入脚本"
+				:style="{height: clientHeight-90 + 'px',margin: '0px 15px'}"
+			/>
+		</el-drawer>
+		<el-drawer
+			title="模板引擎"
+			:visible.sync="xmlVisible"
+			direction="ltr"
+			size="900px">
+			<div style="height:100%;">
+				<div class="source">
+					<el-tag v-for="tag in tags" :key="tag" class="tag" @click="insertCode(tag)">
+						{{ tag }}
+					</el-tag>
+				</div>
+				<codemirrorXml
+					ref="codemirrorXml"
+					v-model="templateEngine"
+					placeholder="请输入脚本"
+					:style="{height: clientHeight-140 + 'px',margin: '0px 15px'}"
+				/>
+			</div>
+		</el-drawer>
 	</div>
 </template>
 
@@ -708,17 +663,18 @@ export default {
 				layout: [],
 				queries: []
 			},
-			tags: ['select', 'where', 'if', 'foreach', 'insert', 'update', 'delete'],
+			tags: ['mapper', 'select', 'where', 'if', 'foreach', 'insert', 'update', 'delete'],
 			attribute: {},
 			scriptVisible: false,
 			selectedRow: {},
-			rules: {
-				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-				script: [{ required: true, message: '请输入脚本', trigger: 'blur' }]
-			},
 			queryData: {},
 			mouseInWidget: false,
-			key: ''
+			key: '',
+			jsVisible: false,
+			javascript: '',
+			jsApi: {},
+			xmlVisible: false,
+			templateEngine: ''
 		}
 	},
 	beforeMount() {
@@ -728,6 +684,9 @@ export default {
 		title() {
 			return this.$route.query.title
 		}
+	},
+	created() {
+		
 	},
 	mounted() {
 		this.queryById()
@@ -789,17 +748,82 @@ export default {
 		toReturn() {
 			this.$router.go(-1)
 		},
+		resolveScript() {
+			let result = {}
+			let reg = /([\w ]*)(\([\w ,]*\))([\s\S]*\{)([\s\S]*)(\})/
+			let splitArray = this.javascript.split('export function')
+			for(let i=0;i<splitArray.length;i++) {
+				if(splitArray[i]) {
+					let execResult = reg.exec(splitArray[i])
+					let params = []
+					let paramsSlit = execResult[2].substring(1, execResult[2].length-1).split(',')
+					for(let j=0;j<paramsSlit.length;j++) {
+						if(paramsSlit[j]) {
+							params.push(paramsSlit[j].trim())
+						}
+					}
+					result[execResult[1].trim()] = {
+						params: params,
+						body: execResult[4]
+					}
+				}
+			}
+			this.jsApi = result
+		},
+		addFunc(name, params, body) {
+			this[name] = function() {
+				let func = null
+				if(params.length === 0) {
+					func = new Function(body).bind(this)
+				} else if (params.length === 1) {
+					func = new Function(params[0], body).bind(this)
+				} else if (params.length === 2) {
+					func = new Function(params[0], params[1], body).bind(this)
+				} else if (params.length === 3) {
+					func = new Function(params[0], params[1], params[2], body).bind(this)
+				} else if (params.length === 4) {
+					func = new Function(params[0], params[1], params[2], params[3], body).bind(this)
+				} else if (params.length === 5) {
+					func = new Function(params[0], params[1], params[2], params[3], params[4], body).bind(this)
+				}
+				let argLength = arguments.length
+				if(argLength === 0) {
+					func()
+				} else if (argLength === 1) {
+					func(arguments[0])
+				} else if (argLength === 2) {
+					func(arguments[0], arguments[1])
+				} else if (argLength === 3) {
+					func(arguments[0], arguments[1], arguments[2])
+				} else if (argLength === 4) {
+					func(arguments[0], arguments[1], arguments[2], arguments[3])
+				} else if (argLength === 5) {
+					func(arguments[0], arguments[1], arguments[2], arguments[3], arguments[4])
+				}
+			}
+		},
+		execMounted(result) {
+			if(this.jsApi.hasOwnProperty('mounted')) {
+				this.mounted()
+			}
+		},
 		async queryById() {
 			let res = await this.$axios.get('gauge/queryById/' + this.$route.query.id)
 			if (res.data.code == 200) {
-				if (res.data.data) {
-					this.config = res.data.data
+				this.javascript = res.data.data.script
+				this.templateEngine = res.data.data.templateEngine
+				this.resolveScript()
+				for (let key in this.jsApi) {
+					this.addFunc(key, this.jsApi[key].params, this.jsApi[key].body)
+				}
+				this.execMounted()
+				if (res.data.data.config) {
+					this.config = JSON.parse(res.data.data.config)
 					this.attribute = {
 						i: '-1',
 						styles: this.config.styles
 					}
 					this.recursionAttribute(this.config.layout)
-					this.queryExecute()
 				}
 			}
 		},
@@ -817,25 +841,6 @@ export default {
 				} else {
 					if (item.children) {
 						this.recursionAttribute(item.children)
-					}
-				}
-			}
-		},
-		queryExecute() {
-			if (this.config.queries) {
-				for (let i = 0; i < this.config.queries.length; i++) {
-					let query = this.config.queries[i]
-					if (query.type === 'ds' && query.script) {
-						let params = {
-							id: this.$route.query.id,
-							name: query.name
-						}
-						this.$axios.post('gauge/execute', params).then(res => {
-							if (res.data.code == 200) {
-								this.$set(this.queryData, query.name, res.data)
-								this.recursionData(this.config.layout, query.name)
-							}
-						})
 					}
 				}
 			}
@@ -979,24 +984,15 @@ export default {
 			this.currentIndex = item.i
 			this.attribute = item
 			if (item[type]) {
-				for (let i = 0; i < this.config.queries.length; i++) {
-					let query = this.config.queries[i]
-					if (query.name === item[type]) {
-						try {
-							let func = new Function('that', 'params', query.script)
-							func(this, item)
-						} catch (e) {
-							this.$message.error('js脚本错误：' + e)
-						}
-						break
-					}
-				}
+				
 			}
 		},
 		saveSubmit() {
 			let params = {
 				id: this.$route.query.id,
-				config: JSON.stringify(this.config)
+				config: JSON.stringify(this.config),
+				script: this.javascript,
+				templateEngine: this.templateEngine
 			}
 			this.$axios.post('gauge/update', params).then(res => {
 				if (res.data.code == 200) {
@@ -1007,49 +1003,14 @@ export default {
 			})
 		},
 		scriptSubmit() {
-			if (this.selectedRow.type === 'ds') {
-				this.$refs.selectedRowForm.validate(valid => {
-					if (valid) {
-						let params = {
-							id: this.$route.query.id,
-							name: this.selectedRow.name
-						}
-						this.$axios.post('gauge/execute', params).then(res => {
-							if (res.data.code == 200) {
-								this.$set(this.queryData, this.selectedRow.name, res.data)
-
-								this.recursionData(this.config.layout, this.selectedRow.name)
-
-								this.$set(this.config.queries, this.selectedRow.index, {
-									type: this.selectedRow.type,
-									name: this.selectedRow.name,
-									script: this.selectedRow.script
-								})
-
-								this.scriptVisible = false
-							} else {
-								this.$message.error('脚本有误')
-							}
-						})
-					}
-				})
-			} else if (this.selectedRow.type === 'js') {
-				this.$set(this.config.queries, this.selectedRow.index, {
-					type: this.selectedRow.type,
-					name: this.selectedRow.name,
-					script: this.selectedRow.script
-				})
-				this.scriptVisible = false
-			} else if (this.selectedRow.type === 'style') {
-				try {
-					if(this.selectedRow.i === '-1') {
-						this.config.styles = JSON.parse(this.selectedRow.script)
-					}
-					this.attribute.styles = JSON.parse(this.selectedRow.script)
-					this.scriptVisible = false
-				} catch (error) {
-					this.$message.error('json语法错误')
+			try {
+				if(this.selectedRow.i === '-1') {
+					this.config.styles = JSON.parse(this.selectedRow.script)
 				}
+				this.attribute.styles = JSON.parse(this.selectedRow.script)
+				this.scriptVisible = false
+			} catch (error) {
+				this.$message.error('json语法错误')
 			}
 		},
 		drag(e) {
@@ -1889,27 +1850,31 @@ export default {
 		},
 		insertCode(value) {
 			let script = ''
+			if (value === 'mapper') {
+				script = '<mapper>\r\n	\r\n</mapper>'
+			}
 			if (value === 'select') {
-				script = '<select resultType=""></select>'
+				script = '<select id="select" resultType="list">\r\n		\r\n	</select>'
 			} else if (value === 'insert') {
-				script = '<insert></insert>'
+				script = '<insert id="select">\r\n\r\n	</insert>'
 			} else if (value === 'update') {
-				script = '<update></update>'
+				script = '<update id="select">\r\n\r\n	</update>'
 			} else if (value === 'delete') {
-				script = '<delete></delete>'
+				script = '<delete id="select">\r\n\r\n	</delete>'
 			} else if (value === 'where') {
-				script = '<where></where>'
+				script = '<where>\r\n\r\n	</where>'
 			} else if (value === 'if') {
-				script = '<if test="name != null and name != \'\'">AND name = #{name}</if>'
+				script = '<if test="name != null and name != \'\'">\r\n		AND name = #{name}\r\n	</if>'
 			} else if (value === 'foreach') {
 				script =
-					'<foreach item="item" collection="collection" separator="," open="(" close=")">#{item}</foreach>'
+					'<foreach item="item" collection="collection" separator="," open="(" close=")">\r\n		#{item}\r\n	</foreach>'
 			}
-			let curPos = this.$refs.codemirror.editor.getCursor()
+			let curPos = this.$refs.codemirrorXml.editor.getCursor()
 			let insertPos = {}
 			insertPos.line = curPos.line
 			insertPos.ch = curPos.ch
-			this.$refs.codemirror.editor.replaceRange(script, insertPos)
+			this.$refs.codemirrorXml.editor.replaceRange(script, insertPos)
+			this.$refs.codemirrorXml.editor.setCursor({line: curPos.line + 1, ch: 4})
 		},
 		beforeUpload(file) {
 			let pattern = /.(png|jpg|gif|webp|svg)$/g
@@ -2018,29 +1983,8 @@ export default {
 				this.attribute.valueFormat = 'yyyy-MM-dd'
 			}
 		},
-		handleAddQueries(command) {
-			if (!this.config.queries) {
-				this.$set(this.config, 'queries', [])
-			}
-			this.config.queries.push({
-				name: 'query' + (this.config.queries.length + 1),
-				type: command,
-				script: ''
-			})
-		},
-		handleDeleteQueries(scope) {
-			this.config.queries.splice(scope.$index, 1)
-			this.recursionData(this.config.layout, scope.name)
-		},
 		tableRowClassName({ row, rowIndex }) {
 			row.index = rowIndex
-		},
-		handleDblclickQueries(row) {
-			this.scriptVisible = true
-			this.selectedRow = Object.assign({}, row)
-			this.$nextTick(() => {
-				this.$refs.codemirror.editor.setValue(row.script)
-			})
 		},
 		showCustomStyles() {
 			this.scriptVisible = true
@@ -2050,7 +1994,7 @@ export default {
 				script: JSON.stringify(this.attribute.styles, null, 2)
 			}
 			this.$nextTick(() => {
-				this.$refs.codemirror.editor.setValue(this.selectedRow.script)
+				this.$refs.codemirrorStyle.editor.setValue(this.selectedRow.script)
 			})
 		},
 		handleDataChange() {
@@ -2166,6 +2110,26 @@ export default {
 			const children = parent.data.children || parent.data
 			const index = children.findIndex(d => d.id === data.id)
 			children.splice(index, 1)
+		},
+		handleScript() {
+			this.jsVisible = true
+		},
+		handleClose(done) {
+			try {
+				this.resolveScript()
+				for (let key in this.jsApi) {
+					this.addFunc(key, this.jsApi[key].params, this.jsApi[key].body)
+				}
+				done()
+			} catch (e) {
+				this.$message.error('js脚本错误：' + e)
+			}
+		},
+		handleTemplateEngine() {
+			this.xmlVisible = true
+			this.$nextTick(() => {
+				this.$refs.codemirrorXml.editor.setValue(this.templateEngine)
+			})
 		}
 	}
 }
@@ -2289,7 +2253,7 @@ export default {
 }
 .source {
 	padding-bottom: 15px;
-	padding-left: 80px;
+	padding-left: 15px;
 }
 .tag {
 	margin-right: 15px;
