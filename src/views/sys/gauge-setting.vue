@@ -605,26 +605,20 @@
 			</div>
 		</el-dialog>
 		<el-drawer
-			title="js脚本"
+			title="设置"
 			:visible.sync="jsVisible"
 			direction="ltr"
 			size="900px"
 			:before-close="handleClose">
-			<codemirrorJavascript
-				ref="codemirrorJavascript"
-				v-model="javascript"
-				placeholder="请输入脚本"
-				v-if="jsVisible"
-				:style="{height: clientHeight-90 + 'px',margin: '0px 15px'}"
-			/>
-		</el-drawer>
-		<el-drawer
-			title="模板引擎"
-			:visible.sync="xmlVisible"
-			direction="ltr"
-			size="900px">
 			<div style="height:100%;">
-				<div class="source">
+				<codemirrorJavascript
+					ref="codemirrorJavascript"
+					v-model="javascript"
+					placeholder="请输入脚本"
+					v-if="jsVisible && drawerType === 'js'"
+					:style="{height: clientHeight-90 + 'px',margin: '0px 15px'}"
+				/>
+				<div class="source" v-if="drawerType === 'xml'">
 					<el-tag v-for="tag in tags" :key="tag" class="tag" @click="insertCode(tag)">
 						{{ tag }}
 					</el-tag>
@@ -633,10 +627,11 @@
 					ref="codemirrorXml"
 					v-model="templateEngine"
 					placeholder="请输入脚本"
-					v-if="xmlVisible"
+					v-if="jsVisible && drawerType === 'xml'"
 					:style="{height: clientHeight-140 + 'px',margin: '0px 15px'}"
 				/>
 			</div>
+			
 		</el-drawer>
 	</div>
 </template>
@@ -675,7 +670,7 @@ export default {
 			jsVisible: false,
 			javascript: '',
 			jsApi: {},
-			xmlVisible: false,
+			drawerType: '',
 			templateEngine: ''
 		}
 	},
@@ -2114,21 +2109,25 @@ export default {
 			children.splice(index, 1)
 		},
 		handleScript() {
+			this.drawerType = 'js'
 			this.jsVisible = true
 		},
 		handleClose(done) {
-			try {
-				this.resolveScript()
-				for (let key in this.jsApi) {
-					this.addFunc(key, this.jsApi[key].params, this.jsApi[key].body)
+			if(this.drawerType = 'js') {
+				try {
+					this.resolveScript()
+					for (let key in this.jsApi) {
+						this.addFunc(key, this.jsApi[key].params, this.jsApi[key].body)
+					}
+					done()
+				} catch (e) {
+					this.$message.error('js脚本错误：' + e)
 				}
-				done()
-			} catch (e) {
-				this.$message.error('js脚本错误：' + e)
 			}
 		},
 		handleTemplateEngine() {
-			this.xmlVisible = true
+			this.drawerType = 'xml'
+			this.jsVisible = true
 			this.$nextTick(() => {
 				this.$refs.codemirrorXml.editor.setValue(this.templateEngine)
 			})
