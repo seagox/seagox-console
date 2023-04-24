@@ -181,409 +181,418 @@
 				/>
 			</div>
 			<div class="setting">
-				<el-form :model="attribute" ref="attribute" size="medium">
-					<div v-if="attribute.i && attribute.i != -1">
-						{{ attribute.i }}
-						<i class="el-icon-delete" style="float: right; cursor: pointer" @click="deleteHandle"></i>
-					</div>
-					<el-form-item
-						label=" 打开值"
-						v-if="attribute.type === 'switch'"
-					>
-						<el-input v-model="attribute.activeValue" placeholder="请输入打开值"></el-input>
-					</el-form-item>
-					<el-form-item
-						label=" 多选"
-						v-if="attribute.type === 'upload'"
-					>
-						<el-switch v-model="attribute.multiple"></el-switch>
-					</el-form-item>
-					<el-form-item
-						label=" 关闭值"
-						v-if="attribute.type === 'switch'"
-					>
-						<el-input v-model="attribute.inactiveValue" placeholder="请输入关闭值"></el-input>
-					</el-form-item>
-					<el-form-item label="日期格式" v-if="attribute.type === 'datePicker'">
-						<el-select
-							v-model="attribute.dateFormat"
-							placeholder="请选择日期格式"
-							@change="handleDateFormat"
-						>
-							<el-option label="年" value="year"></el-option>
-							<el-option label="年-月" value="month"></el-option>
-							<el-option label="年-月-日" value="date"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item label="数值类型" v-if="attribute.type === 'input'">
-						<el-select v-model="attribute.dataType" placeholder="请选择值类型" @change="handleDataTypeChange">
-							<el-option label="文本" value="text"></el-option>
-							<el-option label="数字" value="number"></el-option>
-							<el-option label="密码" value="password"></el-option>
-							<el-option label="多行文本" value="textarea"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item
-						label="标签文本"
-						v-if="
-							attribute.type === 'input' ||
-							attribute.type === 'select' ||
-							attribute.type === 'multiSelect' ||
-							attribute.type === 'datePicker' ||
-							attribute.type === 'timePicker' ||
-							attribute.type === 'cascader' ||
-							attribute.type === 'multiCascader' ||
-							attribute.type === 'radio' || 
-							attribute.type === 'checkbox' ||
-							attribute.type === 'switch' || 
-							attribute.type === 'rate' ||
-							attribute.type === 'slider'
-						"
-					>
-						<el-input v-model="attribute.label" placeholder="请输入标签文本"></el-input>
-					</el-form-item>
-					<el-form-item
-						label="占位符"
-						v-if="
-							attribute.type === 'input' ||
-							attribute.type === 'select' ||
-							attribute.type === 'multiSelect' ||
-							attribute.type === 'datePicker' ||
-							attribute.type === 'timePicker' ||
-							attribute.type === 'cascader' ||
-							attribute.type === 'multiCascader' ||
-							attribute.type === 'richText'
-						"
-					>
-						<el-input v-model="attribute.placeholder" placeholder="请输入占位符"></el-input>
-					</el-form-item>
-					<el-form-item
-						label="对齐方式"
-						v-if="
-							attribute.type === 'input' ||
-							attribute.type === 'select' ||
-							attribute.type === 'multiSelect' ||
-							attribute.type === 'datePicker' ||
-							attribute.type === 'timePicker' ||
-							attribute.type === 'cascader' ||
-							attribute.type === 'multiCascader' ||
-							attribute.type === 'radio' ||
-							attribute.type === 'checkbox' ||
-							attribute.type === 'switch' || 
-							attribute.type === 'rate' ||
-							attribute.type === 'slider'
-						"
-					>
-						<el-select
-							v-model="attribute.labelPosition"
-							placeholder="请选择对齐方式"
-							@change="handleLabelPosition"
-						>
-							<el-option label="左对齐" value="left"></el-option>
-							<el-option label="右对齐" value="right"></el-option>
-							<el-option label="顶部对齐" value="top"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item
-						label="标签宽度"
-						v-if="
-							(attribute.type === 'input' ||
-								attribute.type === 'select' ||
-								attribute.type === 'multiSelect' ||
-								attribute.type === 'datePicker' ||
-								attribute.type === 'timePicker' ||
-								attribute.type === 'cascader' ||
-								attribute.type === 'multiCascader' || 
-								attribute.type === 'radio' || 
-								attribute.type === 'checkbox' ||
-								attribute.type === 'switch' || 
-								attribute.type === 'rate' ||
-								attribute.type === 'slider') &&
-							attribute.labelPosition != 'top'
-						"
-					>
-						<el-input v-model="attribute.labelWidth" placeholder="请输入标签宽度"></el-input>
-					</el-form-item>
-					<el-form-item
-						label="必填"
-						v-if="
-							attribute.type === 'input' ||
-							attribute.type === 'select' ||
-							attribute.type === 'multiSelect' ||
-							attribute.type === 'datePicker' ||
-							attribute.type === 'timePicker' ||
-							attribute.type === 'cascader' ||
-							attribute.type === 'multiCascader' || 
-							attribute.type === 'radio' ||
-							attribute.type === 'checkbox' ||
-							attribute.type === 'switch' || 
-							attribute.type === 'rate' ||
-							attribute.type === 'slider'
-						"
-					>
-						<el-switch v-model="attribute.required"></el-switch>
-					</el-form-item>
-					<el-form-item label="标题" v-if="attribute.type === 'card' || attribute.type === 'chart' || attribute.type === 'work' || attribute.type === 'quick'">
-						<el-input
-							v-model="attribute.title"
-							placeholder="请输入标题"
-							@blur="handleDataChange"
-						></el-input>
-					</el-form-item>
-					<el-form-item label="类型" v-if="attribute.type === 'chart'">
-						<el-select v-model="attribute.chartType" placeholder="请选择类型" @change="handleDataChange">
-							<el-option label="柱状图" value="bar"></el-option>
-							<el-option label="折线图" value="line"></el-option>
-							<el-option label="饼状图" value="pie"></el-option>
-							<el-option label="漏斗图" value="funnel"></el-option>
-							<el-option label="仪表盘" value="gauge"></el-option>
-							<el-option label="折柱混合" value="mix-line-bar"></el-option>
-							<el-option label="条形图" value="bar-y-category"></el-option>
-							<el-option label="环形图" value="pie-doughnut"></el-option>
-							<el-option label="地图" value="map"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item label="标题对齐" v-if="attribute.type === 'chart'">
-						<el-select v-model="attribute.titleAlign" placeholder="请选择标题对齐" @change="handleDataChange">
-							<el-option label="左" value="left"></el-option>
-							<el-option label="居中" value="center"></el-option>
-							<el-option label="右" value="right"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item label="文本" v-if="attribute.type === 'text'">
-						<el-input
-							type="textarea"
-							v-model="attribute.value"
-							placeholder="请输入文本"
-							@blur="handleDataChange"
-						></el-input>
-					</el-form-item>
-					<el-form-item label="文本" v-if="attribute.type === 'button' || attribute.type === 'link'">
-						<el-input v-model="attribute.text" placeholder="请输入文本"></el-input>
-					</el-form-item>
-					<el-form-item label="字体颜色" v-if="attribute.type === 'text' || attribute.type === 'button'">
-						<el-color-picker v-model="attribute.styles.color"></el-color-picker>
-					</el-form-item>
-					<el-form-item label="标签组" v-if="attribute.type === 'tabs'">
-						<el-input
-							v-model="tab.name"
-							placeholder="请输入标签"
-							v-for="(tab, index) in attribute.tabs"
-							:key="index"
-							style="margin-bottom: 15px"
-						>
-							<i slot="suffix" class="el-input__icon el-icon-delete" @click="deleteTab(index)"></i>
-						</el-input>
-					</el-form-item>
-					<el-form-item label="" v-if="attribute.type === 'tabs'" style="margin-top: -15px; float: right">
-						<el-button @click="addTab" v-if="attribute.type === 'tabs'" icon="el-icon-plus" size="medium"
-							>添加</el-button
-						>
-					</el-form-item>
-					<el-form-item label="对齐方式" v-if="attribute.type === 'text'">
-						<el-select v-model="attribute.styles['justify-content']" placeholder="请选择对齐方式">
-							<el-option label="左" value="left"></el-option>
-							<el-option label="居中" value="center"></el-option>
-							<el-option label="右" value="right"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item label="垂直对齐" v-if="attribute.type === 'text'">
-						<el-select v-model="attribute.styles['align-items']" placeholder="请选择垂直对齐">
-							<el-option label="上" value="flex-start"></el-option>
-							<el-option label="中" value="center"></el-option>
-							<el-option label="下" value="flex-end"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item label="分割线方向" v-if="attribute.type === 'divider'">
-						<el-select v-model="attribute.direction" placeholder="请选择分割线方向">
-							<el-option label="水平" value="horizontal"></el-option>
-							<el-option label="垂直" value="vertical"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item
-						label="层次码"
-						v-if="attribute.type === 'cascader' || attribute.type === 'multiCascader' || attribute.type === 'tree'"
-					>
-						<el-input v-model="attribute.levelCode" placeholder="请输入层次码"></el-input>
-					</el-form-item>
-					<div v-if="attribute.type === 'table'" style="font-size:14px;margin-top:15px">
-						表格列
-						<i class="el-icon-plus" style="float: right; cursor: pointer;color:#3296fa;" @click="addColumnHandle"> 增加列</i>
-					</div>
-					<el-form-item v-if="attribute.type === 'table'">
-						<el-tree
-							:data="attribute.columns"
-							node-key="prop"
-							draggable>
-							<div class="tree-node" slot-scope="{ node, data }">
-								<span>{{ node.label }}</span>
-								<el-popover
-									placement="left"
-									width="320"
-									trigger="click"
-									:visible-arrow="false">
-									<el-form label-position="left" label-width="80px" size="medium" style="margin:10px 0px;">
-										<el-form-item label="字段名">
-											<el-input v-model="data.prop"></el-input>
-										</el-form-item>
-										<el-form-item label="标题">
-											<el-input v-model="data.label"></el-input>
-										</el-form-item>
-										<el-form-item label="类型">
-											<el-select v-model="data.type">
-												<el-option label="纯文本" value="text"></el-option>
-												<el-option label="链接" value="link"></el-option>
-												<el-option label="标签" value="tag"></el-option>
-												<el-option label="状态点" value="status"></el-option>
-												<el-option label="图片" value="image"></el-option>
-												<el-option label="html" value="html"></el-option>
-											</el-select>
-										</el-form-item>
-										<el-form-item label="对齐方式">
-											<el-select v-model="data.align">
-												<el-option label="左" value="left"></el-option>
-												<el-option label="居中" value="center"></el-option>
-												<el-option label="右" value="right"></el-option>
-											</el-select>
-										</el-form-item>
-										<el-form-item label="排序">
-											<el-switch v-model="data.sortable"></el-switch>
-										</el-form-item>
-									</el-form>
-									<i class="el-icon-setting" slot="reference" style="margin-left:15px"></i>
-								</el-popover>
-								<i class="el-icon-delete" @click="() => removeNode(node, data)" style="color:red;margin-left:15px"></i>
+				<el-tabs type="border-card">
+					<el-tab-pane label="属性">
+						<el-form :model="attribute" ref="attribute" size="medium" style="width:215px;padding:10px">
+							<div v-if="attribute.i && attribute.i != -1">
+								<span id="copycode">{{ attribute.i }}</span>
+								<i class="el-icon-copy-document" style="float: right; cursor: pointer" @click="handleCopy"></i>
 							</div>
-						</el-tree>
-					</el-form-item>
-					<el-form-item
-						label="数据值"
-						v-if="
-							attribute.type === 'select' ||
-							attribute.type === 'multiSelect' ||
-							attribute.type === 'chart' ||
-							attribute.type === 'cascader' ||
-							attribute.type === 'multiCascader' ||
-							attribute.type === 'radio' || 
-							attribute.type === 'checkbox' ||
-							attribute.type === 'table' ||
-							attribute.type === 'tree'
-						"
-					>
-						<el-input
-							v-model="attribute.data"
-							placeholder="请输入数据值"
-							@blur="handleDataChange"
-						></el-input>
-					</el-form-item>
-					<el-form-item label="多选" v-if="attribute.type === 'table'">
-						<el-switch v-model="attribute.allowMultiRowSelect"></el-switch>
-					</el-form-item>
-					<el-form-item label="分页" v-if="attribute.type === 'table'">
-						<el-switch v-model="attribute.showPagination"></el-switch>
-					</el-form-item>
-					<el-form-item label="表头" v-if="attribute.type === 'table'">
-						<el-switch v-model="attribute.showHeader"></el-switch>
-					</el-form-item>
-					<el-form-item label="模式" v-if="attribute.type === 'image'">
-						<el-select v-model="attribute.fit" placeholder="请选择模式" filterable>
-							<el-option label="fill" value="fill"></el-option>
-							<el-option label="contain" value="contain"></el-option>
-							<el-option label="cover" value="cover"></el-option>
-							<el-option label="none" value="none"></el-option>
-							<el-option label="scale-down" value="scale-down"></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item label="文件" v-if="attribute.type === 'image'">
-						<el-upload
-							:limit="1"
-							:action="action"
-							:headers="headers"
-							:file-list="attribute.fileList"
-							list-type="picture-card"
-							:before-upload="beforeUpload"
-							:class="attribute.src ? 'upload-disabled' : ''"
-							:on-success="handleFileSuccess"
-						>
-							<i class="el-icon-plus"></i>
-							<div slot="file" slot-scope="{ file }">
-								<img class="el-upload-list__item-thumbnail" :src="attribute.src" />
-								<span class="el-upload-list__item-actions">
-									<span class="el-upload-list__item-delete" @click="handleFileRemove(file)">
-										<i class="el-icon-delete"></i>
-									</span>
-								</span>
+							<el-form-item
+								label=" 打开值"
+								v-if="attribute.type === 'switch'"
+							>
+								<el-input v-model="attribute.activeValue" placeholder="请输入打开值"></el-input>
+							</el-form-item>
+							<el-form-item
+								label=" 多选"
+								v-if="attribute.type === 'upload'"
+							>
+								<el-switch v-model="attribute.multiple"></el-switch>
+							</el-form-item>
+							<el-form-item
+								label=" 关闭值"
+								v-if="attribute.type === 'switch'"
+							>
+								<el-input v-model="attribute.inactiveValue" placeholder="请输入关闭值"></el-input>
+							</el-form-item>
+							<el-form-item label="日期格式" v-if="attribute.type === 'datePicker'">
+								<el-select
+									v-model="attribute.dateFormat"
+									placeholder="请选择日期格式"
+									@change="handleDateFormat"
+								>
+									<el-option label="年" value="year"></el-option>
+									<el-option label="年-月" value="month"></el-option>
+									<el-option label="年-月-日" value="date"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="数值类型" v-if="attribute.type === 'input'">
+								<el-select v-model="attribute.dataType" placeholder="请选择值类型" @change="handleDataTypeChange">
+									<el-option label="文本" value="text"></el-option>
+									<el-option label="数字" value="number"></el-option>
+									<el-option label="密码" value="password"></el-option>
+									<el-option label="多行文本" value="textarea"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item
+								label="标签文本"
+								v-if="
+									attribute.type === 'input' ||
+									attribute.type === 'select' ||
+									attribute.type === 'multiSelect' ||
+									attribute.type === 'datePicker' ||
+									attribute.type === 'timePicker' ||
+									attribute.type === 'cascader' ||
+									attribute.type === 'multiCascader' ||
+									attribute.type === 'radio' || 
+									attribute.type === 'checkbox' ||
+									attribute.type === 'switch' || 
+									attribute.type === 'rate' ||
+									attribute.type === 'slider'
+								"
+							>
+								<el-input v-model="attribute.label" placeholder="请输入标签文本"></el-input>
+							</el-form-item>
+							<el-form-item
+								label="占位符"
+								v-if="
+									attribute.type === 'input' ||
+									attribute.type === 'select' ||
+									attribute.type === 'multiSelect' ||
+									attribute.type === 'datePicker' ||
+									attribute.type === 'timePicker' ||
+									attribute.type === 'cascader' ||
+									attribute.type === 'multiCascader' ||
+									attribute.type === 'richText'
+								"
+							>
+								<el-input v-model="attribute.placeholder" placeholder="请输入占位符"></el-input>
+							</el-form-item>
+							<el-form-item
+								label="对齐方式"
+								v-if="
+									attribute.type === 'input' ||
+									attribute.type === 'select' ||
+									attribute.type === 'multiSelect' ||
+									attribute.type === 'datePicker' ||
+									attribute.type === 'timePicker' ||
+									attribute.type === 'cascader' ||
+									attribute.type === 'multiCascader' ||
+									attribute.type === 'radio' ||
+									attribute.type === 'checkbox' ||
+									attribute.type === 'switch' || 
+									attribute.type === 'rate' ||
+									attribute.type === 'slider'
+								"
+							>
+								<el-select
+									v-model="attribute.labelPosition"
+									placeholder="请选择对齐方式"
+									@change="handleLabelPosition"
+								>
+									<el-option label="左对齐" value="left"></el-option>
+									<el-option label="右对齐" value="right"></el-option>
+									<el-option label="顶部对齐" value="top"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item
+								label="标签宽度"
+								v-if="
+									(attribute.type === 'input' ||
+										attribute.type === 'select' ||
+										attribute.type === 'multiSelect' ||
+										attribute.type === 'datePicker' ||
+										attribute.type === 'timePicker' ||
+										attribute.type === 'cascader' ||
+										attribute.type === 'multiCascader' || 
+										attribute.type === 'radio' || 
+										attribute.type === 'checkbox' ||
+										attribute.type === 'switch' || 
+										attribute.type === 'rate' ||
+										attribute.type === 'slider') &&
+									attribute.labelPosition != 'top'
+								"
+							>
+								<el-input v-model="attribute.labelWidth" placeholder="请输入标签宽度"></el-input>
+							</el-form-item>
+							<el-form-item
+								label="必填"
+								v-if="
+									attribute.type === 'input' ||
+									attribute.type === 'select' ||
+									attribute.type === 'multiSelect' ||
+									attribute.type === 'datePicker' ||
+									attribute.type === 'timePicker' ||
+									attribute.type === 'cascader' ||
+									attribute.type === 'multiCascader' || 
+									attribute.type === 'radio' ||
+									attribute.type === 'checkbox' ||
+									attribute.type === 'switch' || 
+									attribute.type === 'rate' ||
+									attribute.type === 'slider'
+								"
+							>
+								<el-switch v-model="attribute.required"></el-switch>
+							</el-form-item>
+							<el-form-item label="标题" v-if="attribute.type === 'card' || attribute.type === 'chart' || attribute.type === 'work' || attribute.type === 'quick'">
+								<el-input
+									v-model="attribute.title"
+									placeholder="请输入标题"
+									@blur="handleDataChange"
+								></el-input>
+							</el-form-item>
+							<el-form-item label="类型" v-if="attribute.type === 'chart'">
+								<el-select v-model="attribute.chartType" placeholder="请选择类型" @change="handleDataChange">
+									<el-option label="柱状图" value="bar"></el-option>
+									<el-option label="折线图" value="line"></el-option>
+									<el-option label="饼状图" value="pie"></el-option>
+									<el-option label="漏斗图" value="funnel"></el-option>
+									<el-option label="仪表盘" value="gauge"></el-option>
+									<el-option label="折柱混合" value="mix-line-bar"></el-option>
+									<el-option label="条形图" value="bar-y-category"></el-option>
+									<el-option label="环形图" value="pie-doughnut"></el-option>
+									<el-option label="地图" value="map"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="标题对齐" v-if="attribute.type === 'chart'">
+								<el-select v-model="attribute.titleAlign" placeholder="请选择标题对齐" @change="handleDataChange">
+									<el-option label="左" value="left"></el-option>
+									<el-option label="居中" value="center"></el-option>
+									<el-option label="右" value="right"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="文本" v-if="attribute.type === 'text'">
+								<el-input
+									type="textarea"
+									v-model="attribute.value"
+									placeholder="请输入文本"
+									@blur="handleDataChange"
+								></el-input>
+							</el-form-item>
+							<el-form-item label="文本" v-if="attribute.type === 'button' || attribute.type === 'link'">
+								<el-input v-model="attribute.text" placeholder="请输入文本"></el-input>
+							</el-form-item>
+							<el-form-item label="字体颜色" v-if="attribute.type === 'text' || attribute.type === 'button'">
+								<el-color-picker v-model="attribute.styles.color"></el-color-picker>
+							</el-form-item>
+							<el-form-item label="标签组" v-if="attribute.type === 'tabs'">
+								<el-input
+									v-model="tab.name"
+									placeholder="请输入标签"
+									v-for="(tab, index) in attribute.tabs"
+									:key="index"
+									style="margin-bottom: 15px"
+								>
+									<i slot="suffix" class="el-input__icon el-icon-delete" @click="deleteTab(index)"></i>
+								</el-input>
+							</el-form-item>
+							<el-form-item label="" v-if="attribute.type === 'tabs'" style="margin-top: -15px; float: right">
+								<el-button @click="addTab" v-if="attribute.type === 'tabs'" icon="el-icon-plus" size="medium"
+									>添加</el-button
+								>
+							</el-form-item>
+							<el-form-item label="对齐方式" v-if="attribute.type === 'text'">
+								<el-select v-model="attribute.styles['justify-content']" placeholder="请选择对齐方式">
+									<el-option label="左" value="left"></el-option>
+									<el-option label="居中" value="center"></el-option>
+									<el-option label="右" value="right"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="垂直对齐" v-if="attribute.type === 'text'">
+								<el-select v-model="attribute.styles['align-items']" placeholder="请选择垂直对齐">
+									<el-option label="上" value="flex-start"></el-option>
+									<el-option label="中" value="center"></el-option>
+									<el-option label="下" value="flex-end"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="分割线方向" v-if="attribute.type === 'divider'">
+								<el-select v-model="attribute.direction" placeholder="请选择分割线方向">
+									<el-option label="水平" value="horizontal"></el-option>
+									<el-option label="垂直" value="vertical"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item
+								label="层次码"
+								v-if="attribute.type === 'cascader' || attribute.type === 'multiCascader' || attribute.type === 'tree'"
+							>
+								<el-input v-model="attribute.levelCode" placeholder="请输入层次码"></el-input>
+							</el-form-item>
+							<div v-if="attribute.type === 'table'" style="font-size:14px;margin-top:15px">
+								表格列
+								<i class="el-icon-plus" style="float: right; cursor: pointer;color:#3296fa;" @click="addColumnHandle"> 增加列</i>
 							</div>
-						</el-upload>
-					</el-form-item>
-					<el-form-item>
-						<el-button size="medium" type="primary" icon="el-icon-edit" @click="showCustomStyles" v-if="attribute.i"
-							>自定义样式</el-button
-						>
-					</el-form-item>
-					<div v-if="attribute.type === 'button'">事件</div>
-					<el-form-item label="On Click" v-if="attribute.type === 'button' || attribute.type === 'link' || attribute.type === 'image'">
-						<el-select v-model="attribute.click" placeholder="Select action" filterable clearable>
-							<el-option
-								:label="index"
-								:value="index"
-								v-for="(query, index) in jsApi"
-								:key="index"
-							></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item
-						label="On Change"
-						v-if="
-							attribute.type === 'select' ||
-							attribute.type === 'multiSelect' ||
-							attribute.type === 'datePicker' ||
-							attribute.type === 'timePicker' ||
-							attribute.type === 'cascader' ||
-							attribute.type === 'multiCascader' ||
-							attribute.type === 'radio' || 
-							attribute.type === 'checkbox' ||
-							attribute.type === 'switch' || 
-							attribute.type === 'rate' ||
-							attribute.type === 'slider'
-						"
-					>
-						<el-select v-model="attribute.change" placeholder="Select action" filterable clearable>
-							<el-option
-								:label="index"
-								:value="index"
-								v-for="(query, index) in jsApi"
-								:key="index"
-							></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item
-						label="Row Dblclick"
-						v-if="attribute.type === 'table' || attribute.type === 'work'"
-					>
-						<el-select v-model="attribute.rowDblclick" placeholder="Select action" filterable clearable>
-							<el-option
-								:label="index"
-								:value="index"
-								v-for="(query, index) in jsApi"
-								:key="index"
-							></el-option>
-						</el-select>
-					</el-form-item>
-					<el-form-item
-						label="On PageChange"
-						v-if="attribute.type === 'table' || attribute.showPagination"
-					>
-						<el-select v-model="attribute.pageChange" placeholder="Select action" filterable clearable>
-							<el-option
-								:label="index"
-								:value="index"
-								v-for="(query, index) in jsApi"
-								:key="index"
-							></el-option>
-						</el-select>
-					</el-form-item>
-				</el-form>
+							<el-form-item v-if="attribute.type === 'table'">
+								<el-tree
+									:data="attribute.columns"
+									node-key="prop"
+									draggable>
+									<div class="tree-node" slot-scope="{ node, data }">
+										<span>{{ node.label }}</span>
+										<el-popover
+											placement="left"
+											width="320"
+											trigger="click"
+											:visible-arrow="false">
+											<el-form label-position="left" label-width="80px" size="medium" style="margin:10px 0px;">
+												<el-form-item label="字段名">
+													<el-input v-model="data.prop"></el-input>
+												</el-form-item>
+												<el-form-item label="标题">
+													<el-input v-model="data.label"></el-input>
+												</el-form-item>
+												<el-form-item label="类型">
+													<el-select v-model="data.type">
+														<el-option label="纯文本" value="text"></el-option>
+														<el-option label="链接" value="link"></el-option>
+														<el-option label="标签" value="tag"></el-option>
+														<el-option label="状态点" value="status"></el-option>
+														<el-option label="图片" value="image"></el-option>
+														<el-option label="html" value="html"></el-option>
+													</el-select>
+												</el-form-item>
+												<el-form-item label="对齐方式">
+													<el-select v-model="data.align">
+														<el-option label="左" value="left"></el-option>
+														<el-option label="居中" value="center"></el-option>
+														<el-option label="右" value="right"></el-option>
+													</el-select>
+												</el-form-item>
+												<el-form-item label="排序">
+													<el-switch v-model="data.sortable"></el-switch>
+												</el-form-item>
+											</el-form>
+											<i class="el-icon-setting" slot="reference" style="margin-left:15px"></i>
+										</el-popover>
+										<i class="el-icon-delete" @click="() => removeNode(node, data)" style="color:red;margin-left:15px"></i>
+									</div>
+								</el-tree>
+							</el-form-item>
+							<el-form-item
+								label="数据值"
+								v-if="
+									attribute.type === 'select' ||
+									attribute.type === 'multiSelect' ||
+									attribute.type === 'chart' ||
+									attribute.type === 'cascader' ||
+									attribute.type === 'multiCascader' ||
+									attribute.type === 'radio' || 
+									attribute.type === 'checkbox' ||
+									attribute.type === 'table' ||
+									attribute.type === 'tree'
+								"
+							>
+								<el-input
+									v-model="attribute.data"
+									placeholder="请输入数据值"
+									@blur="handleDataChange"
+								></el-input>
+							</el-form-item>
+							<el-form-item label="多选" v-if="attribute.type === 'table'">
+								<el-switch v-model="attribute.allowMultiRowSelect"></el-switch>
+							</el-form-item>
+							<el-form-item label="分页" v-if="attribute.type === 'table'">
+								<el-switch v-model="attribute.showPagination"></el-switch>
+							</el-form-item>
+							<el-form-item label="表头" v-if="attribute.type === 'table'">
+								<el-switch v-model="attribute.showHeader"></el-switch>
+							</el-form-item>
+							<el-form-item label="模式" v-if="attribute.type === 'image'">
+								<el-select v-model="attribute.fit" placeholder="请选择模式" filterable>
+									<el-option label="fill" value="fill"></el-option>
+									<el-option label="contain" value="contain"></el-option>
+									<el-option label="cover" value="cover"></el-option>
+									<el-option label="none" value="none"></el-option>
+									<el-option label="scale-down" value="scale-down"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="文件" v-if="attribute.type === 'image'">
+								<el-upload
+									:limit="1"
+									:action="action"
+									:headers="headers"
+									:file-list="attribute.fileList"
+									list-type="picture-card"
+									:before-upload="beforeUpload"
+									:class="attribute.src ? 'upload-disabled' : ''"
+									:on-success="handleFileSuccess"
+								>
+									<i class="el-icon-plus"></i>
+									<div slot="file" slot-scope="{ file }">
+										<img class="el-upload-list__item-thumbnail" :src="attribute.src" />
+										<span class="el-upload-list__item-actions">
+											<span class="el-upload-list__item-delete" @click="handleFileRemove(file)">
+												<i class="el-icon-delete"></i>
+											</span>
+										</span>
+									</div>
+								</el-upload>
+							</el-form-item>
+							<div v-if="attribute.type === 'button'">事件</div>
+							<el-form-item label="On Click" v-if="attribute.type === 'button' || attribute.type === 'link' || attribute.type === 'image'">
+								<el-select v-model="attribute.click" placeholder="Select action" filterable clearable>
+									<el-option
+										:label="index"
+										:value="index"
+										v-for="(query, index) in jsApi"
+										:key="index"
+									></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item
+								label="On Change"
+								v-if="
+									attribute.type === 'select' ||
+									attribute.type === 'multiSelect' ||
+									attribute.type === 'datePicker' ||
+									attribute.type === 'timePicker' ||
+									attribute.type === 'cascader' ||
+									attribute.type === 'multiCascader' ||
+									attribute.type === 'radio' || 
+									attribute.type === 'checkbox' ||
+									attribute.type === 'switch' || 
+									attribute.type === 'rate' ||
+									attribute.type === 'slider'
+								"
+							>
+								<el-select v-model="attribute.change" placeholder="Select action" filterable clearable>
+									<el-option
+										:label="index"
+										:value="index"
+										v-for="(query, index) in jsApi"
+										:key="index"
+									></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item
+								label="Row Dblclick"
+								v-if="attribute.type === 'table' || attribute.type === 'work'"
+							>
+								<el-select v-model="attribute.rowDblclick" placeholder="Select action" filterable clearable>
+									<el-option
+										:label="index"
+										:value="index"
+										v-for="(query, index) in jsApi"
+										:key="index"
+									></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item
+								label="On PageChange"
+								v-if="attribute.type === 'table' || attribute.showPagination"
+							>
+								<el-select v-model="attribute.pageChange" placeholder="Select action" filterable clearable>
+									<el-option
+										:label="index"
+										:value="index"
+										v-for="(query, index) in jsApi"
+										:key="index"
+									></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item v-if="attribute.i && attribute.i != -1">
+								<el-button type="danger" icon="el-icon-delete" @click="deleteHandle" style="width:100%">删除</el-button>
+							</el-form-item>
+						</el-form>
+					</el-tab-pane>
+					<el-tab-pane label="样式">
+						<el-form :model="attribute" ref="attribute" size="medium" style="width:215px;padding:10px">
+							<el-form-item label="样式编辑">
+								<el-button size="small" icon="el-icon-edit" @click="showCustomStyles" v-if="attribute.i">CSS</el-button>
+							</el-form-item>
+						</el-form>
+					</el-tab-pane>
+				</el-tabs>
 			</div>
 		</div>
 		<el-dialog title="设置" width="900px" :visible.sync="scriptVisible" :close-on-click-modal="false">
@@ -2131,6 +2140,16 @@ export default {
 			this.$nextTick(() => {
 				this.$refs.codemirrorXml.editor.setValue(this.templateEngine)
 			})
+		},
+		handleCopy(){
+			const range = document.createRange()
+			range.selectNode(document.getElementById('copycode'))
+			const selection = window.getSelection()
+			if (selection.rangeCount > 0) selection.removeAllRanges()
+			selection.addRange(range)
+			document.execCommand('copy')
+			this.$message.success('复制成功')
+			selection.removeRange(range)
 		}
 	}
 }
@@ -2304,12 +2323,11 @@ export default {
 	overflow: auto;
 }
 .setting {
-	width: 300px;
 	background-color: #fff;
 	border-radius: 8px;
 	box-shadow: 0 8px 12px #ebedf0;
 	margin-left: 15px;
-	padding: 10px;
+	box-sizing: border-box;
 }
 ::v-deep .upload-disabled .el-upload--picture-card {
 	display: none;
@@ -2331,12 +2349,31 @@ export default {
 	padding: 0px;
 	height: calc(100% - 40px);
 }
-
 ::v-deep .function .el-tab-pane {
 	overflow: hidden auto;
 	height: -webkit-fill-available;
 }
 ::v-deep .function .el-tabs__item {
+	width: 50%;
+	text-align: center;
+}
+::v-deep .setting .el-tabs {
+	height: 100%;
+	border-bottom-left-radius: 8px;
+	border-bottom-right-radius: 8px;
+}
+::v-deep .setting .el-tabs__nav {
+	width: 100%;
+}
+::v-deep .setting .el-tabs__content {
+	padding: 0px;
+	height: calc(100% - 40px);
+}
+::v-deep .setting .el-tab-pane {
+	overflow: hidden auto;
+	height: -webkit-fill-available;
+}
+::v-deep .setting .el-tabs__item {
 	width: 50%;
 	text-align: center;
 }
