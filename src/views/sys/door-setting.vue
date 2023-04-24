@@ -587,8 +587,8 @@
 					</el-tab-pane>
 					<el-tab-pane label="样式">
 						<el-form :model="attribute" ref="attribute" size="medium" style="width:215px;padding:10px">
-							<el-form-item label="样式编辑">
-								<el-button size="small" icon="el-icon-edit" @click="showCustomStyles" v-if="attribute.i">CSS</el-button>
+							<el-form-item label="样式编辑" v-if="attribute.i">
+								<el-button size="small" icon="el-icon-edit" @click="showCustomStyles">CSS</el-button>
 							</el-form-item>
 						</el-form>
 					</el-tab-pane>
