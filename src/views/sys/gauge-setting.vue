@@ -691,9 +691,6 @@ export default {
 			return this.$route.query.title
 		}
 	},
-	created() {
-		
-	},
 	mounted() {
 		this.queryById()
 	},
