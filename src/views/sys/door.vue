@@ -42,8 +42,20 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="云页面" prop="path">
-					<el-select v-model="addForm.path" placeholder="请选择云页面" clearable filterable>
+				<el-form-item label="类型">
+					<el-radio-group v-model="addForm.type">
+						<el-radio :label="1">仪表盘</el-radio>
+						<el-radio :label="2">云页面</el-radio>
+					</el-radio-group>
+				</el-form-item>
+				<el-form-item label="页面" prop="viewId" v-if="addForm.type == 1">
+					<el-select v-model="addForm.viewId" placeholder="请选择页面" clearable filterable>
+						<el-option v-for="item in gaugeOptions" :key="item.id" :label="item.name" :value="item.id">
+						</el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="页面" prop="viewId" v-else>
+					<el-select v-model="addForm.viewId" placeholder="请选择页面" clearable filterable>
 						<el-option v-for="item in metaPageOptions" :key="item.id" :label="item.name" :value="item.id">
 						</el-option>
 					</el-select>
@@ -71,8 +83,20 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="云页面" prop="path">
-					<el-select v-model="editForm.path" placeholder="请选择云页面" clearable filterable>
+				<el-form-item label="类型">
+					<el-radio-group v-model="editForm.type">
+						<el-radio :label="1">仪表盘</el-radio>
+						<el-radio :label="2">云页面</el-radio>
+					</el-radio-group>
+				</el-form-item>
+				<el-form-item label="页面" prop="viewId" v-if="editForm.type == 1">
+					<el-select v-model="editForm.viewId" placeholder="请选择页面" clearable filterable>
+						<el-option v-for="item in gaugeOptions" :key="item.id" :label="item.name" :value="item.id">
+						</el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="页面" prop="viewId" v-else>
+					<el-select v-model="editForm.viewId" placeholder="请选择页面" clearable filterable>
 						<el-option v-for="item in metaPageOptions" :key="item.id" :label="item.name" :value="item.id">
 						</el-option>
 					</el-select>
@@ -97,20 +121,24 @@ export default {
 			addForm: {
 				name: '',
 				authority: [],
-				path: ''
+				type: 1,
+				viewId: ''
 			},
 			editFormVisible: false,
 			editForm: {
 				id: '',
 				name: '',
 				authority: [],
-				path: ''
+				type: 1,
+				viewId: ''
 			},
 			formRules: {
 				name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-				authority: [{ required: true, message: '请选择角色', trigger: 'change' }]
+				authority: [{ required: true, message: '请选择角色', trigger: 'change' }],
+				viewId: [{ required: true, message: '请选择页面', trigger: 'change' }]
 			},
 			metaPageOptions: [],
+			gaugeOptions: [],
 			roleOptions: []
 		}
 	},
@@ -124,6 +152,12 @@ export default {
 			let res = await this.$axios.get('metaPage/queryByCompanyId')
 			if (res.data.code == 200) {
 				this.metaPageOptions = res.data.data
+			}
+		},
+		async queryGaugeByCompanyId() {
+			let res = await this.$axios.get('metaPage/queryByCompanyId')
+			if (res.data.code == 200) {
+				this.gaugeOptions = res.data.data
 			}
 		},
 		async queryRoleByCompanyId() {
@@ -155,7 +189,8 @@ export default {
 			let that = this
 			var params = {
 				name: this.addForm.name,
-				path: this.addForm.path,
+				type: this.addForm.type,
+				viewId: this.addForm.viewId,
 				authority: this.addForm.authority.toString()
 			}
 			this.$refs.addForm.validate(valid => {
@@ -189,7 +224,8 @@ export default {
 			var params = {
 				id: this.editForm.id,
 				name: this.editForm.name,
-				path: this.editForm.path,
+				type: this.editForm.type,
+				viewId: this.editForm.viewId,
 				authority: this.editForm.authority.toString()
 			}
 			this.$refs.editForm.validate(valid => {
