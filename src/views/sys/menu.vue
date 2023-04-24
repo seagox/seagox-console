@@ -503,7 +503,7 @@ export default {
 				this.$axios.post('menu/delete/' + row.id, {}).then(res => {
 					if (res.data.code == 200) {
 						this.$message.success('删除成功')
-						tthishat.pageNo = 1
+						this.pageNo = 1
 						this.queryByCompanyId()
 					} else {
 						this.$message.error(res.data.message)
