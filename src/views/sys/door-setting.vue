@@ -754,21 +754,25 @@ export default {
 		},
 		resolveScript() {
 			let result = {}
-			let reg = /([\w ]*)(\([\w ,]*\))([\s\S]*\{)([\s\S]*)(\})/
-			let splitArray = this.javascript.split('export function')
-			for(let i=0;i<splitArray.length;i++) {
-				if(splitArray[i]) {
-					let execResult = reg.exec(splitArray[i])
-					let params = []
-					let paramsSlit = execResult[2].substring(1, execResult[2].length-1).split(',')
-					for(let j=0;j<paramsSlit.length;j++) {
-						if(paramsSlit[j]) {
-							params.push(paramsSlit[j].trim())
+			if(this.javascript) {
+				let splitArray = this.javascript.split('export function')
+				for(let i=0;i<splitArray.length;i++) {
+					if(splitArray[i]) {
+						let startParams = splitArray[i].indexOf('(')
+						let endParams = splitArray[i].indexOf(')')
+						let params = []
+						let paramsSlit = splitArray[i].substring(startParams+1, endParams).split(',')
+						for(let j=0;j<paramsSlit.length;j++) {
+							if(paramsSlit[j]) {
+								params.push(paramsSlit[j].trim())
+							}
 						}
-					}
-					result[execResult[1].trim()] = {
-						params: params,
-						body: execResult[4]
+						let startBody = splitArray[i].indexOf('{')
+						let endBody = splitArray[i].lastIndexOf('}')
+						result[splitArray[i].substring(0,startParams).trim()] = {
+							params: params,
+							body: splitArray[i].substring(startBody + 1, endBody)
+						}
 					}
 				}
 			}
@@ -855,18 +859,7 @@ export default {
 				let item = layout[i]
 				if (item.type === 'chart') {
 					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							let chartData = eval(`this.queryData.${key}`)
-							if (chartData.length === 0) {
-								this.$set(item, 'hasData', false)
-							} else {
-								this.$set(item, 'hasData', true)
-							}
-						} catch (e) {
-							console.log(e)
-						}
-						this.handleChart(item)
+						this.reloadChart(item)
 					}
 				} else if (item.type === 'text') {
 					if (item.value && item.value.indexOf(appointName) != -1) {
@@ -1610,7 +1603,7 @@ export default {
 						}
 					}
 					if (type === 'resize' && item.type === 'chart') {
-						this.handleChart(item)
+						this.reloadChart(item)
 					}
 					return
 				}
@@ -1632,12 +1625,13 @@ export default {
 		resize(object) {
 			this.recursionLayoutOnDragOrResize('resize', this.config.layout, object)
 		},
-		handleChart(item) {
-			let chartData = []
-			try {
-				let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-				chartData = eval(`this.queryData.${key}`)
-			} catch (e) {}
+		reloadChart(item) {
+			let chartData = item.data
+			if (chartData.length === 0) {
+				this.$set(item, 'hasData', false)
+			} else {
+				this.$set(item, 'hasData', true)
+			}
 			this.$nextTick(() => {
 				if (item.data) {
 					this.$echarts.registerMap('china', china, {})
