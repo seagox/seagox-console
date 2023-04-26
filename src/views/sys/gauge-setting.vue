@@ -662,7 +662,6 @@
 					:style="{height: clientHeight-140 + 'px',margin: '0px 15px'}"
 				/>
 			</div>
-			
 		</el-drawer>
 		<el-dialog title="数据筛选" width="900px" :visible.sync="filterDataVisible" :close-on-click-modal="false">
 			<div>
@@ -681,6 +680,12 @@
 						<el-select v-model="scope.row.decider">
 							<el-option label="等于" value="="></el-option>
 							<el-option label="不等于" value="!="></el-option>
+							<el-option label="大于" value=">"></el-option>
+							<el-option label="大于等于" value=">="></el-option>
+							<el-option label="小于" value="<"></el-option>
+							<el-option label="小于等于" value="<="></el-option>
+							<el-option label="不为空" value=" is not null"></el-option>
+							<el-option label="包含" value="in"></el-option>
 						</el-select>
 					</template>
 				</el-table-column>
@@ -694,7 +699,7 @@
 				</el-table-column>
 				<el-table-column align="center">
 					<template slot-scope="scope">
-						<el-input v-model="scope.row.value" placeholder="请输入"></el-input>
+						<el-input v-model="scope.row.value" placeholder="请输入" type="textarea"></el-input>
 					</template>
 				</el-table-column>
 				<el-table-column align="center" width="50px">
@@ -895,11 +900,6 @@ export default {
 			if (res.data.code == 200) {
 				this.javascript = res.data.data.script
 				this.templateEngine = res.data.data.templateEngine
-				this.resolveScript()
-				for (let key in this.jsApi) {
-					this.addFunc(key, this.jsApi[key].params, this.jsApi[key].body)
-				}
-				this.execMounted()
 				if (res.data.data.config) {
 					this.config = JSON.parse(res.data.data.config)
 					this.attribute = {
@@ -908,6 +908,11 @@ export default {
 					}
 					this.recursionAttribute(this.config.layout)
 				}
+				this.resolveScript()
+				for (let key in this.jsApi) {
+					this.addFunc(key, this.jsApi[key].params, this.jsApi[key].body)
+				}
+				this.execMounted()
 			}
 		},
 		recursionAttribute(layout) {
@@ -935,14 +940,17 @@ export default {
 										if(i != 0) {
 											filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
 										}
-										filterDataSql = filterDataSql + field + filterDataItem['decider']
+										filterDataSql = filterDataSql + field + ' ' +filterDataItem['decider'] + ' '
 										if(filterDataItem['type'] == 'variable') {
-											if(type === 'varchar') {
-												filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
+											if(filterDataItem['decider'] === 'in') {
+												filterDataSql = filterDataSql + '(' + filterDataItem['value'] + ')' + ' '
 											} else {
-												filterDataSql = filterDataSql + filterDataItem['value']
+												if(type === 'varchar') {
+													filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
+												} else {
+													filterDataSql = filterDataSql + filterDataItem['value']
+												}
 											}
-											
 										} else if(filterDataItem['type'] == 'expression') {
 											if(type === 'varchar') {
 												filterDataSql = filterDataSql + "'" + eval(filterDataItem['value']) + "'"
@@ -950,6 +958,12 @@ export default {
 												filterDataSql = filterDataSql + eval(filterDataItem['value'])
 											}
 										}
+									} else if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
+										let field = filterDataItem['field'].split('|')[0]
+										if(i != 0) {
+											filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+										}
+										filterDataSql = filterDataSql + field + filterDataItem['decider']
 									}
 								}
 							}
@@ -2121,46 +2135,59 @@ export default {
 		},
 		handleDataChange() {
 			if (this.attribute.type === 'chart') {
-				var filterDataSql = ''
-				if(this.attribute.filterData) {
-					for(let i=0;i<this.attribute.filterData.length;i++) {
-						let filterDataItem = this.attribute.filterData[i]
-						if(filterDataItem['field'] && filterDataItem['value']) {
-							let field = filterDataItem['field'].split('|')[0]
-							let type = filterDataItem['field'].split('|')[1]
-							if(i != 0) {
-								filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
-							}
-							filterDataSql = filterDataSql + field + filterDataItem['decider']
-							if(filterDataItem['type'] == 'variable') {
-								if(type === 'varchar') {
-									filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
-								} else {
-									filterDataSql = filterDataSql + filterDataItem['value']
+				if(this.attribute.dataSourceType === 'dataModel') {
+					var filterDataSql = ''
+					if(this.attribute.filterData) {
+						for(let i=0;i<this.attribute.filterData.length;i++) {
+							let filterDataItem = this.attribute.filterData[i]
+							if(filterDataItem['field'] && filterDataItem['value']) {
+								let field = filterDataItem['field'].split('|')[0]
+								let type = filterDataItem['field'].split('|')[1]
+								if(i != 0) {
+									filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
 								}
-								
-							} else if(filterDataItem['type'] == 'expression') {
-								if(type === 'varchar') {
-									filterDataSql = filterDataSql + "'" + eval(filterDataItem['value']) + "'"
-								} else {
-									filterDataSql = filterDataSql + eval(filterDataItem['value'])
+								filterDataSql = filterDataSql + field + ' ' +filterDataItem['decider'] + ' '
+								if(filterDataItem['type'] == 'variable') {
+									if(filterDataItem['decider'] === 'in') {
+										filterDataSql = filterDataSql + '(' + filterDataItem['value'] + ')' + ' '
+									} else {
+										if(type === 'varchar') {
+											filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
+										} else {
+											filterDataSql = filterDataSql + filterDataItem['value']
+										}
+									}
+								} else if(filterDataItem['type'] == 'expression') {
+									if(type === 'varchar') {
+										filterDataSql = filterDataSql + "'" + eval(filterDataItem['value']) + "'"
+									} else {
+										filterDataSql = filterDataSql + eval(filterDataItem['value'])
+									}
 								}
+							} else if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
+								let field = filterDataItem['field'].split('|')[0]
+								if(i != 0) {
+									filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+								}
+								filterDataSql = filterDataSql + field + filterDataItem['decider']
 							}
 						}
 					}
-				}
-				let params = {
-					tableName: this.attribute.dataModel,
-					dimension: this.attribute.dimension ? this.attribute.dimension.toString() :  '',
-					metrics: this.attribute.metrics.toString(),
-					filterData: filterDataSql
-				}
-				this.$axios.post('gauge/chartSql', params).then(res => {
-					if (res.data.code == 200) {
-						this.attribute.data = res.data.data
-						this.reloadChart(this.attribute)
+					let params = {
+						tableName: this.attribute.dataModel,
+						dimension: this.attribute.dimension ? this.attribute.dimension.toString() :  '',
+						metrics: this.attribute.metrics.toString(),
+						filterData: filterDataSql
 					}
-				})
+					this.$axios.post('gauge/chartSql', params).then(res => {
+						if (res.data.code == 200) {
+							this.attribute.data = res.data.data
+							this.reloadChart(this.attribute)
+						}
+					})
+				} else {
+					this.reloadChart(this.attribute)
+				}
 			} else if (this.attribute.type === 'text') {
 				try {
 					let pattern = /\{\{(.*?)\}\}/g
@@ -2281,9 +2308,11 @@ export default {
 		handleTemplateEngine() {
 			this.drawerType = 'xml'
 			this.jsVisible = true
-			this.$nextTick(() => {
-				this.$refs.codemirrorXml.editor.setValue(this.templateEngine)
-			})
+			if(this.templateEngine) {
+				this.$nextTick(() => {
+					this.$refs.codemirrorXml.editor.setValue(this.templateEngine)
+				})
+			}
 		},
 		handleCopy(){
 			const range = document.createRange()
@@ -2334,14 +2363,17 @@ export default {
 						if(i != 0) {
 							filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
 						}
-						filterDataSql = filterDataSql + field + filterDataItem['decider']
+						filterDataSql = filterDataSql + field + ' ' +filterDataItem['decider'] + ' '
 						if(filterDataItem['type'] == 'variable') {
-							if(type === 'varchar') {
-								filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
+							if(filterDataItem['decider'] === 'in') {
+								filterDataSql = filterDataSql + '(' + filterDataItem['value'] + ')' + ' '
 							} else {
-								filterDataSql = filterDataSql + filterDataItem['value']
+								if(type === 'varchar') {
+									filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
+								} else {
+									filterDataSql = filterDataSql + filterDataItem['value']
+								}
 							}
-							
 						} else if(filterDataItem['type'] == 'expression') {
 							if(type === 'varchar') {
 								filterDataSql = filterDataSql + "'" + eval(filterDataItem['value']) + "'"
@@ -2349,6 +2381,12 @@ export default {
 								filterDataSql = filterDataSql + eval(filterDataItem['value'])
 							}
 						}
+					} else if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
+						let field = filterDataItem['field'].split('|')[0]
+						if(i != 0) {
+							filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+						}
+						filterDataSql = filterDataSql + field + filterDataItem['decider']
 					}
 				}
 				let params = {
