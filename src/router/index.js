@@ -37,14 +37,6 @@ const routes = [
         }
     },
     {
-        name: 'doorSetting',
-        path: '/doorSetting',
-        component: () => import('@/views/sys/door-setting'),
-        meta: {
-            title: '门户设计'
-        }
-    },
-    {
         path: '/simplifyDesign',
         name: 'simplifyDesign',
         component: () => import('@/views/simplify/simplify-design'),

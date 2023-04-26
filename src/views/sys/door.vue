@@ -12,8 +12,6 @@
 					<template slot-scope="scope">
 						<el-button type="text" size="small" @click="showEditDialog(scope.row)">编辑</el-button>
 						<el-divider direction="vertical"></el-divider>
-						<el-button type="text" size="small" @click="settingDesign(scope.row)">设计</el-button>
-						<el-divider direction="vertical"></el-divider>
 						<el-button type="text" size="small" @click="deleteSubmit(scope.row)">删除</el-button>
 					</template>
 				</el-table-column>
@@ -239,14 +237,6 @@ export default {
 							that.$message.error(res.data.message)
 						}
 					})
-				}
-			})
-		},
-		settingDesign(row) {
-			this.$router.push({
-				path: '/doorSetting',
-				query: {
-					id: row.id
 				}
 			})
 		},
