@@ -166,7 +166,7 @@
 				:style="[config.styles]"
 			>
 				<el-empty
-					description="Drag and drop a widget here"
+					description="从左侧面板拖入组件或区块"
 					v-if="config.layout.length === 0"
 					:image-size="200"
 					style="height: 100%; background: #fff;color:#5e6d82;"
@@ -351,6 +351,29 @@
 									<el-option label="居中" value="center"></el-option>
 									<el-option label="右" value="right"></el-option>
 								</el-select>
+							</el-form-item>
+							<el-form-item label="数据源" v-if="attribute.type === 'chart'">
+								<el-select v-model="attribute.dataSourceType" placeholder="请选择数据源" clearable>
+									<el-option label="数据模型" value="dataModel"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="数据模型" v-if="attribute.type === 'chart' && attribute.dataSourceType === 'dataModel'">
+								<el-select v-model="attribute.dataModel" placeholder="请选择数据模型" clearable filterable @change="handleTableChange">
+									<el-option :label="item.remark + '(' + item.name + ')'" :value="item.name" v-for="(item,index) in tableOptions" :key="index"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="维度(X轴)" v-if="attribute.type === 'chart' && attribute.dataSourceType === 'dataModel'">
+								<el-select v-model="attribute.dimension" placeholder="请选择维度(X轴)" clearable filterable multiple>
+									<el-option :label="item.remark + '(' + item.name + ')'" :value="item.remark + '|' + item.name" v-for="(item,index) in fieldOptions" :key="index"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="数值(Y轴)" v-if="attribute.type === 'chart' && attribute.dataSourceType === 'dataModel'">
+								<el-select v-model="attribute.metrics" placeholder="请选择数值(Y轴)" clearable filterable multiple @change="handleDataChange">
+									<el-option :label="item.remark + '(' + item.name + ')'" :value="item.remark + '|' + item.name" v-for="(item,index) in fieldOptions" :key="index"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item v-if="attribute.type === 'chart' && attribute.dataSourceType === 'dataModel'">
+								<el-button icon="el-icon-circle-plus" style="width:100%" @click="handleFilterData">设置筛选条件</el-button>
 							</el-form-item>
 							<el-form-item label="文本" v-if="attribute.type === 'text'">
 								<el-input
@@ -587,7 +610,7 @@
 					<el-tab-pane label="样式">
 						<el-form :model="attribute" ref="attribute" size="medium" style="width:215px;padding:10px">
 							<el-form-item label="样式编辑" v-if="attribute.i">
-								<el-button size="small" icon="el-icon-edit" @click="showCustomStyles" v-if="attribute.i">CSS</el-button>
+								<el-button size="small" icon="el-icon-edit" @click="showCustomStyles">CSS</el-button>
 							</el-form-item>
 						</el-form>
 					</el-tab-pane>
@@ -641,6 +664,50 @@
 			</div>
 			
 		</el-drawer>
+		<el-dialog title="数据筛选" width="900px" :visible.sync="filterDataVisible" :close-on-click-modal="false">
+			<div>
+				<el-button icon="el-icon-circle-plus-outline" size="small" type="text" @click="addFilterData">添加条件</el-button>
+			</div>
+			<el-table :data="attribute.filterData" :show-header="false" style="width: 100%;margin-top:15px;">
+				<el-table-column align="center">
+					<template slot-scope="scope">
+						<el-select v-model="scope.row.field" clearable filterable placeholder="请选择">
+							<el-option :label="item.remark + '(' + item.name + ')'" :value="item.name + '|' + item.type" v-for="(item,index) in fieldOptions" :key="index"></el-option>
+						</el-select>
+					</template>
+				</el-table-column>
+				<el-table-column align="center" width="110px">
+					<template slot-scope="scope">
+						<el-select v-model="scope.row.decider">
+							<el-option label="等于" value="="></el-option>
+							<el-option label="不等于" value="!="></el-option>
+						</el-select>
+					</template>
+				</el-table-column>
+				<el-table-column align="center" width="110px">
+					<template slot-scope="scope">
+						<el-select v-model="scope.row.type">
+							<el-option label="变量" value="variable"></el-option>
+							<el-option label="表达式" value="expression"></el-option>
+						</el-select>
+					</template>
+				</el-table-column>
+				<el-table-column align="center">
+					<template slot-scope="scope">
+						<el-input v-model="scope.row.value" placeholder="请输入"></el-input>
+					</template>
+				</el-table-column>
+				<el-table-column align="center" width="50px">
+					<template slot-scope="scope">
+						<i class="el-icon-remove-outline" @click="deleteFilteData(scope.$index)" style="font-size:20px"></i>
+					</template>
+				</el-table-column>
+			</el-table>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="filterDataVisible = false">取消</el-button>
+				<el-button type="primary" @click="filterDataSubmit">保存</el-button>
+			</div>
+		</el-dialog>
 	</div>
 </template>
 
@@ -679,7 +746,10 @@ export default {
 			javascript: '',
 			jsApi: {},
 			drawerType: '',
-			templateEngine: ''
+			templateEngine: '',
+			tableOptions: [],
+			fieldOptions: [],
+			filterDataVisible: false
 		}
 	},
 	beforeMount() {
@@ -692,8 +762,15 @@ export default {
 	},
 	mounted() {
 		this.queryById()
+		this.querybusinessTable()
 	},
 	methods: {
+		async querybusinessTable() {
+            let res = await this.$axios.get('businessTable/queryAll')
+            if (res.data.code == 200) {
+                this.tableOptions = res.data.data
+            }
+        },
 		listToTreeByRule(arr, rule) {
 			let ruleArray = rule.split('')
 			let ruleList = []
@@ -843,6 +920,55 @@ export default {
 						if (tab.children) {
 							this.recursionAttribute(tab.children)
 						}
+					}
+				} else if (item.type === 'chart') {
+					if(item.dataSourceType === 'dataModel') {
+						this.handleTableChange(item.dataModel)
+						this.$nextTick(() => {
+							var filterDataSql = ''
+							if(item.filterData) {
+								for(let i=0;i<item.filterData.length;i++) {
+									let filterDataItem = item.filterData[i]
+									if(filterDataItem['field'] && filterDataItem['value']) {
+										let field = filterDataItem['field'].split('|')[0]
+										let type = filterDataItem['field'].split('|')[1]
+										if(i != 0) {
+											filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+										}
+										filterDataSql = filterDataSql + field + filterDataItem['decider']
+										if(filterDataItem['type'] == 'variable') {
+											if(type === 'varchar') {
+												filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
+											} else {
+												filterDataSql = filterDataSql + filterDataItem['value']
+											}
+											
+										} else if(filterDataItem['type'] == 'expression') {
+											if(type === 'varchar') {
+												filterDataSql = filterDataSql + "'" + eval(filterDataItem['value']) + "'"
+											} else {
+												filterDataSql = filterDataSql + eval(filterDataItem['value'])
+											}
+										}
+									}
+								}
+							}
+							let params = {
+								tableName: item.dataModel,
+								dimension: item.dimension ? item.dimension.toString() :  '',
+								metrics: item.metrics.toString(),
+								filterData: filterDataSql
+							}
+							this.$axios.post('gauge/chartSql', params).then(res => {
+								if (res.data.code == 200) {
+									item.data = res.data.data
+									this.reloadChart(item)
+								}
+							})
+						})
+					}
+					if (item.children) {
+						this.recursionAttribute(item.children)
 					}
 				} else {
 					if (item.children) {
@@ -1995,7 +2121,46 @@ export default {
 		},
 		handleDataChange() {
 			if (this.attribute.type === 'chart') {
-				this.reloadChart(this.attribute)
+				var filterDataSql = ''
+				if(this.attribute.filterData) {
+					for(let i=0;i<this.attribute.filterData.length;i++) {
+						let filterDataItem = this.attribute.filterData[i]
+						if(filterDataItem['field'] && filterDataItem['value']) {
+							let field = filterDataItem['field'].split('|')[0]
+							let type = filterDataItem['field'].split('|')[1]
+							if(i != 0) {
+								filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+							}
+							filterDataSql = filterDataSql + field + filterDataItem['decider']
+							if(filterDataItem['type'] == 'variable') {
+								if(type === 'varchar') {
+									filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
+								} else {
+									filterDataSql = filterDataSql + filterDataItem['value']
+								}
+								
+							} else if(filterDataItem['type'] == 'expression') {
+								if(type === 'varchar') {
+									filterDataSql = filterDataSql + "'" + eval(filterDataItem['value']) + "'"
+								} else {
+									filterDataSql = filterDataSql + eval(filterDataItem['value'])
+								}
+							}
+						}
+					}
+				}
+				let params = {
+					tableName: this.attribute.dataModel,
+					dimension: this.attribute.dimension ? this.attribute.dimension.toString() :  '',
+					metrics: this.attribute.metrics.toString(),
+					filterData: filterDataSql
+				}
+				this.$axios.post('gauge/chartSql', params).then(res => {
+					if (res.data.code == 200) {
+						this.attribute.data = res.data.data
+						this.reloadChart(this.attribute)
+					}
+				})
 			} else if (this.attribute.type === 'text') {
 				try {
 					let pattern = /\{\{(.*?)\}\}/g
@@ -2129,6 +2294,82 @@ export default {
 			document.execCommand('copy')
 			this.$message.success('复制成功')
 			selection.removeRange(range)
+		},
+		async handleTableChange(value) {
+			let res = await this.$axios.get('businessField/queryAll?tableName=' + value)
+			if (res.data.code === 200) {
+				this.fieldOptions = res.data.data
+			}
+		},
+		handleFilterData() {
+			this.filterDataVisible = true
+			if(!this.attribute.filterData) {
+				this.attribute.filterData = []
+				this.attribute.filterData.push({
+					field: '',
+					type: 'variable',
+					condition: 'and',
+					decider: '=',
+					value: ''
+				})
+			}
+		},
+		addFilterData() {
+			this.attribute.filterData.push({
+				field: '',
+				type: 'variable',
+				condition: 'and',
+				decider: '=',
+				value: ''
+			})
+		},
+		filterDataSubmit() {
+			this.$nextTick(() => {
+				var filterDataSql = ''
+				for(let i=0;i<this.attribute.filterData.length;i++) {
+					let filterDataItem = this.attribute.filterData[i]
+					if(filterDataItem['field'] && filterDataItem['value']) {
+						let field = filterDataItem['field'].split('|')[0]
+						let type = filterDataItem['field'].split('|')[1]
+						if(i != 0) {
+							filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+						}
+						filterDataSql = filterDataSql + field + filterDataItem['decider']
+						if(filterDataItem['type'] == 'variable') {
+							if(type === 'varchar') {
+								filterDataSql = filterDataSql + "'" + filterDataItem['value'] + "'"
+							} else {
+								filterDataSql = filterDataSql + filterDataItem['value']
+							}
+							
+						} else if(filterDataItem['type'] == 'expression') {
+							if(type === 'varchar') {
+								filterDataSql = filterDataSql + "'" + eval(filterDataItem['value']) + "'"
+							} else {
+								filterDataSql = filterDataSql + eval(filterDataItem['value'])
+							}
+						}
+					}
+				}
+				let params = {
+					tableName: this.attribute.dataModel,
+					dimension: this.attribute.dimension ? this.attribute.dimension.toString() :  '',
+					metrics: this.attribute.metrics.toString(),
+					filterData: filterDataSql
+				}
+				this.$axios.post('gauge/chartSql', params).then(res => {
+					if (res.data.code == 200) {
+						this.attribute.data = res.data.data
+						this.reloadChart(this.attribute)
+						this.filterDataVisible = false
+					}
+				})
+			})
+		},
+		deleteFilteData(index) {
+			if(this.attribute.filterData.length != 1) {
+				this.attribute.filterData.splice(index, 1)
+			}
 		}
 	}
 }
