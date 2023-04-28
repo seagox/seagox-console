@@ -357,7 +357,7 @@
 									<el-option label="数据模型" value="dataModel"></el-option>
 								</el-select>
 							</el-form-item>
-							<el-form-item label="数据源" v-if="attribute.type === 'radio' || attribute.type === 'checkbox' || attribute.type === 'select'">
+							<el-form-item label="数据源" v-if="attribute.type === 'radio' || attribute.type === 'checkbox' || attribute.type === 'select' || attribute.type === 'multiSelect'">
 								<el-select v-model="attribute.dataModel" placeholder="请选择数据源" filterable @change="queryDicDetail(attribute)">
 									<el-option :label="item.name" :value="item.id" v-for="(item,index) in dicClassifyOptions" :key="index"></el-option>
 								</el-select>
@@ -485,21 +485,6 @@
 										<i class="el-icon-delete" @click="() => removeNode(node, data)" style="color:red;margin-left:15px"></i>
 									</div>
 								</el-tree>
-							</el-form-item>
-							<el-form-item
-								label="数据值"
-								v-if="
-									attribute.type === 'multiSelect' ||
-									attribute.type === 'cascader' ||
-									attribute.type === 'multiCascader' ||
-									attribute.type === 'tree'
-								"
-							>
-								<el-input
-									v-model="attribute.data"
-									placeholder="请输入数据值"
-									@blur="handleDataChange"
-								></el-input>
 							</el-form-item>
 							<el-form-item label="多选" v-if="attribute.type === 'table'">
 								<el-switch v-model="attribute.allowMultiRowSelect"></el-switch>
@@ -999,7 +984,7 @@ export default {
 					if (item.children) {
 						this.recursionAttribute(item.children)
 					}
-				}  else if (item.type === 'radio' || item.type === 'checkbox' || item.type === 'select') {
+				}  else if (item.type === 'radio' || item.type === 'checkbox' || item.type === 'select' || item.type === 'multiSelect') {
 					if(item.dataModel) {
 						this.queryDicDetail(item)
 					}
@@ -1013,7 +998,14 @@ export default {
 		async queryDicDetail(item) {
 			let res = await this.$axios.get('dictionaryDetail/queryDisplay?classifyId=' + item.dataModel)
 			if (res.data.code === 200) {
-				item.data = res.data.data
+				let result = []
+				for(let i=0;i<res.data.data.length;i++) {
+					result.push({
+						label: res.data.data[i].name,
+						value: res.data.data[i].code
+					})
+				}
+				item.data = result
 			}
 		},
 		recursionData(layout, appointName) {
@@ -1040,65 +1032,6 @@ export default {
 						} catch (e) {
 							console.log(e)
 							this.$set(item, 'text', item.value)
-						}
-					}
-				} else if (item.type === 'select') {
-					
-				} else if (item.type === 'multiSelect') {
-					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							this.$set(item, 'options', eval(`this.queryData.${key}`))
-						} catch (e) {
-							console.log(e)
-							this.$set(item, 'options', [])
-						}
-					}
-				} else if (item.type === 'cascader') {
-					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							let result = this.listToTreeByRule(eval(`this.queryData.${key}`), item.levelCode)
-							this.$set(item, 'options', result)
-						} catch (e) {
-							console.log(e)
-							this.$set(item, 'options', [])
-						}
-					}
-				} else if (item.type === 'multiCascader') {
-					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							let result = this.listToTreeByRule(eval(`this.queryData.${key}`), item.levelCode)
-							this.$set(item, 'options', result)
-						} catch (e) {
-							console.log(e)
-							this.$set(item, 'options', [])
-						}
-					}
-				} else if (item.type === 'radio') {
-					
-				} else if (item.type === 'checkbox') {
-					
-				} else if (item.type === 'tree') {
-					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							let result = this.listToTreeByRule(eval(`this.queryData.${key}`), item.levelCode)
-							this.$set(item, 'treeData', result)
-						} catch (e) {
-							console.log(e)
-							this.$set(item, 'treeData', [])
-						}
-					}
-				} else if (item.type === 'table') {
-					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							this.$set(item, 'tabelData', eval(`this.queryData.${key}`))
-						} catch (e) {
-							console.log(e)
-							this.$set(item, 'tabelData', [])
 						}
 					}
 				}
@@ -2213,55 +2146,6 @@ export default {
 				} catch (e) {
 					console.log(e)
 					this.$set(this.attribute, 'text', this.attribute.value)
-				}
-			} else if (this.attribute.type === 'select') {
-				
-			} else if (this.attribute.type === 'multiSelect') {
-				try {
-					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
-					this.$set(this.attribute, 'options', eval(`this.queryData.${key}`))
-				} catch (e) {
-					console.log(e)
-					this.$set(this.attribute, 'options', [])
-				}
-			} else if (this.attribute.type === 'cascader') {
-				try {
-					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
-					let result = this.listToTreeByRule(eval(`this.queryData.${key}`), this.attribute.levelCode)
-					this.$set(this.attribute, 'options', result)
-				} catch (e) {
-					console.log(e)
-					this.$set(this.attribute, 'options', [])
-				}
-			} else if (this.attribute.type === 'multiCascader') {
-				try {
-					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
-					let result = this.listToTreeByRule(eval(`this.queryData.${key}`), this.attribute.levelCode)
-					this.$set(this.attribute, 'options', result)
-				} catch (e) {
-					console.log(e)
-					this.$set(this.attribute, 'options', [])
-				}
-			} else if (this.attribute.type === 'radio') {
-				
-			} else if (this.attribute.type === 'checkbox') {
-				
-			} else if (this.attribute.type === 'table') {
-				try {
-					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
-					this.$set(this.attribute, 'tableData', eval(`this.queryData.${key}`))
-				} catch (e) {
-					console.log(e)
-					this.$set(this.attribute, 'tableData', [])
-				}
-			} else if (this.attribute.type === 'tree') {
-				try {
-					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
-					let result = this.listToTreeByRule(eval(`this.queryData.${key}`), this.attribute.levelCode)
-					this.$set(this.attribute, 'treeData', result)
-				} catch (e) {
-					console.log(e)
-					this.$set(this.attribute, 'treeData', [])
 				}
 			} 
 		},

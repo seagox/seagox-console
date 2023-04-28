@@ -349,9 +349,9 @@
 						>
 							<el-option
 								v-for="option in item.data"
-								:key="option.code"
-								:label="option.name"
-								:value="option.code"
+								:key="option.value"
+								:label="option.label"
+								:value="option.value"
 							>
 							</el-option>
 						</el-select>
@@ -396,7 +396,7 @@
 							clearable
 						>
 							<el-option
-								v-for="option in item.options"
+								v-for="option in item.data"
 								:key="option.value"
 								:label="option.label"
 								:value="option.value"
@@ -515,7 +515,7 @@
 						<el-cascader
 							size="medium"
 							v-model="item.value"
-							:options="item.options"
+							:options="item.data"
 							:props="{ checkStrictly: true, emitPath: false }"
 							:placeholder="item.placeholder"
 							@change="handleEvent('change', item)"
@@ -556,7 +556,7 @@
 						<el-cascader
 							size="medium"
 							v-model="item.value"
-							:options="item.options"
+							:options="item.data"
 							:props="{ multiple: true }"
 							:placeholder="item.placeholder"
 							@change="handleEvent('change', item)"
@@ -598,10 +598,10 @@
 						<el-radio-group v-model="item.value" @change="handleEvent('change', item)">
 							<el-radio
 								v-for="option in item.data"
-								:key="option.code"
-								:label="option.code"
+								:key="option.value"
+								:label="option.value"
 							>
-							{{option.name}}
+							{{option.label}}
 							</el-radio>
 						</el-radio-group>
 					</div>
@@ -638,10 +638,10 @@
 						<el-checkbox-group v-model="item.value" @change="handleEvent('change', item)">
 							<el-checkbox
 								v-for="option in item.data"
-								:key="option.code"
-								:label="option.code"
+								:key="option.value"
+								:label="option.value"
 							>
-							{{option.name}}
+							{{option.label}}
 							</el-checkbox>
 						</el-checkbox-group>
 					</div>
@@ -940,7 +940,7 @@
 				style="height:100%;padding: 4px 6px;box-sizing:border-box;"
 				@click.stop="handleEvent('click', item)"
 			>
-				<el-tree :data="item.treeData" style="height:100%;overflow:auto"></el-tree>
+				<el-tree :data="item.data" style="height:100%;overflow:auto"></el-tree>
 			</div>
 			<!-- 我的工作 -->
 			<div
