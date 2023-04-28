@@ -357,6 +357,11 @@
 									<el-option label="数据模型" value="dataModel"></el-option>
 								</el-select>
 							</el-form-item>
+							<el-form-item label="数据源" v-if="attribute.type === 'radio' || attribute.type === 'checkbox' || attribute.type === 'select'">
+								<el-select v-model="attribute.dataModel" placeholder="请选择数据源" filterable @change="queryDicDetail(attribute)">
+									<el-option :label="item.name" :value="item.id" v-for="(item,index) in dicClassifyOptions" :key="index"></el-option>
+								</el-select>
+							</el-form-item>
 							<el-form-item label="数据模型" v-if="attribute.type === 'chart' && attribute.dataSourceType === 'dataModel'">
 								<el-select v-model="attribute.dataModel" placeholder="请选择数据模型" clearable filterable @change="handleTableChange">
 									<el-option :label="item.remark + '(' + item.name + ')'" :value="item.name" v-for="(item,index) in tableOptions" :key="index"></el-option>
@@ -484,13 +489,9 @@
 							<el-form-item
 								label="数据值"
 								v-if="
-									attribute.type === 'select' ||
 									attribute.type === 'multiSelect' ||
 									attribute.type === 'cascader' ||
 									attribute.type === 'multiCascader' ||
-									attribute.type === 'radio' || 
-									attribute.type === 'checkbox' ||
-									attribute.type === 'table' ||
 									attribute.type === 'tree'
 								"
 							>
@@ -686,6 +687,7 @@
 							<el-option label="小于等于" value="<="></el-option>
 							<el-option label="不为空" value=" is not null"></el-option>
 							<el-option label="包含" value="in"></el-option>
+							<el-option label="长度" value="length"></el-option>
 						</el-select>
 					</template>
 				</el-table-column>
@@ -752,6 +754,7 @@ export default {
 			jsApi: {},
 			drawerType: '',
 			templateEngine: '',
+			dicClassifyOptions: [],
 			tableOptions: [],
 			fieldOptions: [],
 			filterDataVisible: false
@@ -767,9 +770,16 @@ export default {
 	},
 	mounted() {
 		this.queryById()
+		this.queryDictionaryClassify()
 		this.querybusinessTable()
 	},
 	methods: {
+		async queryDictionaryClassify() {
+			let res = await this.$axios.get('dictionaryClassify/queryDisplay')
+			if (res.data.code === 200) {
+				this.dicClassifyOptions = res.data.data
+			}
+		},
 		async querybusinessTable() {
             let res = await this.$axios.get('businessTable/queryAll')
             if (res.data.code == 200) {
@@ -928,13 +938,24 @@ export default {
 					}
 				} else if (item.type === 'chart') {
 					if(item.dataSourceType === 'dataModel') {
-						this.handleTableChange(item.dataModel)
 						this.$nextTick(() => {
 							var filterDataSql = ''
 							if(item.filterData) {
 								for(let i=0;i<item.filterData.length;i++) {
 									let filterDataItem = item.filterData[i]
-									if(filterDataItem['field'] && filterDataItem['value']) {
+									if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
+										let field = filterDataItem['field'].split('|')[0]
+										if(i != 0) {
+											filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+										}
+										filterDataSql = filterDataSql + field + filterDataItem['decider']
+									} else if (filterDataItem['field'] && filterDataItem['decider'] === 'length') {
+										let field = filterDataItem['field'].split('|')[0]
+										if(i != 0) {
+											filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+										}
+										filterDataSql = filterDataSql + filterDataItem['decider'] + '(' + field + ')=' + filterDataItem['value']
+									} else if(filterDataItem['field'] && filterDataItem['value']) {
 										let field = filterDataItem['field'].split('|')[0]
 										let type = filterDataItem['field'].split('|')[1]
 										if(i != 0) {
@@ -958,12 +979,6 @@ export default {
 												filterDataSql = filterDataSql + eval(filterDataItem['value'])
 											}
 										}
-									} else if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
-										let field = filterDataItem['field'].split('|')[0]
-										if(i != 0) {
-											filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
-										}
-										filterDataSql = filterDataSql + field + filterDataItem['decider']
 									}
 								}
 							}
@@ -984,11 +999,21 @@ export default {
 					if (item.children) {
 						this.recursionAttribute(item.children)
 					}
+				}  else if (item.type === 'radio' || item.type === 'checkbox' || item.type === 'select') {
+					if(item.dataModel) {
+						this.queryDicDetail(item)
+					}
 				} else {
 					if (item.children) {
 						this.recursionAttribute(item.children)
 					}
 				}
+			}
+		},
+		async queryDicDetail(item) {
+			let res = await this.$axios.get('dictionaryDetail/queryDisplay?classifyId=' + item.dataModel)
+			if (res.data.code === 200) {
+				item.data = res.data.data
 			}
 		},
 		recursionData(layout, appointName) {
@@ -1018,15 +1043,7 @@ export default {
 						}
 					}
 				} else if (item.type === 'select') {
-					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							this.$set(item, 'options', eval(`this.queryData.${key}`))
-						} catch (e) {
-							console.log(e)
-							this.$set(item, 'options', [])
-						}
-					}
+					
 				} else if (item.type === 'multiSelect') {
 					if (item.data && item.data.indexOf(appointName) != -1) {
 						try {
@@ -1060,25 +1077,9 @@ export default {
 						}
 					}
 				} else if (item.type === 'radio') {
-					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							this.$set(item, 'options', eval(`this.queryData.${key}`))
-						} catch (e) {
-							console.log(e)
-							this.$set(item, 'options', [])
-						}
-					}
+					
 				} else if (item.type === 'checkbox') {
-					if (item.data && item.data.indexOf(appointName) != -1) {
-						try {
-							let key = item.data.replace(/{{/g, '').replace(/}}/g, '')
-							this.$set(item, 'options', eval(`this.queryData.${key}`))
-						} catch (e) {
-							console.log(e)
-							this.$set(item, 'options', [])
-						}
-					}
+					
 				} else if (item.type === 'tree') {
 					if (item.data && item.data.indexOf(appointName) != -1) {
 						try {
@@ -1118,8 +1119,10 @@ export default {
 		changeFocus(type, item) {
 			this.currentIndex = item.i
 			this.attribute = item
-			if (item[type]) {
-				
+			if (item.type === 'chart') {
+				if(item.dataSourceType === 'dataModel') {
+					this.handleTableChange(item.dataModel)
+				}
 			}
 		},
 		saveSubmit() {
@@ -2140,7 +2143,19 @@ export default {
 					if(this.attribute.filterData) {
 						for(let i=0;i<this.attribute.filterData.length;i++) {
 							let filterDataItem = this.attribute.filterData[i]
-							if(filterDataItem['field'] && filterDataItem['value']) {
+							if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
+								let field = filterDataItem['field'].split('|')[0]
+								if(i != 0) {
+									filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+								}
+								filterDataSql = filterDataSql + field + filterDataItem['decider']
+							} else if (filterDataItem['field'] && filterDataItem['decider'] === 'length') {
+								let field = filterDataItem['field'].split('|')[0]
+								if(i != 0) {
+									filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+								}
+								filterDataSql = filterDataSql + filterDataItem['decider'] + '(' + field + ')=' + filterDataItem['value']
+							} else if(filterDataItem['field'] && filterDataItem['value']) {
 								let field = filterDataItem['field'].split('|')[0]
 								let type = filterDataItem['field'].split('|')[1]
 								if(i != 0) {
@@ -2164,12 +2179,6 @@ export default {
 										filterDataSql = filterDataSql + eval(filterDataItem['value'])
 									}
 								}
-							} else if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
-								let field = filterDataItem['field'].split('|')[0]
-								if(i != 0) {
-									filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
-								}
-								filterDataSql = filterDataSql + field + filterDataItem['decider']
 							}
 						}
 					}
@@ -2206,13 +2215,7 @@ export default {
 					this.$set(this.attribute, 'text', this.attribute.value)
 				}
 			} else if (this.attribute.type === 'select') {
-				try {
-					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
-					this.$set(this.attribute, 'options', eval(`this.queryData.${key}`))
-				} catch (e) {
-					console.log(e)
-					this.$set(this.attribute, 'options', [])
-				}
+				
 			} else if (this.attribute.type === 'multiSelect') {
 				try {
 					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
@@ -2240,21 +2243,9 @@ export default {
 					this.$set(this.attribute, 'options', [])
 				}
 			} else if (this.attribute.type === 'radio') {
-				try {
-					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
-					this.$set(this.attribute, 'options', eval(`this.queryData.${key}`))
-				} catch (e) {
-					console.log(e)
-					this.$set(this.attribute, 'options', [])
-				}
+				
 			} else if (this.attribute.type === 'checkbox') {
-				try {
-					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
-					this.$set(this.attribute, 'options', eval(`this.queryData.${key}`))
-				} catch (e) {
-					console.log(e)
-					this.$set(this.attribute, 'options', [])
-				}
+				
 			} else if (this.attribute.type === 'table') {
 				try {
 					let key = this.attribute.data.replace(/{{/g, '').replace(/}}/g, '')
@@ -2357,7 +2348,19 @@ export default {
 				var filterDataSql = ''
 				for(let i=0;i<this.attribute.filterData.length;i++) {
 					let filterDataItem = this.attribute.filterData[i]
-					if(filterDataItem['field'] && filterDataItem['value']) {
+					if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
+						let field = filterDataItem['field'].split('|')[0]
+						if(i != 0) {
+							filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+						}
+						filterDataSql = filterDataSql + field + filterDataItem['decider']
+					} else if (filterDataItem['field'] && filterDataItem['decider'] === 'length') {
+						let field = filterDataItem['field'].split('|')[0]
+						if(i != 0) {
+							filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
+						}
+						filterDataSql = filterDataSql + filterDataItem['decider'] + '(' + field + ')=' + filterDataItem['value']
+					} else if(filterDataItem['field'] && filterDataItem['value']) {
 						let field = filterDataItem['field'].split('|')[0]
 						let type = filterDataItem['field'].split('|')[1]
 						if(i != 0) {
@@ -2381,12 +2384,6 @@ export default {
 								filterDataSql = filterDataSql + eval(filterDataItem['value'])
 							}
 						}
-					} else if (filterDataItem['field'] && filterDataItem['decider'] === ' is not null') {
-						let field = filterDataItem['field'].split('|')[0]
-						if(i != 0) {
-							filterDataSql = filterDataSql + ' ' + filterDataItem['condition'] + ' '
-						}
-						filterDataSql = filterDataSql + field + filterDataItem['decider']
 					}
 				}
 				let params = {

@@ -61,7 +61,7 @@
 						},
 						customStyles(item.styles)
 					]">
-					Drag and drop a widget here
+					从左侧面板拖入组件或区块
 				</div>
 			</div>
 			<!-- listView -->
@@ -98,7 +98,7 @@
 						},
 						customStyles(item.styles)
 					]">
-					Drag and drop a widget here
+					从左侧面板拖入组件或区块
 				</div>
 			</div>
 			<!-- card -->
@@ -348,10 +348,10 @@
 							clearable
 						>
 							<el-option
-								v-for="option in item.options"
-								:key="option.value"
-								:label="option.label"
-								:value="option.value"
+								v-for="option in item.data"
+								:key="option.code"
+								:label="option.name"
+								:value="option.code"
 							>
 							</el-option>
 						</el-select>
@@ -597,11 +597,11 @@
 					>
 						<el-radio-group v-model="item.value" @change="handleEvent('change', item)">
 							<el-radio
-								v-for="option in item.options"
-								:key="option.value"
-								:label="option.value"
+								v-for="option in item.data"
+								:key="option.code"
+								:label="option.code"
 							>
-							{{option.label}}
+							{{option.name}}
 							</el-radio>
 						</el-radio-group>
 					</div>
@@ -637,11 +637,11 @@
 					>
 						<el-checkbox-group v-model="item.value" @change="handleEvent('change', item)">
 							<el-checkbox
-								v-for="option in item.options"
-								:key="option.value"
-								:label="option.value"
+								v-for="option in item.data"
+								:key="option.code"
+								:label="option.code"
 							>
-							{{option.label}}
+							{{option.name}}
 							</el-checkbox>
 						</el-checkbox-group>
 					</div>
@@ -884,7 +884,7 @@
 				<el-table 
 					stripe 
 					border 
-					:data="item.tableData" 
+					:data="item.data" 
 					style="width: 100%" 
 					:height="item.showPagination ? item.h * 18 - 86 : item.h * 18 - 26" 
 					:show-header="item.showHeader"
