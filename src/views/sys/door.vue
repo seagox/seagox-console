@@ -153,7 +153,7 @@ export default {
 			}
 		},
 		async queryGaugeByCompanyId() {
-			let res = await this.$axios.get('metaPage/queryByCompanyId')
+			let res = await this.$axios.get('gauge/queryByCompanyId')
 			if (res.data.code == 200) {
 				this.gaugeOptions = res.data.data
 			}
