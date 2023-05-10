@@ -354,7 +354,8 @@
 							</el-form-item>
 							<el-form-item label="数据源" v-if="attribute.type === 'chart'">
 								<el-select v-model="attribute.dataSourceType" placeholder="请选择数据源" clearable>
-									<el-option label="数据模型" value="dataModel"></el-option>
+									<el-option label="表" value="dataModel"></el-option>
+									<el-option label="视图" value="view"></el-option>
 								</el-select>
 							</el-form-item>
 							<el-form-item label="数据源" v-if="attribute.type === 'radio' || attribute.type === 'checkbox' || attribute.type === 'select' || attribute.type === 'multiSelect'">
@@ -367,17 +368,22 @@
 									<el-option :label="item.remark + '(' + item.name + ')'" :value="item.name" v-for="(item,index) in tableOptions" :key="index"></el-option>
 								</el-select>
 							</el-form-item>
-							<el-form-item label="维度(X轴)" v-if="attribute.type === 'chart' && attribute.dataSourceType === 'dataModel'">
+							<el-form-item label="数据模型" v-if="attribute.type === 'chart' && attribute.dataSourceType === 'view'">
+								<el-select v-model="attribute.dataModel" placeholder="请选择数据模型" clearable filterable @change="handleViewChange">
+									<el-option :label="item.remark + '(' + item.name + ')'" :value="item.name" v-for="(item,index) in viewOptions" :key="index"></el-option>
+								</el-select>
+							</el-form-item>
+							<el-form-item label="维度(X轴)" v-if="attribute.type === 'chart' && (attribute.dataSourceType === 'dataModel' || attribute.dataSourceType === 'view')">
 								<el-select v-model="attribute.dimension" placeholder="请选择维度(X轴)" clearable filterable multiple>
 									<el-option :label="item.remark + '(' + item.name + ')'" :value="item.remark + '|' + item.name" v-for="(item,index) in fieldOptions" :key="index"></el-option>
 								</el-select>
 							</el-form-item>
-							<el-form-item label="数值(Y轴)" v-if="attribute.type === 'chart' && attribute.dataSourceType === 'dataModel'">
+							<el-form-item label="数值(Y轴)" v-if="attribute.type === 'chart' && (attribute.dataSourceType === 'dataModel' || attribute.dataSourceType === 'view')">
 								<el-select v-model="attribute.metrics" placeholder="请选择数值(Y轴)" clearable filterable multiple @change="handleDataChange">
 									<el-option :label="item.remark + '(' + item.name + ')'" :value="item.remark + '|' + item.name" v-for="(item,index) in fieldOptions" :key="index"></el-option>
 								</el-select>
 							</el-form-item>
-							<el-form-item v-if="attribute.type === 'chart' && attribute.dataSourceType === 'dataModel'">
+							<el-form-item v-if="attribute.type === 'chart' && (attribute.dataSourceType === 'dataModel' || attribute.dataSourceType === 'view')">
 								<el-button icon="el-icon-circle-plus" style="width:100%" @click="handleFilterData">设置筛选条件</el-button>
 							</el-form-item>
 							<el-form-item label="文本" v-if="attribute.type === 'text'">
@@ -741,6 +747,7 @@ export default {
 			templateEngine: '',
 			dicClassifyOptions: [],
 			tableOptions: [],
+			viewOptions: [],
 			fieldOptions: [],
 			filterDataVisible: false
 		}
@@ -756,7 +763,8 @@ export default {
 	mounted() {
 		this.queryById()
 		this.queryDictionaryClassify()
-		this.querybusinessTable()
+		this.queryTable()
+		this.queryView()
 	},
 	methods: {
 		async queryDictionaryClassify() {
@@ -765,10 +773,16 @@ export default {
 				this.dicClassifyOptions = res.data.data
 			}
 		},
-		async querybusinessTable() {
+		async queryTable() {
             let res = await this.$axios.get('businessTable/queryAll')
             if (res.data.code == 200) {
                 this.tableOptions = res.data.data
+            }
+        },
+		async queryView() {
+            let res = await this.$axios.get('view/queryAll')
+            if (res.data.code == 200) {
+                this.viewOptions = res.data.data
             }
         },
 		listToTreeByRule(arr, rule) {
@@ -922,7 +936,7 @@ export default {
 						}
 					}
 				} else if (item.type === 'chart') {
-					if(item.dataSourceType === 'dataModel') {
+					if(item.dataSourceType === 'dataModel' || item.dataSourceType === 'view') {
 						this.$nextTick(() => {
 							var filterDataSql = ''
 							if(item.filterData) {
@@ -1055,6 +1069,8 @@ export default {
 			if (item.type === 'chart') {
 				if(item.dataSourceType === 'dataModel') {
 					this.handleTableChange(item.dataModel)
+				} else if (item.dataSourceType === 'view') {
+					this.handleViewChange(item.dataModel)
 				}
 			}
 		},
@@ -2071,7 +2087,7 @@ export default {
 		},
 		handleDataChange() {
 			if (this.attribute.type === 'chart') {
-				if(this.attribute.dataSourceType === 'dataModel') {
+				if(this.attribute.dataSourceType === 'dataModel' || this.attribute.dataSourceType === 'view') {
 					var filterDataSql = ''
 					if(this.attribute.filterData) {
 						for(let i=0;i<this.attribute.filterData.length;i++) {
@@ -2201,6 +2217,12 @@ export default {
 		},
 		async handleTableChange(value) {
 			let res = await this.$axios.get('businessField/queryAll?tableName=' + value)
+			if (res.data.code === 200) {
+				this.fieldOptions = res.data.data
+			}
+		},
+		async handleViewChange(value) {
+			let res = await this.$axios.get('viewField/queryAll?viewName=' + value)
 			if (res.data.code === 200) {
 				this.fieldOptions = res.data.data
 			}
