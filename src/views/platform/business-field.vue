@@ -49,9 +49,9 @@
 				<el-table-column prop="type" label="字段类型" align="center"></el-table-column>
 				<el-table-column prop="length" label="长度" align="center"></el-table-column>
 				<el-table-column prop="decimals" label="小数" align="center"></el-table-column>
-				<el-table-column label="是否必填" align="center">
+				<el-table-column label="是否为空" align="center">
 					<template slot-scope="scope">
-						<i class="el-icon-check" style="color:green;font-weight:bold;" v-if="scope.row.notNull === 1"></i>
+						<i class="el-icon-check" style="color:green;font-weight:bold;" v-if="scope.row.notNull === 0"></i>
 						<i class="el-icon-close" style="color:red;font-weight:bold;" v-else></i>
 					</template>
 				</el-table-column>
@@ -103,15 +103,14 @@
 				<el-col :span="12">
 					<el-form-item label="类型" prop="type">
 						<el-select v-model="addForm.type" filterable placeholder="请选择类型" @change="typeChange">
-							<el-option label="整数" value="integer" v-if="datasourceType != 'oracle'"></el-option>
-							<el-option label="大整数" value="bigint" v-if="datasourceType != 'oracle'"></el-option>
-							<el-option label="浮点数" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
-							<el-option label="number(数字值)" value="number" v-if="datasourceType === 'oracle'"></el-option>
-							<el-option label="日期值(YYYY-MM-DD)" value="date"></el-option>
-							<el-option label="日期时间值(YYYY-MM-DD HH:MM:SS)" value="timestamp"></el-option>
+							<el-option label="枚举" value="integer" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="整数值" value="bigint" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="小数值" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="数字值" value="number" v-if="datasourceType === 'oracle'"></el-option>
+							<el-option label="日期值" value="date"></el-option>
+							<el-option label="日期时间值" value="timestamp"></el-option>
 							<el-option label="字符串" value="varchar"></el-option>
 							<el-option label="长文本" value="text"></el-option>
-							<el-option label="json" value="json"></el-option>
 						</el-select>
 					</el-form-item>
 				</el-col>
@@ -160,8 +159,8 @@
 					</el-form-item>
 				</el-col>
 				<el-col :span="12">
-					<el-form-item label="是否必填" prop="notNull">
-						<el-switch v-model="addForm.notNull" :active-value="1" :inactive-value="0"> </el-switch>
+					<el-form-item label="是否为空" prop="notNull">
+						<el-switch v-model="addForm.notNull" :active-value="0" :inactive-value="1"> </el-switch>
 					</el-form-item>
 				</el-col>
 				<el-col :span="12">
@@ -217,15 +216,14 @@
 							placeholder="请选择类型"
 							@change="typeChange"
 						>
-							<el-option label="整数" value="integer" v-if="datasourceType != 'oracle'"></el-option>
-							<el-option label="大整数" value="bigint" v-if="datasourceType != 'oracle'"></el-option>
-							<el-option label="浮点数" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
-							<el-option label="number(数字值)" value="number" v-if="datasourceType === 'oracle'"></el-option>
-							<el-option label="日期值(YYYY-MM-DD)" value="date"></el-option>
-							<el-option label="日期时间值(YYYY-MM-DD HH:MM:SS)" value="timestamp"></el-option>
+							<el-option label="枚举" value="integer" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="整数值" value="bigint" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="小数值" value="decimal" v-if="datasourceType != 'oracle'"></el-option>
+							<el-option label="数字值" value="number" v-if="datasourceType === 'oracle'"></el-option>
+							<el-option label="日期值" value="date"></el-option>
+							<el-option label="日期时间值" value="timestamp"></el-option>
 							<el-option label="字符串" value="varchar"></el-option>
 							<el-option label="长文本" value="text"></el-option>
-							<el-option label="json" value="json"></el-option>
 						</el-select>
 					</el-form-item>
 				</el-col>
@@ -274,8 +272,8 @@
 					</el-form-item>
 				</el-col>
 				<el-col :span="12">
-					<el-form-item label="是否必填" prop="notNull">
-						<el-switch v-model="editForm.notNull" :active-value="1" :inactive-value="0"> </el-switch>
+					<el-form-item label="是否为空" prop="notNull">
+						<el-switch v-model="editForm.notNull" :active-value="0" :inactive-value="1"> </el-switch>
 					</el-form-item>
 				</el-col>
 				<el-col :span="12">
@@ -380,40 +378,52 @@ export default {
 					value: 1
 				},
 				{
-					label: '多行文本',
+					label: '枚举',
 					value: 2
 				},
 				{
-					label: '富文本',
+					label: '单位',
 					value: 3
 				},
 				{
-					label: '整数（Int）',
+					label: '部门',
 					value: 4
 				},
 				{
-					label: '浮点数（Float）',
+					label: '用户',
 					value: 5
 				},
 				{
-					label: '金额',
+					label: '富文本',
 					value: 6
 				},
 				{
-					label: '枚举',
+					label: '整数',
 					value: 7
 				},
 				{
-					label: '日期',
+					label: '浮点数',
 					value: 8
 				},
 				{
-					label: '附件',
+					label: '多行文本',
 					value: 9
 				},
 				{
-					label: '图片',
+					label: '日期',
 					value: 10
+				},
+				{
+					label: '附件',
+					value: 11
+				},
+				{
+					label: '图片',
+					value: 12
+				},
+				{
+					label: '省市区',
+					value: 13
 				}
 			],
 			tableOptions: []
@@ -452,7 +462,7 @@ export default {
             this.pageNo = 1
             this.queryByPage()
         },
-		handleCurrentChange(val) {
+		handleCurrentChange() {
 			this.queryByPage()
 		},
 		//显示新增界面
@@ -532,11 +542,11 @@ export default {
 				})
 			})
 		},
-		kindFormatter(row) {
+		kindFormatter(row) {	
 			if (row.kind === 1) {
-				return '基本类型'
+				return '单行文本'
 			} else if (row.kind === 2) {
-				return '数据字典'
+				return '枚举'
 			} else if (row.kind === 3) {
 				return '单位'
 			} else if (row.kind === 4) {
@@ -544,9 +554,21 @@ export default {
 			} else if (row.kind === 5) {
 				return '用户'
 			} else if (row.kind === 6) {
+				return '富文本'
+			} else if (row.kind === 7) {
+				return '整数'
+			} else if (row.kind === 8) {
+				return '浮点数'
+			} else if (row.kind === 9) {
+				return '多行文本'
+			} else if (row.kind === 10) {
+				return '日期'
+			} else if (row.kind === 11) {
+				return '附件'
+			} else if (row.kind === 12) {
+				return '图片'
+			}  else if (row.kind === 13) {
 				return '省市区'
-			} else {
-				return '其他'
 			}
 		},
 		typeChange(value) {
