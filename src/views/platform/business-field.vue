@@ -48,7 +48,12 @@
 				<el-table-column prop="name" label="字段名" align="center"></el-table-column>
 				<el-table-column prop="type" label="字段类型" align="center"></el-table-column>
 				<el-table-column prop="length" label="长度" align="center"></el-table-column>
-				<el-table-column prop="decimals" label="小数" align="center"></el-table-column>
+				<el-table-column prop="decimals" label="小数" align="center">
+					<template slot-scope="scope">
+						<div v-if="scope.row.decimals">{{scope.row.decimals}}</div>
+						<div v-else>-</div>
+					</template>
+				</el-table-column>
 				<el-table-column label="是否为空" align="center">
 					<template slot-scope="scope">
 						<i class="el-icon-check" style="color:green;font-weight:bold;" v-if="scope.row.notNull === 0"></i>
