@@ -90,6 +90,14 @@ const routes = [
                 }
             },
             {
+                name: 'viewField',
+                path: '/viewField',
+                component: () => import('@/views/platform/view-field'),
+                meta: {
+                    title: '设计视图'
+                }
+            },
+            {
                 name: 'metaFunction',
                 path: '/metaFunction',
                 component: () => import('@/views/platform/meta-function'),
@@ -102,7 +110,8 @@ const routes = [
                 path: '/editMetaFunction',
                 component: () => import('@/views/platform/edit-meta-function'),
                 meta: {
-                    title: '编辑元函数'
+                    title: '编辑元函数',
+                    keepAlive: true
                 }
             },
             {
@@ -118,7 +127,8 @@ const routes = [
                 path: '/editMetaPage',
                 component: () => import('@/views/platform/edit-meta-page'),
                 meta: {
-                    title: '编辑元页面'
+                    title: '编辑元页面',
+                    keepAlive: true
                 }
             },
             {
@@ -126,7 +136,8 @@ const routes = [
                 path: '/templateEngine',
                 component: () => import('@/views/platform/template-engine'),
                 meta: {
-                    title: '模版引擎'
+                    title: '模版引擎',
+                    keepAlive: true
                 }
             },
             {
@@ -250,6 +261,14 @@ const routes = [
                 meta: {
                     title: '导入配置'
                 }
+            },
+            {
+                name: 'model',
+                path: '/model',
+                component: () => import('@/views/sys/model'),
+                meta: {
+                    title: '数据模型'
+                }
             }
         ]
     }
@@ -278,4 +297,5 @@ router.beforeEach((to, from, next) => {
         }
     }
 })
+
 export default router
