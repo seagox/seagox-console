@@ -43,6 +43,7 @@
 					<el-button type="text" icon="el-icon-circle-check" @click="handleSave" size="medium">
 						保 存
 					</el-button>
+          			<el-button type="text" icon="el-icon-download" @click="handleDownload" size="medium">导出</el-button>
 				</div>
 				<div style="margin-left: 15px;">
 					<codemirrorXml ref="codemirror" v-model="activeRow.script" placeholder="请输入脚本" :height="height"/>
@@ -242,6 +243,29 @@ export default {
 			insertPos.line = curPos.line
 			insertPos.ch = curPos.ch
 			this.$refs.codemirror.editor.replaceRange(script, insertPos)
+		},
+		handleDownload() {
+			let params = {
+				type:"模板引擎"
+			}
+			this.$axios.post('upload/exportScript', params, { responseType: 'blob' }).then(res => {
+				let content = res.data
+				let blob = new Blob([content])
+				if ('download' in document.createElement('a')) {
+					// 非IE下载
+					let elink = document.createElement('a')
+					elink.download = "模板引擎.zip"
+					elink.style.display = 'none'
+					elink.href = URL.createObjectURL(blob)
+					document.body.appendChild(elink)
+					elink.click()
+					URL.revokeObjectURL(elink.href) // 释放URL 对象
+					document.body.removeChild(elink)
+				} else {
+					// IE10+下载
+					navigator.msSaveBlob(blob, "模板引擎.zip")
+				}
+			})
 		}
 	}
 }

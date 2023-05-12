@@ -1,29 +1,22 @@
 <template>
     <div>
-        <div class="toolView">
-            <el-button type="text" icon="el-icon-plus" @click="showAddDialog" size="small">新增</el-button>
-        </div>
         <div class="searchView">
-            <el-form label-width="65px">
-                <el-row>
-                    <el-col :span="6">
+            <el-form label-width="60px">
+                <el-row :gutter="15">
+                    <el-col :span="4">
                         <el-form-item label="名称">
                             <el-input v-model="searchForm.name" clearable placeholder="请输入名称"></el-input>
                         </el-form-item>
                     </el-col>
-					<el-col :span="6">
+					<el-col :span="4">
                         <el-form-item label="路径">
                             <el-input v-model="searchForm.path" clearable placeholder="请输入路径"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="4">
-                        <el-button
-                            type="primary"
-                            icon="el-icon-search"
-                            @click.native="handleSearch"
-                            style="margin-left: 15px"
-                            >查询</el-button
-                        >
+                    <el-col :span="6">
+                        <el-button icon="el-icon-search" @click="handleSearch">查询</el-button>
+                        <el-button type="primary" icon="el-icon-plus" @click="showAddDialog">新增</el-button>
+                        <el-button type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
                     </el-col>
                 </el-row>
             </el-form>
@@ -197,6 +190,30 @@ export default {
                         this.$message.error(res.data.message)
                     }
                 })
+            })
+        },
+        // zip文件下载
+        handleDownload() {
+            let params = {
+                type:"元页面"
+            }
+            this.$axios.post('upload/exportScript', params, { responseType: 'blob' }).then(res => {
+            let content = res.data
+            let blob = new Blob([content])
+            if ('download' in document.createElement('a')) {
+                // 非IE下载
+                let elink = document.createElement('a')
+                elink.download = "元页面.zip"
+                elink.style.display = 'none'
+                elink.href = URL.createObjectURL(blob)
+                document.body.appendChild(elink)
+                elink.click()
+                URL.revokeObjectURL(elink.href) // 释放URL 对象
+                document.body.removeChild(elink)
+            } else {
+                // IE10+下载
+                navigator.msSaveBlob(blob, "元页面.zip")
+            }
             })
         }
     }

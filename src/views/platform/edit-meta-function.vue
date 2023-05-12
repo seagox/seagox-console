@@ -31,7 +31,7 @@ export default {
 	},
 	methods: {
         async queryById() {
-            let res = await this.$axios.get('metaFunction/queryById/' +  + this.$route.query.id)
+            let res = await this.$axios.get('metaFunction/queryById/' + this.$route.query.id)
 			if (res.data.code == 200) {
 				this.form = res.data.data
                 this.$nextTick(() => {
