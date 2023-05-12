@@ -1,8 +1,20 @@
 <template>
 	<div>
-		<div class="toolView">
-			<el-button type="text" icon="el-icon-plus" @click="showAddDialog" size="small">新增</el-button>
-		</div>
+        <div class="searchView">
+            <el-form label-width="60px">
+                <el-row :gutter="15">
+                    <el-col :span="4">
+                        <el-form-item label="名称">
+                            <el-input v-model="searchForm.name" clearable placeholder="请输入名称"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="4" c>
+                        <el-button icon="el-icon-search" @click="handleSearch">查询</el-button>
+						<el-button type="primary" icon="el-icon-plus" @click="showAddDialog">新增</el-button>
+                    </el-col>
+                </el-row>
+            </el-form>
+        </div>
 		<div class="table">
 			<!--列表-->
 			<el-table :data="tableData" border>
@@ -53,6 +65,20 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
+				<el-form-item label="授权" prop="empower">
+					<div class="inside-input">
+						<el-select v-model="addForm.empowerValue" multiple placeholder="请授权">
+							<el-option
+								v-for="item in memberOptions"
+								:key="item.id"
+								:label="item.name"
+								:value="String(item.id)"
+							>
+							</el-option>
+						</el-select>
+						<i class="el-icon-document-copy iconE" @click="handleMember"></i>
+					</div>
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="addFormVisible = false">取消</el-button>
@@ -82,17 +108,36 @@
 						</el-option>
 					</el-select>
 				</el-form-item>
+				<el-form-item label="授权" prop="empower">
+					<div class="inside-input">
+						<el-select v-model="editForm.empowerValue" multiple placeholder="请授权">
+							<el-option
+								v-for="item in memberOptions"
+								:key="item.id"
+								:label="item.name"
+								:value="String(item.id)"
+							>
+							</el-option>
+						</el-select>
+						<i class="el-icon-document-copy iconE" @click="handleMember"></i>
+					</div>
+				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click="editFormVisible = false">取消</el-button>
 				<el-button type="primary" @click="editSubmit">提交</el-button>
 			</div>
 		</el-dialog>
+		<multipleMember ref="multipleMember" @confirm="multipleMemberConfirm"></multipleMember>
 	</div>
 </template>
 
 <script>
+import multipleMember from '@/views/flow/multiple-member'
 export default {
+	components: {
+		multipleMember
+	},
 	data() {
 		return {
 			tableData: [],
@@ -102,30 +147,40 @@ export default {
 			addForm: {
 				name: '',
 				dataSource: '',
-				dataSourceValue: []
+				dataSourceValue: [],
+				empower: '',
+				empowerValue: []
 			},
 			editFormVisible: false,
 			editForm: {
 				id: '',
 				name: '',
 				dataSource: '',
-				dataSourceValue: []
+				dataSourceValue: [],
+				empower: '',
+				empowerValue: []
 			},
 			formRules: {
 				name: [{ required: true, message: '请输入名称', trigger: 'blur' }]
 			},
-			dataSourceOptions: []
+			dataSourceOptions: [],
+			memberOptions: [],
+            searchForm: {
+                name: ''
+            }
 		}
 	},
 	created() {
 		this.queryByPage()
 		this.queryBusinessTable()
+		this.queryMember()
 	},
 	methods: {
 		queryByPage() {
 			let that = this
 			const params = {
-				pageNo: this.pageNo
+				pageNo: this.pageNo,
+                name: this.searchForm.name
 			}
 			that.$axios.get('seaDefinition/queryByPage', { params }).then(res => {
 				if (res.data.code == 200) {
@@ -134,12 +189,22 @@ export default {
 				}
 			})
 		},
+        handleSearch() {
+            this.pageNo = 1
+            this.queryByPage()
+        },
 		async queryBusinessTable() {
 			let res = await this.$axios.get('businessTable/queryAll')
 			if (res.data.code == 200) {
 				this.dataSourceOptions = res.data.data
 			}
 		},
+		async queryMember() {
+            let res = await this.$axios.get('user/queryAll')
+            if (res.data.code == 200) {
+                this.memberOptions = res.data.data
+            }
+        },
 		handleCurrentChange(val) {
 			this.queryByPage()
 		},
@@ -155,7 +220,8 @@ export default {
 				if (valid) {
 					var params = {
 						name: that.addForm.name,
-						dataSource: that.addForm.dataSourceValue.toString()
+						dataSource: that.addForm.dataSourceValue.toString(),
+						empower: that.addForm.empower.toString()
 					}
 					that.$axios.post('seaDefinition/insert', params).then(res => {
 						if (res.data.code == 200) {
@@ -176,6 +242,7 @@ export default {
 				this.$refs.editForm.resetFields()
 			}
 			this.$set(this.editForm, 'dataSourceValue', this.editForm.dataSource.split(','))
+			this.$set(this.editForm, 'empowerValue', this.editForm.empower.split(','))
 		},
 		editSubmit() {
 			let that = this
@@ -184,7 +251,8 @@ export default {
 					var params = {
 						id: that.editForm.id,
 						name: that.editForm.name,
-						dataSource: that.editForm.dataSourceValue.toString()
+						dataSource: that.editForm.dataSourceValue.toString(),
+						empower: that.editForm.empowerValue.toString()
 					}
 					that.$axios.post('seaDefinition/update', params).then(res => {
 						if (res.data.code == 200) {
@@ -220,7 +288,50 @@ export default {
 					}
 				})
 			})
+		},
+		handleMember() {
+			if(this.addFormVisible) {
+				this.$refs.multipleMember.showDialog(this.addForm.empowerValue)
+			} else {
+				this.$refs.multipleMember.showDialog(this.editForm.empowerValue)
+			}
+		},
+		multipleMemberConfirm(data) {
+			var empowerValue = []
+			for(let i=0;i<data.length;i++) {
+				empowerValue.push(data[i].id)
+			}
+			if(this.addFormVisible) {
+				this.addForm.empowerValue = empowerValue
+			} else {
+				this.editForm.empowerValue = empowerValue
+			}
 		}
 	}
 }
 </script>
+<style scoped>
+.inside-input {
+    position: relative;
+}
+.inside-input .iconE {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+::v-deep .inside-input .el-input--suffix .el-input__inner {
+    padding-right: 48px;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-arrow-up {
+    display: none;
+}
+::v-deep .inside-input .el-select .el-input__suffix .el-icon-circle-close {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    color: #c0c4cc;
+}
+</style>
