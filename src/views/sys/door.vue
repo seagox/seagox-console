@@ -35,7 +35,7 @@
 					<el-input v-model.trim="addForm.name" placeholder="请输入名称"></el-input>
 				</el-form-item>
 				<el-form-item label="角色" prop="authority">
-					<el-select v-model="addForm.authority" multiple placeholder="请选择角色">
+					<el-select v-model="addForm.authority" filterable multiple placeholder="请选择角色">
 						<el-option v-for="item in roleOptions" :key="item.id" :label="item.name" :value="item.id">
 						</el-option>
 					</el-select>
@@ -71,7 +71,7 @@
 					<el-input v-model.trim="editForm.name" placeholder="请输入名称"></el-input>
 				</el-form-item>
 				<el-form-item label="角色" prop="authority">
-					<el-select v-model="editForm.authority" multiple placeholder="请选择角色">
+					<el-select v-model="editForm.authority" filterable multiple placeholder="请选择角色">
 						<el-option
 							v-for="item in roleOptions"
 							:key="item.id"
@@ -144,6 +144,7 @@ export default {
 		this.queryRoleByCompanyId()
 		this.queryMetaPageByCompanyId()
 		this.queryByPage()
+		this.queryGaugeByCompanyId()
 	},
 	methods: {
 		async queryMetaPageByCompanyId() {

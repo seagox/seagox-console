@@ -1,26 +1,20 @@
 <template>
 	<div>
-		<div class="toolView" style="padding-top:15px">
-			<el-form label-width="80px">
-				<el-row>
-					<el-col :span="6">
+		<div class="searchView">
+			<el-form label-width="60px">
+				<el-row :gutter="15">
+					<el-col :span="4">
 						<el-form-item label="账户">
 							<el-input v-model="searchForm.account" clearable placeholder="请输入账户"></el-input>
 						</el-form-item>
 					</el-col>
-					<el-col :span="6">
+					<el-col :span="4">
 						<el-form-item label="名称">
 							<el-input v-model="searchForm.name" clearable placeholder="请输入名称"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="4">
-						<el-button
-							type="primary"
-							icon="el-icon-search"
-							@click.native="handleSearch"
-							style="margin-left:15px"
-							>查询</el-button
-						>
+						<el-button type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
 					</el-col>
 				</el-row>
 			</el-form>
