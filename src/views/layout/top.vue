@@ -73,7 +73,7 @@
         </el-dialog>
         <!--切换单位-->
         <el-dialog title="切换单位" width="520px" :visible.sync="companyVisible" :close-on-click-modal="false">
-            <el-select v-model="companyId" placeholder="请选择单位">
+            <el-select v-model="companyId" placeholder="请选择单位" filterable>
                 <el-option v-for="item in companyList" :key="item.id" :label="item.name" :value="item.id"> </el-option>
             </el-select>
             <div slot="footer" class="dialog-footer">
