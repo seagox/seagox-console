@@ -35,7 +35,7 @@
             </el-col>
             <el-col :span="12">
                 <el-form-item label="模板引擎" prop="dataSource">
-                    <el-select v-model="form.dataSource" filterable placeholder="请选择模板引擎">
+                    <el-select v-model="form.dataSource"  @change="helderChange" filterable placeholder="请选择模板引擎">
                         <el-option v-for="item in datasetOptions" :key="item.id" :label="item.name" :value="item.id">
                         </el-option>
                     </el-select>
@@ -71,6 +71,18 @@
         </el-form>
         <div v-show="active === 1">
             <el-form :inline="true" :model="textForm" style="margin-top:5px;">
+                <el-form-item label="数据源key">
+                    <el-select v-model="textForm.dataSourceKey" clearable placeholder="请选数据源key">
+                        <el-option
+                            v-for="item in dataSourceKeyOptions"
+                            :key="item.keyColumn"
+                            :label="item.keyColumn"
+                            :value="item.keyColumn"
+                        >
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-button icon="el-icon-plus" @click="setCellTextDataSourceKey">插入</el-button>&nbsp&nbsp&nbsp
                 <el-form-item label="表">
                     <el-select v-model="textForm.tableId" placeholder="请选择表" filterable @change="handleTableChange">
                         <el-option
@@ -93,7 +105,19 @@
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-button icon="el-icon-plus" @click="setCellText">插入</el-button>
+                <el-form-item label="格式">
+                    <el-select v-model="textForm.formatId" placeholder="请选择格式" filterable>
+                        <el-option
+                            v-for="item in formatOptions"
+                            :key="item.id"
+                            :label="item.label"
+                            :value="item.id"
+                        >
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-button icon="el-icon-plus" @click="setCellTextField">插入</el-button>&nbsp&nbsp&nbsp
+                <span style="color: red">提示：注意要修改行列，不要有空白行列</span>
             </el-form>
             <div id="spreadsheet"></div>
         </div>
@@ -488,8 +512,20 @@ export default {
             fieldOptions: [],
             textForm: {
                 tableId: '',
-                field: ''
-            }
+                field: '',
+                formatId: '',
+                dataSourceKey: ''
+            },
+            formatOptions: [
+                {
+                    id: 0,
+                    label: '无'
+                },{
+                    id: 1,
+                    label: '金额'
+                }
+            ],
+            dataSourceKeyOptions: []
         }
     },
     created() {
@@ -520,6 +556,7 @@ export default {
                     this.workbook = JSON.parse(res.data.data.templateSource)
                 }
                 this.searchTableData = JSON.parse(this.form.searchJson)
+                this.helderChange()
             }
         },
         async queryFormatter() {
@@ -854,11 +891,30 @@ export default {
         handleTableChange(value) {
             this.queryFieldByTableId(value)
         },
-        setCellText() {
+        setCellTextField() {
             if(this.textForm.field) {
-                this.xs.cellText(this.rowIndex, this.colIndex, '{{$value.' + this.textForm.field + '}}', 0)
+                if (this.textForm.formatId === 0){
+                    this.xs.cellText(this.rowIndex, this.colIndex, '{{$value.' + this.textForm.field + '}}', 0)
+                }else {
+                    this.xs.cellText(this.rowIndex, this.colIndex, '{{$value.' + this.textForm.field + '| text \'#,###\'}}', 0)
+                }
                 this.xs.reRender()
             }
+        },
+        setCellTextDataSourceKey() {
+            if (this.textForm.dataSourceKey){
+                this.xs.cellText(this.rowIndex, this.colIndex, '{{each ' + this.textForm.dataSourceKey + '}}', 0)
+            }else {
+                this.xs.cellText(this.rowIndex, this.colIndex, '{{/each}}', 0)
+            }
+            this.xs.reRender()
+        },
+        helderChange(){
+            this.$axios.get('templateEngine/queryKey/'+this.form.dataSource).then(res => {
+                if (res.data.code == 200) {
+                    this.dataSourceKeyOptions = res.data.data
+                }
+            })
         }
     }
 }
