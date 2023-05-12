@@ -5,28 +5,13 @@
 </template>
 <script>
 export default {
-	data() {
-		return {
-			fullScreenUrls: [
-				'/',
-				'/login',
-				'/home',
-				'/flowDesigner',
-				'/simplifyDesign',
-				'/seniorDesign',
-				'/printDesign',
-				'/gaugeSetting',
-				'/doorSetting'
-			]
-		}
-	},
 	watch: {
-		$route(to, from) {
+		$route(to) {
 			let title = to.meta.title
 			if (!title) {
 				title = to.query.title
 			}
-			if (!this.fullScreenUrls.includes(to.path)) {
+			if (to.matched.length > 1) {
 				this.$store.commit('worktabRoute', {
 					to: {
 						name: to.name,
