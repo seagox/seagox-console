@@ -1,10 +1,10 @@
 <template>
     <div>
         <el-container :style="'height:' + (clientHeight - 110) + 'px'">
-            <el-aside width="240px" class="aside" style="padding-left:15px;padding-top:15px">
+            <el-aside width="240px" class="aside" style="padding-left: 15px; padding-top: 15px">
                 <div class="add-classify" @click="showAddRuleDialog">
                     <i class="el-icon-circle-plus"></i>
-                    <span style="margin-left:10px;">添加规则</span>
+                    <span style="margin-left: 10px">添加规则</span>
                 </div>
                 <el-table
                     :data="treeData"
@@ -15,8 +15,8 @@
                 >
                     <el-table-column show-overflow-tooltip>
                         <template slot-scope="scope">
-                            <i class="el-icon-document" style="font-size:14px;"></i>
-                            <span style="font-size:14px;margin-left:8px;">{{ scope.row.name }}</span>
+                            <i class="el-icon-document" style="font-size: 14px"></i>
+                            <span style="font-size: 14px; margin-left: 8px">{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column width="45" align="center">
@@ -94,7 +94,7 @@
                             <el-input v-model="addRuleForm.name" placeholder="请输入名称"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="24">
+                    <el-col :span="12">
                         <el-form-item label="数据模型" prop="dataSource">
                             <el-select v-model="addRuleForm.dataSource" filterable placeholder="请选择数据模型">
                                 <el-option
@@ -105,6 +105,18 @@
                                 >
                                 </el-option>
                             </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="起始行" prop="startLine">
+                            <el-input-number
+                                v-model="addRuleForm.startLine"
+                                :controls="false"
+                                :precision="0"
+                                :min="1"
+                                :max="9999"
+                            >
+                            </el-input-number>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -191,7 +203,7 @@
                             <el-input v-model="editRuleForm.name" placeholder="请输入规则名称"></el-input>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="24">
+                    <el-col :span="12">
                         <el-form-item label="数据模型" prop="dataSource">
                             <el-select v-model="editRuleForm.dataSource" filterable placeholder="请选择数据模型">
                                 <el-option
@@ -202,6 +214,18 @@
                                 >
                                 </el-option>
                             </el-select>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-form-item label="起始行" prop="startLine">
+                            <el-input-number
+                                v-model="editRuleForm.startLine"
+                                :controls="false"
+                                :precision="0"
+                                :min="1"
+                                :max="9999"
+                            >
+                            </el-input-number>
                         </el-form-item>
                     </el-col>
                     <el-col :span="12">
@@ -398,19 +422,14 @@
         <el-dialog title="新增" width="500px" :visible.sync="ruleTypeVisible" :close-on-click-modal="false">
             <el-form :model="ruleTypeForm" label-width="75px" :rules="ruleDetailFormRules" ref="ruleTypeForm">
                 <el-form-item label="规则" prop="ruleTypeId">
-                    <el-select  v-model="ruleTypeForm.ruleTypeId" filterable placeholder="请选择规则">
-                        <el-option
-                            v-for="item in ruleTypes"
-                            :key="item.value"
-                            :label="item.name"
-                            :value="item.value"
-                        >
+                    <el-select v-model="ruleTypeForm.ruleTypeId" filterable placeholder="请选择规则">
+                        <el-option v-for="item in ruleTypes" :key="item.value" :label="item.name" :value="item.value">
                         </el-option>
                     </el-select>
                 </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="ruleTypeSubmit">提交</el-button>
+                <el-button type="primary" @click="ruleTypeSubmit">提交</el-button>
             </div>
         </el-dialog>
     </div>
@@ -420,23 +439,23 @@
 export default {
     data() {
         return {
-          ruleTypeForm:{
-            ruleTypeId:''
-          },
-          ruleTypeVisible:false,
-          ruleTypes: [
-            {name: "不为空", value: '@NotNull(message = "必须不为null")'},
-            {name: "长度", value: '@Length(max = 11,min = 7,message = "长度必须大于等于7或小于等于11")'},
-            {name: "最小值", value: "@Min(0)"},
-            {name: "最大值", value: "@Max(0)"},
-            {name: "小数最小值", value: "@DecimalMin(0.0)"},
-            {name: "小数最大值", value: "@DecimalMax(0.0)"},
-            {name: "指定范围", value: '@Range(max = 80,min = 18,message = "必须大于等于18或小于等于80")'},
-            {name: "正则表达式", value: '@Pattern(regexp = "d{11}",message = "必须为数字，并且长度为11")'},
-            {name: "替换", value: '@Replace("字典")'},
-            {name: "日期", value: '@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")'},
-            {name: "小数", value: "@Decimal"}
-          ],
+            ruleTypeForm: {
+                ruleTypeId: ''
+            },
+            ruleTypeVisible: false,
+            ruleTypes: [
+                { name: '不为空', value: '@NotNull(message = "必须不为null")' },
+                { name: '长度', value: '@Length(max = 11,min = 7,message = "长度必须大于等于7或小于等于11")' },
+                { name: '最小值', value: '@Min(0)' },
+                { name: '最大值', value: '@Max(0)' },
+                { name: '小数最小值', value: '@DecimalMin(0.0)' },
+                { name: '小数最大值', value: '@DecimalMax(0.0)' },
+                { name: '指定范围', value: '@Range(max = 80,min = 18,message = "必须大于等于18或小于等于80")' },
+                { name: '正则表达式', value: '@Pattern(regexp = "d{11}",message = "必须为数字，并且长度为11")' },
+                { name: '替换', value: '@Replace("字典")' },
+                { name: '日期', value: '@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")' },
+                { name: '小数', value: '@Decimal' }
+            ],
             clientHeight: document.documentElement.clientHeight || document.body.clientHeight,
             action: this.$axios.defaults.baseURL + 'upload/putObject/oss',
             headers: {
@@ -582,6 +601,7 @@ export default {
                 code: '',
                 name: '',
                 dataSource: '',
+                startLine: 2,
                 handleRuleId: '',
                 templateSource: [],
                 verifyRuleId: ''
@@ -592,6 +612,7 @@ export default {
                 code: '',
                 name: '',
                 dataSource: '',
+                startLine: 2,
                 handleRuleId: '',
                 templateSource: [],
                 verifyRuleId: ''
@@ -606,6 +627,7 @@ export default {
                     { max: 50, message: '请输入50个以内字符', trigger: 'blur' }
                 ],
                 dataSource: [{ required: true, message: '请选择数据模型', trigger: 'change' }],
+                startLine: [{ required: true, message: '请输入起始行', trigger: 'blur' }],
                 templateSource: [{ required: true, message: '请选择导入模板', trigger: 'change' }]
             },
             ruleId: '',
@@ -657,12 +679,12 @@ export default {
         },
         async queryMetaFunction() {
             let verifyParams = { type: 3 }
-            let verifyRes = await this.$axios.get('metaFunction/queryByCompanyId', {verifyParams})
+            let verifyRes = await this.$axios.get('metaFunction/queryByCompanyId', { verifyParams })
             if (verifyRes.data.code === 200) {
                 this.verifyMetaFunctionOptions = verifyRes.data.data
             }
             let handleParams = { type: 4 }
-            let handleRes = await this.$axios.get('metaFunction/queryByCompanyId', {handleParams})
+            let handleRes = await this.$axios.get('metaFunction/queryByCompanyId', { handleParams })
             if (handleRes.data.code === 200) {
                 this.handleMetaFunctionOptions = handleRes.data.data
             }
@@ -684,6 +706,7 @@ export default {
                 code: this.addRuleForm.code,
                 name: this.addRuleForm.name,
                 dataSource: this.addRuleForm.dataSource,
+                startLine: this.addRuleForm.startLine,
                 handleRuleId: this.addRuleForm.handleRuleId,
                 verifyRuleId: this.addRuleForm.verifyRuleId,
                 templateSource: JSON.stringify(this.addRuleForm.templateSource)
@@ -749,6 +772,7 @@ export default {
                 code: this.editRuleForm.code,
                 name: this.editRuleForm.name,
                 dataSource: this.editRuleForm.dataSource,
+                startLine: this.editRuleForm.startLine,
                 handleRuleId: this.editRuleForm.handleRuleId,
                 verifyRuleId: this.editRuleForm.verifyRuleId,
                 templateSource: JSON.stringify(this.editRuleForm.templateSource)
@@ -938,7 +962,7 @@ export default {
             }
         },
         showAnnotationDialog() {
-          this.ruleTypeVisible=true
+            this.ruleTypeVisible = true
         },
         deleteAnnotationSubmit(index) {
             if (this.addFieldFormVisible) {
@@ -947,7 +971,7 @@ export default {
                 this.editFieldForm.rule.splice(index, 1)
             }
         },
-        ruleTypeSubmit(){
+        ruleTypeSubmit() {
             this.ruleTypeVisible = false
             if (this.addFieldFormVisible) {
                 this.addFieldForm.rule.push({
