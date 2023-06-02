@@ -1,8 +1,20 @@
 <template>
 	<div>
-		<div class="toolView">
-			<el-button type="text" icon="el-icon-plus" @click="showAddDialog" size="small">新增</el-button>
-		</div>
+		<div class="searchView">
+            <el-form label-width="60px">
+                <el-row :gutter="15">
+                    <el-col :span="4">
+                        <el-form-item label="名称">
+                            <el-input v-model="searchForm.name" clearable placeholder="请输入名称"></el-input>
+                        </el-form-item>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-button icon="el-icon-search" @click="handleSearch">查询</el-button>
+                        <el-button type="primary" icon="el-icon-plus" @click="showAddDialog">新增</el-button>
+                    </el-col>
+                </el-row>
+            </el-form>
+        </div>
 		<div class="table">
 			<!--列表-->
 			<el-table :data="tableData" border>
@@ -53,7 +65,7 @@
 			</div>
 		</div>
 		<!--新增界面-->
-		<el-dialog title="新增" width="750px" :visible.sync="addFormVisible" :close-on-click-modal="false">
+		<el-dialog title="新增" width="700px" :visible.sync="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="formRules" ref="addForm">
 				<el-form-item label="名称" prop="name">
 					<el-input v-model="addForm.name" placeholder="请输入名称"></el-input>
@@ -84,7 +96,7 @@
 			</div>
 		</el-dialog>
 		<!--编辑界面-->
-		<el-dialog title="编辑" width="750px" :visible.sync="editFormVisible" :close-on-click-modal="false">
+		<el-dialog title="编辑" width="700px" :visible.sync="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="formRules" ref="editForm">
 				<el-form-item label="名称" prop="name">
 					<el-input v-model="editForm.name" placeholder="请输入名称"></el-input>
@@ -123,6 +135,9 @@ export default {
 			tableData: [],
 			pageNo: 1,
 			total: 0,
+			searchForm: {
+                name: ''
+            },
 			addFormVisible: false,
 			addForm: {
 				name: '',
@@ -163,7 +178,8 @@ export default {
 		},
 		queryByPage() {
 			const params = {
-				pageNo: this.pageNo
+				pageNo: this.pageNo,
+				name: this.searchForm.name
 			}
 			this.$axios.get('job/queryByPage', { params }).then(res => {
 				if (res.data.code == 200) {
@@ -172,6 +188,10 @@ export default {
 				}
 			})
 		},
+		handleSearch() {
+            this.pageNo = 1
+            this.queryByPage()
+        },
 		queryMetaFunction() {
 			const params = {
 				type: 5
