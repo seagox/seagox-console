@@ -261,14 +261,6 @@ const routes = [
                 meta: {
                     title: '导入配置'
                 }
-            },
-            {
-                name: 'model',
-                path: '/model',
-                component: () => import('@/views/sys/model'),
-                meta: {
-                    title: '数据模型'
-                }
             }
         ]
     }

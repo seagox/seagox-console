@@ -17,7 +17,6 @@
                         <el-col :span="6">
                             <el-button icon="el-icon-search" @click="handleSearch">查询</el-button>
                             <el-button type="primary" icon="el-icon-plus" @click="showAddTableDialog">新增</el-button>
-                            <el-button type="primary" @click="goModel">数据模型</el-button>
                         </el-col>
                     </el-row>
                 </el-form>
@@ -667,11 +666,6 @@ export default {
                 query: {
                     viewId: row.id
                 }
-            })
-        },
-        goModel() {
-            this.$router.push({
-                path: '/model'
             })
         },
         showParamAddDialog() {
